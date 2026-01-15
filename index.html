@@ -512,10 +512,6 @@ partial interface MediaStreamTrack {
       <div>
         <pre class="idl" data-cite="HR-TIME">[Exposed=(Window,DedicatedWorker)]
 interface MediaStreamTrackAudioStats {
-  readonly attribute unsigned long long deliveredFrames;
-  readonly attribute DOMHighResTimeStamp deliveredFramesDuration;
-  readonly attribute unsigned long long totalFrames;
-  readonly attribute DOMHighResTimeStamp totalFramesDuration;
   readonly attribute DOMHighResTimeStamp latency;
   readonly attribute DOMHighResTimeStamp averageLatency;
   readonly attribute DOMHighResTimeStamp minimumLatency;
@@ -526,10 +522,13 @@ interface MediaStreamTrackAudioStats {
         </pre>
         <div class="note">
           <p>The following metrics lack Working Group consensus:
-          {{MediaStreamTrackAudioStats/deliveredFrames}},
-          {{MediaStreamTrackAudioStats/deliveredFramesDuration}},
-          {{MediaStreamTrackAudioStats/totalFrames}} and
-          {{MediaStreamTrackAudioStats/totalFramesDuration}}. See <a
+        <pre class="idl" data-cite="HR-TIME">partial interface MediaStreamTrackAudioStats {
+  readonly attribute unsigned long long deliveredFrames;
+  readonly attribute DOMHighResTimeStamp deliveredFramesDuration;
+  readonly attribute unsigned long long totalFrames;
+  readonly attribute DOMHighResTimeStamp totalFramesDuration;
+};
+        </pre>See <a
           href="https://github.com/w3c/mediacapture-extensions/issues/129">Issue
           #129</a>.</p>
         </div>
