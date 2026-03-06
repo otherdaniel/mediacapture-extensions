@@ -2084,5 +2084,142 @@ onmessage = async ({data: {track}}) => {
       </pre>
     </section>
   </section>
+  <section>
+    <h2>The &lt;<a>usermedia</a>&gt; HTML Element</h2>
+
+    <p>The &lt;<dfn element>usermedia</dfn>&gt; HTML element is an [[HTML]]
+    element that can mediate access to a {{MediaStream}}, including handling
+    the required prompts for [=powerful features=].</p>
+
+    <p>The &lt;<a>usermedia</a>&gt; belongs to the [=flow content=],
+      [=phrasing content=], [=interactive content=], and [=palpable content=]
+      <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-categories">categories</a>.
+      In can be used in contexts where [=phrasing content=] is expected.
+      It's content, if any, is its
+      <a href="https://html.spec.whatwg.org/multipage/dom.html#fallback-content">fallback content</a>.
+      It uses the {{ActivationBlockersMixin}} from [[geolocation-element]], to
+      provide protection against programmatic actication.</p>
+
+    <p>The &lt;<a>usermedia</a>&gt; element supports the following
+      <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-attributes">content attributes</a>:</p>
+
+    <dl>
+      <dt><a href="https://html.spec.whatwg.org/multipage/dom.html#global-attributes">global attributes</a></dt>
+      <dd>&mdash; all global content attributes.</dd>
+      <dt><a href="https://wicg.github.io/PEPC/geolocation-element.html#dom-activationblockersmixin-isvalid">isValid</a></dt>
+      <dt><a href="https://wicg.github.io/PEPC/geolocation-element.html#dom-activationblockersmixin-invalidreason">invalidReason</a></dt>
+      <dt><a href="https://wicg.github.io/PEPC/geolocation-element.html#dom-activationblockersmixin-onvalidationstatuschange">onvalidationstatuschange</a></dt>
+      <dd>&mdash; content attributes from {{ActivationBlockersMixin}}</dd>
+      <dt><dfn data-dfn-type=attribute>enabled</dfn></dt>
+      <dd>&mdash; aggregates and reflects the {{MediaStreamTrack}}'s
+        {{MediaStreamTrack/enabled}} attribute.</dd>
+      <dt><dfn data-dfn-type=attribute>autostart</dfn></dt>
+      <dd>&mdash; whether the stream should start automatically (if possible and permissible)</dd>
+      <dt><dfn data-dfn-type=attribute>onstreamready</dfn></dt>
+      <dd>&mdash; event handler which fires when {{HTMLUserMediaElement/stream}}
+        is ready.</dd>
+      <dt><dfn data-dfn-type=attribute>onuserchangedenabled</a></dt>
+      <dd>&mdash; event handler which fires when a user (rather than a script)
+        has changed the enabled state by interacting with the element.</dd>
+    </dl>
+
+    <p>The &lt;<a>usermedia</a>&gt; element uses the following
+      <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-dom">DOM interface</a>:</p>
+
+    <pre class=idl>
+      [Exposed=Window]
+      interface HTMLUserMediaElement : HTMLElement {
+        [HTMLConstructor] constructor();
+
+        readonly attribute MediaStream? stream;
+        attribute boolean enabled;
+
+        [Reflect] attribute boolean autostart;
+        [Reflect] attribute EventHandler onstreamready;
+        [Reflect] attribute EventHandler onuserchangedenabled;
+
+      };
+      HTMLUserMediaElement includes ActivationBlockersMixin;
+    </pre>
+    <p>The &lt;<a>usermedia</a>&gt; element uses the following internal
+      slots:</p>
+
+    <ul>
+      <li><dfn>[&ZeroWidthSpace;[stream]]</dfn> &mdash; Holds null or a {{MediaStream}}.</li>
+    </ul>
+
+    <section>
+      <h3>Algorithms</h3>
+
+      <p>The {{HTMLUserMediaElement}}'s {{HTMLUserMediaElement/constructor()}}
+      steps are:</p>
+      <ol class=algorithm>
+        <li>Set <a>[&ZeroWidthSpace;[stream]]</a> to null.
+      </ol>
+
+      <section>
+        <h4>HTML Integration</h4>
+        <p>The &lt;<a>usermedia</a>&gt; element's [=insertion steps=] are:</p>
+        <ol class=algorithm>
+        </ol>
+
+        <p>The &lt;<a>usermedia</a>&gt; element's
+          [=EventTarget/activation behavior=] are:</p>
+        <ol class=algorithm>
+        </ol>
+      </section>
+
+      <section>
+        <h4>Attributes</h4>
+
+        <p>The {{HTMLUserMediaElement/autostart}},
+          {{HTMLUserMediaElement/onstreamready}}, and
+          {{HTMLUserMediaElement/onuserchangedenabled}} IDL attributes reflect
+          the value of their corresponding
+          <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-attributes">content attributes</a>.
+          The {{HTMLUserMediaElement/stream}} and
+          {{HTMLUserMediaElement/enabled}} attributes are defined in terms of
+          their <a>getter</a> and <a>setter</a> steps.
+        </p>
+
+        <p>The {{HTMLUserMediaElement/stream}} <a>setter</a> steps are:</p>
+        <ol class=algorithm>
+          <li>Set <a>[&ZeroWidthSpace;[stream]]</a> to the new value.
+        </ol>
+
+        <p>The {{HTMLUserMediaElement/stream}} <a>getter</a> steps are:</p>
+        <ol class=algorithm>
+          <li>Return <a>[&ZeroWidthSpace;[stream]]</a>.
+        </ol>
+
+        <p>The {{HTMLUserMediaElement/enabled}} attribute aggregates all of
+          {{HTMLUserMediaElement/stream}}'s {{MediaStreamTrack}}'s
+          {{MediaStreamTrack/enabled}} attributes. It can also be written to
+         in order to set all tracks' attributes together.</p>
+
+        <p>The {{HTMLUserMediaElement/enabled}} <a>getter</a> steps are:</p>
+        <ol class=algorithm>
+          <li>If <a>[&ZeroWidthSpace;[stream]]</a> is null, return false.
+          <li> [=list/iterate|For each=] |track| of
+            <a>[&ZeroWidthSpace;[stream]]</a>.{{MediaStream/getTracks()}}:
+            <ol>
+              <li>If |track|'s {{MediaStreamTrack/enabled}} property is false,
+                  then return false.
+            </ol>
+          <li>Return true.
+        </ol>
+
+        <p>The {{HTMLUserMediaElement/enabled}} <a>setter</a> steps are:</p>
+        <ol class=algorithm>
+          <li>If [&ZeroWidthSpace;[stream]] is null, return.
+          <li>[=list/iterate|For each=] |track| of
+            <a>[&ZeroWidthSpace;[stream]]</a>.{{MediaStream/getTracks()}}:
+            <ol>
+              <li>Set |track|'s {{MediaStreamTrack/enabled}} to |value|.
+            </ol>
+        </ol>
+      </section>
+    </section>
+  </section>
 </body>
 </html>
