@@ -2085,43 +2085,19 @@ onmessage = async ({data: {track}}) => {
     </section>
   </section>
   <section>
-    <h2>The &lt;<a>usermedia</a>&gt; HTML Element</h2>
+    <h2>The &lt;<a>usermedia</a>&gt;, &lt;<a>camera</a>&gt;, and
+      &lt;<a>microphone</a>&gt; media capture HTML elements</h2>
 
-    <p>The &lt;<dfn element>usermedia</dfn>&gt; HTML element is an [[HTML]]
-    element that can mediate access to a {{MediaStream}}, including handling
-    the required prompts for [=powerful features=].</p>
+    <p>The &lt;<dfn element>usermedia</dfn>&gt;,
+    &lt;<dfn element>camera</dfn>&gt;, and &lt;<dfn element>microphone</dfn>&gt;
+    HTML elements are [[HTML]] elements that can mediate access to a
+    {{MediaStream}}, including handling the required [=permission/prompts=]
+    for [=powerful features=].</p>
 
-    <p>The &lt;<a>usermedia</a>&gt; belongs to the [=flow content=],
-      [=phrasing content=], [=interactive content=], and [=palpable content=]
-      <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-categories">categories</a>.
-      In can be used in contexts where [=phrasing content=] is expected.
-      It's content, if any, is its
-      <a href="https://html.spec.whatwg.org/multipage/dom.html#fallback-content">fallback content</a>.
-      It uses the {{ActivationBlockersMixin}} from [[geolocation-element]], to
-      provide protection against programmatic actication.</p>
-
-    <p>The &lt;<a>usermedia</a>&gt; element supports the following
-      <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-attributes">content attributes</a>:</p>
-
-    <dl>
-      <dt><a href="https://html.spec.whatwg.org/multipage/dom.html#global-attributes">global attributes</a></dt>
-      <dd>&mdash; all global content attributes.</dd>
-      <dt><a href="https://wicg.github.io/PEPC/geolocation-element.html#dom-activationblockersmixin-isvalid">isValid</a></dt>
-      <dt><a href="https://wicg.github.io/PEPC/geolocation-element.html#dom-activationblockersmixin-invalidreason">invalidReason</a></dt>
-      <dt><a href="https://wicg.github.io/PEPC/geolocation-element.html#dom-activationblockersmixin-onvalidationstatuschange">onvalidationstatuschange</a></dt>
-      <dd>&mdash; content attributes from {{ActivationBlockersMixin}}</dd>
-      <dt><dfn data-dfn-type=attribute>enabled</dfn></dt>
-      <dd>&mdash; aggregates and reflects the {{MediaStreamTrack}}'s
-        {{MediaStreamTrack/enabled}} attribute.</dd>
-      <dt><dfn data-dfn-type=attribute>autostart</dfn></dt>
-      <dd>&mdash; whether the stream should start automatically (if possible and permissible)</dd>
-      <dt><dfn data-dfn-type=attribute>onstreamready</dfn></dt>
-      <dd>&mdash; event handler which fires when {{HTMLUserMediaElement/stream}}
-        is ready.</dd>
-      <dt><dfn data-dfn-type=attribute>onuserchangedenabled</a></dt>
-      <dd>&mdash; event handler which fires when a user (rather than a script)
-        has changed the enabled state by interacting with the element.</dd>
-    </dl>
+    <p>These three elements cover three different use cases and allow for use
+      case specific user interfaces in the [=user agent=]. Their 
+      <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-attributes">content attributes</a>
+      and IDL are mostly the same.</p>
 
     <p>The &lt;<a>usermedia</a>&gt; element uses the following
       <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-dom">DOM interface</a>:</p>
@@ -2132,21 +2108,123 @@ onmessage = async ({data: {track}}) => {
         [HTMLConstructor] constructor();
 
         readonly attribute MediaStream? stream;
-        attribute boolean enabled;
-
-        [Reflect] attribute boolean autostart;
-        [Reflect] attribute EventHandler onstreamready;
-        [Reflect] attribute EventHandler onuserchangedenabled;
-
+        undefined setConstraints(MediaStreamConstraints constraints);
+        readonly attribute DOMException? error;
       };
       HTMLUserMediaElement includes ActivationBlockersMixin;
+      HTMLUserMediaElement includes HTMLUserMediaElementLegacyMixin;
     </pre>
-    <p>The &lt;<a>usermedia</a>&gt; element uses the following internal
-      slots:</p>
 
+    <p>Note that this temporarily includes the
+      {{HTMLUserMediaElementLegacyMixin}}, which
+      is meant to allow for an easier transition of pre-standard users of these
+      elements.</p>
+
+    <p>The &lt;<a>camera</a>&gt; and &lt;<a>microphone</a>&gt;
+      <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-dom">DOM interfaces</a> are almost the same.
+      The &lt;<a>camera</a>&gt; element uses the following
+      <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-dom">DOM interface</a>:</p>
+
+    <pre class=idl>
+      [Exposed=Window]
+      interface HTMLCameraElement : HTMLElement {
+        [HTMLConstructor] constructor();
+
+        readonly attribute MediaStream? stream;
+        undefined setConstraints(MediaStreamConstraints constraints);
+        readonly attribute DOMException? error;
+      };
+      HTMLCameraElement includes ActivationBlockersMixin;
+    </pre>
+
+    <p>The &lt;<a>microphone</a>&gt; element uses the following
+      <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-dom">DOM interface</a>:</p>
+
+    <pre class=idl>
+      [Exposed=Window]
+      interface HTMLMicrophoneElement : HTMLElement {
+        [HTMLConstructor] constructor();
+
+        readonly attribute MediaStream? stream;
+        undefined setConstraints(MediaStreamConstraints constraints);
+        readonly attribute DOMException? error;
+      };
+      HTMLMicrophoneElement includes ActivationBlockersMixin;
+    </pre>
+
+
+    <p>The &lt;<a element>usermedia</a>&gt;,
+      &lt;<a element>camera</a>&gt;, and &lt;<a element>microphone</a>&gt;
+      elements all use the following internal slot:</p>
     <ul>
       <li><dfn>[&ZeroWidthSpace;[stream]]</dfn> &mdash; Holds null or a {{MediaStream}}.</li>
     </ul>
+
+   <p>The &lt;<a element>usermedia</a>&gt;,
+      &lt;<a element>camera</a>&gt;, and &lt;<a element>microphone</a>&gt;
+      elements belong to the [=flow content=],
+      [=phrasing content=], [=interactive content=], and [=palpable content=]
+      <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-categories">categories</a>.
+      They can be used in contexts where [=phrasing content=] is expected.
+      Their content, if any, are their
+      <a href="https://html.spec.whatwg.org/multipage/dom.html#fallback-content">fallback content</a>.
+      They use the {{ActivationBlockersMixin}} from [[geolocation-element]], to
+      provide protection against programmatic activation.</p>
+
+    <p>The &lt;<a element>usermedia</a>&gt;,
+      &lt;<a element>camera</a>&gt;, and &lt;<a element>microphone</a>&gt;
+      elements all support the following
+      <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-attributes">content attributes</a>:</p>
+
+    <dl>
+      <dt><a href="https://html.spec.whatwg.org/multipage/dom.html#global-attributes">global attributes</a></dt>
+      <dd>&mdash; all global content attributes.</dd>
+      <dt><a href="https://wicg.github.io/PEPC/geolocation-element.html#dom-activationblockersmixin-isvalid">isValid</a></dt>
+      <dt><a href="https://wicg.github.io/PEPC/geolocation-element.html#dom-activationblockersmixin-invalidreason">invalidReason</a></dt>
+      <dt><a href="https://wicg.github.io/PEPC/geolocation-element.html#dom-activationblockersmixin-onvalidationstatuschange">onvalidationstatuschange</a></dt>
+      <dd>&mdash; content attributes from {{ActivationBlockersMixin}}</dd>
+    </dl>
+
+    <section>
+      <h3>&lt;usermedia&gt; legacy support.</h3>
+
+      <p>To ease transition from the current &lt;<a>usermedia</a>&gt; element in
+      Chrome, we support a limited form of the {{HTMLUserMediaElementLegacyMixin/type}}
+      attribute, with values for `audio`, `video`, or both. If this attribute is
+      set, it modifies the behaviour of the &lt;<a>usermedia</a>&gt; element to
+      match the behaviour of any of the elements discussed here. This is a
+      hold-over from the original &lt;<a href="https://wicg.github.io/PEPC/permission-element.html">permission</a>&gt; element design. It is expected
+      that this mixin will not be included in the final standard.</p>
+
+      <pre class=idl>
+      interface mixin HTMLUserMediaElementLegacyMixin {
+        attribute DOMString type;
+        boolean isTypeSupported(DOMString type);
+      };
+      </pre>
+
+      <p>The {{HTMLUserMediaElementLegacyMixin/type}} IDL attribute reflects
+      the `type` content attribute.
+      Depending on {{HTMLUserMediaElementLegacyMixin/type}}, the
+        &lt;<a>usermedia</a>&gt; element changes behaviour:</p>
+      <dl>
+        <dt>`"audio video"`</dt>
+        <dt>`"video audio"`</dt>
+        <dd>&mdash; behaves like a regular &lt;<a>usermedia</a>&gt; element.</dd>
+        <dt>`"audio"`</dt>
+        <dd>&mdash; behaves like an &lt;<a>microphone</a>&gt; element.</dd>
+        <dt>`"video"`</dt>
+        <dd>&mdash; behaves like a &lt;<a>camera</a>&gt; element.</dd>
+        <dt>all other values</dt>
+        <dd>&mdash; behaves like an {{HTMLUnknownElement}}.</dd>
+      </dl>
+
+      <p>The {{HTMLUserMediaElementLegacyMixin/isTypeSupported()}} method can
+        be used to query whether a given type is supported by this element.
+        It will return true if the input string is one of `"audio video"`,
+        `"video audio"`, `"audio"`, or `"video"`, and false in all other cases.
+      </p>
+    </section>
 
     <section>
       <h3>Algorithms</h3>
@@ -2172,51 +2250,9 @@ onmessage = async ({data: {track}}) => {
       <section>
         <h4>Attributes</h4>
 
-        <p>The {{HTMLUserMediaElement/autostart}},
-          {{HTMLUserMediaElement/onstreamready}}, and
-          {{HTMLUserMediaElement/onuserchangedenabled}} IDL attributes reflect
-          the value of their corresponding
-          <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-attributes">content attributes</a>.
-          The {{HTMLUserMediaElement/stream}} and
-          {{HTMLUserMediaElement/enabled}} attributes are defined in terms of
-          their <a>getter</a> and <a>setter</a> steps.
-        </p>
-
-        <p>The {{HTMLUserMediaElement/stream}} <a>setter</a> steps are:</p>
-        <ol class=algorithm>
-          <li>Set <a>[&ZeroWidthSpace;[stream]]</a> to the new value.
-        </ol>
-
         <p>The {{HTMLUserMediaElement/stream}} <a>getter</a> steps are:</p>
         <ol class=algorithm>
           <li>Return <a>[&ZeroWidthSpace;[stream]]</a>.
-        </ol>
-
-        <p>The {{HTMLUserMediaElement/enabled}} attribute aggregates all of
-          {{HTMLUserMediaElement/stream}}'s {{MediaStreamTrack}}'s
-          {{MediaStreamTrack/enabled}} attributes. It can also be written to
-         in order to set all tracks' attributes together.</p>
-
-        <p>The {{HTMLUserMediaElement/enabled}} <a>getter</a> steps are:</p>
-        <ol class=algorithm>
-          <li>If <a>[&ZeroWidthSpace;[stream]]</a> is null, return false.
-          <li> [=list/iterate|For each=] |track| of
-            <a>[&ZeroWidthSpace;[stream]]</a>.{{MediaStream/getTracks()}}:
-            <ol>
-              <li>If |track|'s {{MediaStreamTrack/enabled}} property is false,
-                  then return false.
-            </ol>
-          <li>Return true.
-        </ol>
-
-        <p>The {{HTMLUserMediaElement/enabled}} <a>setter</a> steps are:</p>
-        <ol class=algorithm>
-          <li>If [&ZeroWidthSpace;[stream]] is null, return.
-          <li>[=list/iterate|For each=] |track| of
-            <a>[&ZeroWidthSpace;[stream]]</a>.{{MediaStream/getTracks()}}:
-            <ol>
-              <li>Set |track|'s {{MediaStreamTrack/enabled}} to |value|.
-            </ol>
         </ol>
       </section>
     </section>
