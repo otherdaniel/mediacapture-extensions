@@ -9,7 +9,7 @@
   // See https://github.com/w3c/respec/wiki/ for how to configure ReSpec
   var respecConfig = {
     group: "webrtc",
-    xref: ["geometry-1", "html", "infra", "permissions", "dom", "hr-time", "image-capture", "mediacapture-streams", "screen-capture", "webaudio", "webcodecs", "webidl", "ECMAScript"],
+    xref: ["geometry-1", "html", "infra", "permissions", "dom", "hr-time", "image-capture", "mediacapture-streams", "screen-capture", "webaudio", "webcodecs", "webidl", "ECMAScript", "geolocation-element"],
     edDraftURI: "https://w3c.github.io/mediacapture-extensions/",
     editors:  [
       {name: "Jan-Ivar Bruaroey", company: "Mozilla Corporation", w3cid: 79152},
@@ -2112,13 +2112,7 @@ onmessage = async ({data: {track}}) => {
         readonly attribute DOMException? error;
       };
       HTMLUserMediaElement includes ActivationBlockersMixin;
-      HTMLUserMediaElement includes HTMLUserMediaElementLegacyMixin;
     </pre>
-
-    <p>Note that this temporarily includes the
-      {{HTMLUserMediaElementLegacyMixin}}, which
-      is meant to allow for an easier transition of pre-standard users of these
-      elements.</p>
 
     <p>The &lt;<a>camera</a>&gt; and &lt;<a>microphone</a>&gt;
       <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-dom">DOM interfaces</a> are almost the same.
@@ -2157,7 +2151,12 @@ onmessage = async ({data: {track}}) => {
       &lt;<a element>camera</a>&gt;, and &lt;<a element>microphone</a>&gt;
       elements all use the following internal slot:</p>
     <ul>
-      <li><dfn>[&ZeroWidthSpace;[stream]]</dfn> &mdash; Holds null or a {{MediaStream}}.</li>
+      <li><dfn data-dfn-for=HTMLUserMediaElement>[[\stream]]</dfn>
+        &mdash; Holds null or a {{MediaStream}}.</li>
+      <li><dfn data-dfn-for=HTMLUserMediaElement>[[\constraints]]</dfn>
+        &mdash; Holds a {{MediaStreamConstraints}}.</li>
+      <li><dfn data-dfn-for=HTMLUserMediaElement>[[\error]]</dfn>
+        &mdash; Holds an {{DOMException}} instance or null.</li>
     </ul>
 
    <p>The &lt;<a element>usermedia</a>&gt;,
@@ -2185,6 +2184,200 @@ onmessage = async ({data: {track}}) => {
       <dd>&mdash; content attributes from {{ActivationBlockersMixin}}</dd>
     </dl>
 
+
+    <section>
+      <h3>Algorithms</h3>
+
+      <p>The {{HTMLUserMediaElement}}, {{HTMLCameraElement}}, and
+        {{HTMLMicrophoneElement}} all use the same constructor steps. Their
+        {{HTMLUserMediaElement/constructor()}} steps are:</p>
+      <ol class=algorithm>
+        <li>Run {{ActivationBlockersMixin}}'s
+          [=ActivationBlockersMixin/initialization steps=].</li>
+        <li>Initialize {{HTMLUserMediaElement/[[stream]]}} to null.</li>
+        <li>Initialize {{HTMLUserMediaElement/[[error]]}} to null.</li>
+        <li>Initialize {{HTMLUserMediaElement/[[constraints]]}} to [=this=]'s
+          [=HTMLUserMediaElement/default constraints=].</li>
+      </ol>
+
+      <p>The &lt;<a>usermedia</a>&gt; element's [=insertion steps=] are:</p>
+      <ol class=algorithm>
+        <li>Run {{ActivationBlockersMixin}}'s
+          [=ActivationBlockersMixin/insertion steps=].</li>
+      </ol>
+
+      <p>The &lt;<a>usermedia</a>&gt; element's [=removing steps=] are:</p>
+      <ol class=algorithm>
+        <li>Run {{ActivationBlockersMixin}}'s
+          [=ActivationBlockersMixin/removing steps=].</li>
+      </ol>
+
+      <p>The {{HTMLUserMediaElement/stream}} <a>getter</a> steps are:</p>
+      <ol class=algorithm>
+        <li>Return {{HTMLUserMediaElement/[[stream]]}}.</li>
+      </ol>
+
+      <p>The {{HTMLUserMediaElement/setConstraints()}} steps for an |element| and
+      a parameter |constraints| steps:</p>
+      <ol class=algorithm>
+        <li>Set {{HTMLUserMediaElement/[[constraints]]}} to the result of
+          [=HTMLUserMediaElement/constraint filter=] for |element|
+          and |constraints|.</li>
+      </ol>
+
+      <p>The {{HTMLUserMediaElement/error}} <a>getter</a> steps are:</p>
+      <ol class=algorithm>
+        <li>Return {{HTMLUserMediaElement/[[error]]}}.
+      </ol>
+
+      <p>The &lt;<a>usermedia</a>&gt;, &lt;<a>camera</a>&gt;, and
+        &lt;<a>microphone</a>&gt;
+        <dfn for=HTMLUserMediaElement>permission name</dfn> are:</p>
+      <table class="simple">
+        <thead>
+          <tr>
+            <th>Element type</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>&lt;<a>usermedia</a>&gt;</th>
+            <td>The [=string/concatenate|concatentation=] of
+              &laquo; [=/"camera"=], " ", [=/"microphone"=] &raquo;.</td>
+          </tr>
+          <tr>
+            <th>&lt;<a>camera</a>&gt;</th>
+            <td>[=/"camera"=]</td>
+          </tr>
+          <tr>
+            <th>&lt;<a>microphone</a>&gt;</th>
+            <td>[=/"microphone"=]</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>The &lt;<a>usermedia</a>&gt;, &lt;<a>camera</a>&gt;, and
+        &lt;<a>microphone</a>&gt;
+        <dfn for=HTMLUserMediaElement>default constraints</dfn> are:</p>
+      <table class="simple">
+        <thead>
+          <tr>
+            <th>Element type</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>&lt;<a>usermedia</a>&gt;</th>
+            <td>&laquo;[
+              {{MediaStreamConstraints/video}} &rarr; true,
+              {{MediaStreamConstraints/audio}} &rarr; true
+              ]&raquo;</td>
+          </tr>
+          <tr>
+            <th>&lt;<a>camera</a>&gt;</th>
+            <td>&laquo;[
+              {{MediaStreamConstraints/video}} &rarr; true,
+              {{MediaStreamConstraints/audio}} &rarr; false
+              ]&raquo;</td>
+          </tr>
+          <tr>
+            <th>&lt;<a>microphone</a>&gt;</th>
+            <td>&laquo;[
+              {{MediaStreamConstraints/video}} &rarr; false,
+              {{MediaStreamConstraints/audio}} &rarr; true
+              ]&raquo;</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>The &lt;<a>usermedia</a>&gt; |element|'s
+        [=EventTarget/activation behavior=] is:</p>
+      <ol class=algorithm>
+        <li>If |element|.{{ActivationBlockersMixin/isValid}} is false,
+          then return.</li>
+        <li>If {{HTMLUserMediaElement/[[stream]]}} is null, run
+          [=HTMLUserMediaElement/activation initial=] steps.</li>
+        <li>Otherwise, run [=HTMLUserMediaElement/activation second=] steps.</li>
+      </ol>
+
+      <p>The <dfn for=HTMLUserMediaElement>activation initial</dfn> steps
+        are:</p>
+      <ol class=algorithm>
+        <li>[=Assert=]: |element|.{{ActivationBlockersMixin/isValid}}.</li>
+        <li>[=Assert=]: {{HTMLUserMediaElement/[[stream]]}} is null.</li>
+        <li>Let |permissionName| be |element|'s [=permission name=].</li>
+        <li>Let |descriptor| be a new {{PermissionDescriptor}} with value
+          &laquo;[ {{PermissionDescriptor/name}} &rarr; |permissionName|
+          ]&raquo;.</li>
+        <li>Let |permissionState| be the result of
+          [=request permission to use=] the [=powerful features=]
+          described by |descriptor| with allowMultiple set to false.</li>
+        <li>If |permissionState| is not {{PermissionState/"granted"}}:</li>
+          <ol>
+            <li>Set {{HTMLUserMediaElement/[[stream]]}} to null.</li>
+            <li>Set {{HTMLUserMediaElement/[[error]]}} to null.</li>
+            <li>Return.</li>
+          </ol>
+        <li>Let |contraints| be {{HTMLUserMediaElement/[[constraints]]}}.</li>
+        <li>Let |mediaPromise| be the result of calling
+          {{MediaDevices/getUserMedia()}} with |constraints| as its first
+          argument.</li>
+        <li>[=promise/React=] to |mediaPromise|:
+          <ol>
+            <li>If |mediaPromise| was fulfilled with value |v|:</li>
+              <ol>
+                <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
+                <li>Set {{HTMLUserMediaElement/[[stream]]}} to |v|.</li>
+                <li>Set {{HTMLUserMediaElement/[[error]]}} to null.</li>
+              </ol>
+            <li>else:
+              <ol>
+                <li>[=Assert=]: |mediaPromise| was rejected with reason |r|.</li>
+                <li>[=Assert=]: |r| is a |DOMException|.</li>
+                <li>Set {{HTMLUserMediaElement/[[stream]]}} to null.</li>
+                <li>Set {{HTMLUserMediaElement/[[error]]}} to |r|.</li>
+              </ol>
+            </li>
+          </ol>
+        </li>
+      </ol>
+
+      <p>The <dfn for=HTMLUserMediaElement>activation second</dfn> steps
+        are:</p>
+      <ol class=algorithm>
+        <li>[=Assert=]: |element|.{{ActivationBlockersMixin/isValid}}.</li>
+        <li>[=Assert=]: {{HTMLUserMediaElement/[[stream]]}} is a
+          {{MediaStream}}.</li>
+        <li>TODO: We ought to do something here, too.
+      </ol>
+
+      <p>The <dfn for=HTMLUserMediaElement>constraint filter</dfn> steps
+      for an |element| and {{MediaStreamConstraints}} |constraints| are:</p>
+      <ol class=algorithm>
+        <li>Let |result| be a new [=dictionary=].
+        <li>If |element| is a {{HTMLUserMediaElement}},
+          set |result| to &laquo;[
+          {{MediaStreamConstraints/audio}} &rarr; |constraints|[{{MediaStreamConstraints/audio}}],
+          {{MediaStreamConstraints/video}} &rarr; |constraints|[{{MediaStreamConstraints/video}}]
+          ]&raquo;.</li>
+        <li>Otherwise, if |element| is a {{HTMLMicrophoneElement}},
+          set |result| to &laquo;[
+          {{MediaStreamConstraints/audio}} &rarr; |constraints|[{{MediaStreamConstraints/audio}}],
+          {{MediaStreamConstraints/video}} &rarr; false
+          ]&raquo;.</li>
+        <li>Otherwise, if |element| is a {{HTMLCameraElement}},
+          set |result| to &laquo;[
+          {{MediaStreamConstraints/audio}} &rarr; false,
+          {{MediaStreamConstraints/video}} &rarr; |constraints|[{{MediaStreamConstraints/video}}]
+          ]&raquo;.</li>
+        <li>TODO: |results| should have additional filtering to support a
+          reasonable, easy-to-use subset of all the constraints allowed for
+          the getUserMedia call.</li>
+        <li>Return |result|.
+      </ol>
+
+    </section>
     <section>
       <h3>&lt;usermedia&gt; legacy support.</h3>
 
@@ -2201,6 +2394,7 @@ onmessage = async ({data: {track}}) => {
         attribute DOMString type;
         boolean isTypeSupported(DOMString type);
       };
+      HTMLUserMediaElement includes HTMLUserMediaElementLegacyMixin;
       </pre>
 
       <p>The {{HTMLUserMediaElementLegacyMixin/type}} IDL attribute reflects
@@ -2224,37 +2418,6 @@ onmessage = async ({data: {track}}) => {
         It will return true if the input string is one of `"audio video"`,
         `"video audio"`, `"audio"`, or `"video"`, and false in all other cases.
       </p>
-    </section>
-
-    <section>
-      <h3>Algorithms</h3>
-
-      <p>The {{HTMLUserMediaElement}}'s {{HTMLUserMediaElement/constructor()}}
-      steps are:</p>
-      <ol class=algorithm>
-        <li>Set <a>[&ZeroWidthSpace;[stream]]</a> to null.
-      </ol>
-
-      <section>
-        <h4>HTML Integration</h4>
-        <p>The &lt;<a>usermedia</a>&gt; element's [=insertion steps=] are:</p>
-        <ol class=algorithm>
-        </ol>
-
-        <p>The &lt;<a>usermedia</a>&gt; element's
-          [=EventTarget/activation behavior=] are:</p>
-        <ol class=algorithm>
-        </ol>
-      </section>
-
-      <section>
-        <h4>Attributes</h4>
-
-        <p>The {{HTMLUserMediaElement/stream}} <a>getter</a> steps are:</p>
-        <ol class=algorithm>
-          <li>Return <a>[&ZeroWidthSpace;[stream]]</a>.
-        </ol>
-      </section>
     </section>
   </section>
 </body>
