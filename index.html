@@ -1469,7 +1469,7 @@ partial dictionary MediaTrackCapabilities {
 };
         </pre>
         </p>
-      <h4>Processing considerations</h4>
+      <h3>Processing considerations</h3>
       <p>
         When the "voiceIsolation" setting is set to <code>true</code> by the
         <a>ApplyConstraints algorithm</a>, the UA
@@ -2091,8 +2091,8 @@ onmessage = async ({data: {track}}) => {
       &lt;<a>microphone</a>&gt; media capture HTML elements
     </h2>
     <p>
-      The &lt;<dfn element>usermedia</dfn>&gt;, &lt;<dfn element>camera</dfn>&gt;,
-      and &lt;<dfn element>microphone</dfn>&gt; HTML elements are [[HTML]]
+      The &lt;<dfn data-dfn-type="element">usermedia</dfn>&gt;, &lt;<dfn data-dfn-type="element">camera</dfn>&gt;,
+      and &lt;<dfn data-dfn-type="element">microphone</dfn>&gt; HTML elements are [[HTML]]
       elements that can mediate access to a {{MediaStream}}, including handling
       the required [=permission/prompts=] for [=powerful features=].
     </p>
@@ -2278,7 +2278,7 @@ onmessage = async ({data: {track}}) => {
 
       <p>
         The &lt;<a>usermedia</a>&gt;, &lt;<a>camera</a>&gt;, and
-        &lt;<a>microphone</a>&gt; <dfn for=HTMLUserMediaElement>permission name</dfn>
+        &lt;<a>microphone</a>&gt; <dfn data-dfn-for="HTMLUserMediaElement">permission name</dfn>
         are:
       </p>
       <table class="simple">
@@ -2310,7 +2310,7 @@ onmessage = async ({data: {track}}) => {
       <p>
         The &lt;<a>usermedia</a>&gt;, &lt;<a>camera</a>&gt;, and
         &lt;<a>microphone</a>&gt;
-        <dfn for=HTMLUserMediaElement>default constraints</dfn> are:
+        <dfn data-dfn-for="HTMLUserMediaElement">default constraints</dfn> are:
       </p>
       <table class="simple">
         <thead>
@@ -2364,11 +2364,11 @@ onmessage = async ({data: {track}}) => {
         </li>
       </ol>
 
-      <p>The <dfn for=HTMLUserMediaElement>activation initial</dfn> steps are:</p>
+      <p>The <dfn data-dfn-for="HTMLUserMediaElement">activation initial</dfn> steps are:</p>
       <ol class=algorithm>
         <li>[=Assert=]: |element|.{{ActivationBlockersMixin/isValid}}.</li>
         <li>[=Assert=]: {{HTMLUserMediaElement/[[stream]]}} is null.</li>
-        <li>Let |permissionName| be |element|'s [=permission name=].</li>
+        <li>Let |permissionName| be |element|'s [=HTMLUserMediaElement/permission name=].</li>
         <li>
           Let |descriptor| be a new {{PermissionDescriptor}} with value
           &laquo;[ {{PermissionDescriptor/name}} &rarr; |permissionName| ]&raquo;.
@@ -2378,12 +2378,13 @@ onmessage = async ({data: {track}}) => {
           the [=powerful features=] described by |descriptor| with
           allowMultiple set to false.
         </li>
-        <li>If |permissionState| is not {{PermissionState/"granted"}}:</li>
-        <ol>
-          <li>Set {{HTMLUserMediaElement/[[stream]]}} to null.</li>
-          <li>Set {{HTMLUserMediaElement/[[error]]}} to null.</li>
-          <li>Return.</li>
-        </ol>
+        <li>If |permissionState| is not {{PermissionState/"granted"}}:
+          <ol>
+            <li>Set {{HTMLUserMediaElement/[[stream]]}} to null.</li>
+            <li>Set {{HTMLUserMediaElement/[[error]]}} to null.</li>
+            <li>Return.</li>
+          </ol>
+        </li>
         <li>Let |contraints| be {{HTMLUserMediaElement/[[constraints]]}}.</li>
         <li>
           Let |mediaPromise| be the result of calling
@@ -2393,14 +2394,15 @@ onmessage = async ({data: {track}}) => {
         <li>
           [=promise/React=] to |mediaPromise|:
           <ol>
-            <li>If |mediaPromise| was fulfilled with value |v|:</li>
-            <ol>
-              <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
-              <li>Set {{HTMLUserMediaElement/[[stream]]}} to |v|.</li>
-              <li>Set {{HTMLUserMediaElement/[[error]]}} to null.</li>
-              <li>Run the [=HTMLUserMediaElement/track monitor=] steps on |element|.</li>
-              <li>[=Fire an event=] named `stream` at |element|.</li>
-            </ol>
+            <li>If |mediaPromise| was fulfilled with value |v|:
+              <ol>
+                <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
+                <li>Set {{HTMLUserMediaElement/[[stream]]}} to |v|.</li>
+                <li>Set {{HTMLUserMediaElement/[[error]]}} to null.</li>
+                <li>Run the [=HTMLUserMediaElement/track monitor=] steps on |element|.</li>
+                <li>[=Fire an event=] named `stream` at |element|.</li>
+              </ol>
+            </li>
             <li>
               else:
               <ol>
@@ -2415,7 +2417,7 @@ onmessage = async ({data: {track}}) => {
         </li>
       </ol>
 
-      <p>The <dfn for=HTMLUserMediaElement>activation second</dfn> steps are:</p>
+      <p>The <dfn data-dfn-for="HTMLUserMediaElement">activation second</dfn> steps are:</p>
       <ol class=algorithm>
         <li>[=Assert=]: |element|.{{ActivationBlockersMixin/isValid}}.</li>
         <li>[=Assert=]: {{HTMLUserMediaElement/[[stream]]}} is a {{MediaStream}}.</li>
@@ -2431,7 +2433,7 @@ onmessage = async ({data: {track}}) => {
         </li>
       </ol>
 
-      <p>The <dfn for=HTMLUserMediaElement>track monitor</dfn> steps are:</p>
+      <p>The <dfn data-dfn-for="HTMLUserMediaElement">track monitor</dfn> steps are:</p>
       <ol class=algorithm>
         <li>[=Assert=]: {{HTMLUserMediaElement/[[stream]]}} is a {{MediaStream}}.</li>
         <li>
@@ -2454,7 +2456,7 @@ onmessage = async ({data: {track}}) => {
       </ol>
 
       <p>
-        The <dfn for=HTMLUserMediaElement>constraint filter</dfn> steps for an
+        The <dfn data-dfn-for="HTMLUserMediaElement">constraint filter</dfn> steps for an
         |element| and {{MediaStreamConstraints}} |constraints| are:
       </p>
       <ol class=algorithm>
