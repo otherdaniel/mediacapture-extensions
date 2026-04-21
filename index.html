@@ -1233,7 +1233,7 @@ partial dictionary VideoFrameMetadata {
       When the <dfn class="abstract-op">Initialize Video Frame Timestamps From Internal MediaStreamTrack Video Frame</dfn>
       algorithm is invoked with |frame| and |offset| as input, run the following steps.
       <ol class=algorithm>
-        <li>Set {{VideoFrame/timestamp}} from [=presentation timestamp=] minus |offset|.</li>
+          <li>Set {{VideoFrame/timestamp}} from [=presentation timestamp=] minus |offset|.</li>
         <li>Set {{VideoFrameMetadata/captureTime}} from [=capture timestamp=] if set.</li>
         <li>Set {{VideoFrameMetadata/receiveTime}} from [=receive timestamp=] if set.</li>
         <li>Set {{VideoFrameMetadata/rtpTimestamp}} from [=RTP timestamp=] if set.</li>
@@ -1241,7 +1241,7 @@ partial dictionary VideoFrameMetadata {
       When the <dfn class="abstract-op">Copy Video Frame Timestamps To Internal MediaStreamTrack Video Frame</dfn>
       algorithm runs with |frame| as input, run the following steps.
       <ol class=algorithm>
-        <li>Set [=presentation timestamp=] from {{VideoFrame/timestamp}}.</li>
+          <li>Set [=presentation timestamp=] from {{VideoFrame/timestamp}}.</li>
         <li>Set [=capture timestamp=] from {{VideoFrameMetadata/captureTime}} if [=map/exist|present=].</li>
         <li>Set [=receive timestamp=] from {{VideoFrameMetadata/receiveTime}} if [=map/exist|present=].</li>
         <li>Set [=RTP timestamp=] from {{VideoFrameMetadata/rtpTimestamp}} if [=map/exist|present=].</li>
@@ -2086,401 +2086,711 @@ onmessage = async ({data: {track}}) => {
   </section>
 
   <section>
-    <h2>
-      The &lt;<a>usermedia</a>&gt;, &lt;<a>camera</a>&gt;, and
-      &lt;<a>microphone</a>&gt; media capture HTML elements
-    </h2>
+    <h2>Media capture HTML elements</h2>
     <p>
-      The &lt;<dfn data-dfn-type="element">usermedia</dfn>&gt;, &lt;<dfn data-dfn-type="element">camera</dfn>&gt;,
-      and &lt;<dfn data-dfn-type="element">microphone</dfn>&gt; HTML elements are [[HTML]]
-      elements that can mediate access to a {{MediaStream}}, including handling
-      the required [=permission/prompts=] for [=powerful features=].
+      The following are [[HTML]] elements that let the user turn on camera and/or microphone, including handling the required [=permission/prompts=] for [=powerful features=].
     </p>
     <p>
-      These three elements cover three different use cases and allow for use
-      case specific user interfaces in the [=user agent=]. Their
-      <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-attributes">content attributes</a>
-      and IDL are mostly the same.
+      They cover different use cases and allow for use case specific user interfaces in the [=user agent=].
     </p>
-    <p>
-      The &lt;<a>usermedia</a>&gt; element uses the following
-      <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-dom">DOM interface</a>:
-    </p>
-    <pre class=idl>
+
+    <section>
+      <h3>The &lt;<a>camera</a>&gt; HTML element</h3>
+      <p>
+        The &lt;<dfn data-dfn-type="element">camera</dfn>&gt; HTML element is an [[HTML]]
+        element that can mediate access to a camera's video {{MediaStreamTrack}}, including handling
+        the required [=permission/prompts=] for [=powerful features=].
+      </p>
+      <p>
+        The &lt;<a>camera</a>&gt; element uses the following
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-dom">DOM interface</a>:
+      </p>
+      <pre class=idl>
+      [Exposed=Window]
+      interface HTMLCameraElement : HTMLElement {
+        [HTMLConstructor] constructor();
+
+        readonly attribute MediaStreamTrack? track;
+        undefined setConstraints(optional MediaTrackConstraintSet constraints = {});
+        readonly attribute any error;
+
+        attribute boolean autostart;
+
+        attribute EventHandler onstream;
+        attribute EventHandler ontrackchange;
+      };
+      </pre>
+
+      <p>The &lt;<a>camera</a>&gt; element uses the following internal slots:</p>
+      <ul>
+        <li>
+          <dfn data-dfn-for="HTMLCameraElement">[[\track]]</dfn> &mdash;
+          Holds null or a {{MediaStreamTrack}}.
+        </li>
+        <li>
+          <dfn data-dfn-for="HTMLCameraElement">[[\constraints]]</dfn> &mdash;
+          Holds a {{MediaTrackConstraintSet}}.
+        </li>
+        <li>
+          <dfn data-dfn-for="HTMLCameraElement">[[\error]]</dfn> &mdash;
+          Holds a {{DOMException}} or null.
+        </li>
+      </ul>
+
+      <p>
+        The &lt;<a>camera</a>&gt; element belongs to the [=flow content=],
+        [=phrasing content=], [=interactive content=], and [=palpable content=]
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-categories">categories</a>.
+        It can be used in contexts where [=phrasing content=] is expected. Its
+        content, if any, is its
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#fallback-content">fallback content</a>.
+      </p>
+
+      <p>
+        The &lt;<a>camera</a>&gt; element supports the following
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-attributes">content attributes</a>:
+      </p>
+      <dl>
+        <dt>
+          <a href="https://html.spec.whatwg.org/multipage/dom.html#global-attributes">global attributes</a>
+        </dt>
+        <dd>&mdash; all global content attributes.</dd>
+        <dt>
+          <dfn data-dfn-for="HTMLCameraElement">autostart</dfn>
+        </dt>
+        <dd>&mdash; A boolean attribute indicating whether to try to start the stream automatically as the element is added to the DOM and rendered.</dd>
+
+      </dl>
+
+      <section>
+        <h4>Algorithms</h4>
+
+        <p>
+          The {{HTMLCameraElement/constructor()}} steps are:
+        </p>
+        <ol class=algorithm>
+          <li>Initialize {{HTMLCameraElement/[[track]]}} to null.</li>
+          <li>Initialize {{HTMLCameraElement/[[error]]}} to null.</li>
+          <li>Initialize {{HTMLCameraElement/[[constraints]]}} to [=this=]'s [=HTMLCameraElement/default constraints=].</li>
+        </ol>
+
+        <p>The &lt;<a>camera</a>&gt; element's [=insertion steps=], given |element|, are:</p>
+        <ol class=algorithm>
+          <li>
+            If |element| has an {{HTMLCameraElement/autostart}} attribute, and {{HTMLCameraElement/[[track]]}} is null,
+            run the [=HTMLCameraElement/activation initial=] steps on |element|.
+          </li>
+        </ol>
+
+        <p>The {{HTMLCameraElement/track}} <a>getter</a> steps are:</p>
+        <ol class=algorithm>
+          <li>Return {{HTMLCameraElement/[[track]]}}.</li>
+        </ol>
+
+        <p>
+          The {{HTMLCameraElement/setConstraints()}} steps for an |element| and
+          an optional |constraints| parameter are:
+        </p>
+        <ol class=algorithm>
+          <li>
+            Set {{HTMLCameraElement/[[constraints]]}} to the result of
+            [=HTMLCameraElement/constraint filter=] for |element| and
+            |constraints|.
+          </li>
+        </ol>
+
+        <p>The {{HTMLCameraElement/error}} <a>getter</a> steps are:</p>
+        <ol class=algorithm>
+          <li>Return {{HTMLCameraElement/[[error]]}}.</li>
+        </ol>
+
+        <p>
+          The &lt;<a>camera</a>&gt; <dfn data-dfn-for="HTMLCameraElement">permission name</dfn>
+          is: [=/"camera"=].
+        </p>
+
+        <p>
+          The &lt;<a>camera</a>&gt;
+          <dfn data-dfn-for="HTMLCameraElement">default constraints</dfn> are:
+          &laquo;[ ]&raquo;.
+        </p>
+
+        <p>
+          The &lt;<a>camera</a>&gt; element's [=EventTarget/activation behavior=],
+          given |element|, is:
+        </p>
+        <ol class=algorithm>
+          <li>
+            If {{HTMLCameraElement/[[track]]}} is null, run
+            [=HTMLCameraElement/activation initial=] steps.
+          </li>
+          <li>
+            Otherwise, run [=HTMLCameraElement/activation second=] steps.
+          </li>
+        </ol>
+
+        <p>The <dfn data-dfn-for="HTMLCameraElement">activation initial</dfn> steps are:</p>
+        <ol class=algorithm>
+          <li>[=Assert=]: {{HTMLCameraElement/[[track]]}} is null.</li>
+          <li>Let |permissionName| be |element|'s [=HTMLCameraElement/permission name=].</li>
+          <li>
+            Let |descriptor| be a new {{PermissionDescriptor}} with value
+            &laquo;[ {{PermissionDescriptor/name}} &rarr; |permissionName| ]&raquo;.
+          </li>
+          <li>
+            Let |permissionState| be the result of [=request permission to use=]
+            the [=powerful features=] described by |descriptor| with
+            allowMultiple set to false.
+          </li>
+          <li>If |permissionState| is not {{PermissionState/"granted"}}:
+            <ol>
+              <li>Set {{HTMLCameraElement/[[track]]}} to null.</li>
+              <li>Set {{HTMLCameraElement/[[error]]}} to null.</li>
+              <li>Return.</li>
+            </ol>
+          </li>
+          <li>Let |constraints| be {{HTMLCameraElement/[[constraints]]}}.</li>
+          <li>
+            Let |filteredConstraints| be the result of [=HTMLCameraElement/constraint filter=] for |element| and |constraints|.
+          </li>
+          <li>
+            Let |mediaPromise| be the result of calling
+            {{MediaDevices/getUserMedia()}} with |filteredConstraints| as its first
+            argument.
+          </li>
+          <li>
+            [=promise/React=] to |mediaPromise|:
+            <ol>
+              <li>If |mediaPromise| was fulfilled with value |v|:
+                <ol>
+                  <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
+                  <li>Let |tracks| be the result of calling {{MediaStream/getVideoTracks()}} on |v|.</li>
+                  <li>If |tracks| is empty, set {{HTMLCameraElement/[[track]]}} to null. Otherwise, set {{HTMLCameraElement/[[track]]}} to |tracks|[0].</li>
+                  <li>Set {{HTMLCameraElement/[[error]]}} to null.</li>
+                  <li>Run the [=HTMLCameraElement/track monitor=] steps on |element|.</li>
+                  <li>[=Fire an event=] named `stream` at |element|.</li>
+                </ol>
+              </li>
+              <li>
+                else:
+                <ol>
+                  <li>[=Assert=]: |mediaPromise| was rejected with reason |r|.</li>
+                  <li>[=Assert=]: |r| is a |DOMException|.</li>
+                  <li>Set {{HTMLCameraElement/[[track]]}} to null.</li>
+                  <li>Set {{HTMLCameraElement/[[error]]}} to |r|.</li>
+                  <li>[=Fire an event=] named `stream` at |element|.</li>
+                </ol>
+              </li>
+            </ol>
+          </li>
+        </ol>
+
+        <p>The <dfn data-dfn-for="HTMLCameraElement">activation second</dfn> steps are:</p>
+        <ol class=algorithm>
+          <li>[=Assert=]: {{HTMLCameraElement/[[track]]}} is a {{MediaStreamTrack}}.</li>
+          <li>
+            Set {{HTMLCameraElement/[[track]]}}.{{MediaStreamTrack/enabled}} to the negation of
+            {{HTMLCameraElement/[[track]]}}.{{MediaStreamTrack/enabled}}.
+          </li>
+        </ol>
+
+        <p>The <dfn data-dfn-for="HTMLCameraElement">track monitor</dfn> steps are:</p>
+        <ol class=algorithm>
+          <li>[=Assert=]: {{HTMLCameraElement/[[track]]}} is a {{MediaStreamTrack}}.</li>
+          <li>
+            The user agent MUST monitor the {{HTMLCameraElement/[[track]]}}'s
+            {{MediaStreamTrack/readyState}} (specifically for
+            terminations triggered by {{MediaStreamTrack/stop()}}), its
+            {{MediaStreamTrack/enabled}} state, and its
+            {{MediaStreamTrack/muted}} state.
+          </li>
+          <li>
+            When the state of the monitored {{HTMLCameraElement/[[track]]}} changes, the user agent MUST update the |element|'s
+            internal UI to reflect the active, muted, or ended state of the track, and [=Fire an event=] named `trackchange` at |element|.
+          </li>
+          <li>
+            If {{HTMLCameraElement/[[track]]}}.{{MediaStreamTrack/readyState}} becomes `"ended"`, the user agent MUST
+            set {{HTMLCameraElement/[[track]]}} to null and reset the |element|'s
+            internal UI to its initial request state.
+          </li>
+        </ol>
+
+        <p>
+          The <dfn data-dfn-for="HTMLCameraElement">constraint filter</dfn> steps for an
+          |element| and a {{MediaTrackConstraintSet}} |constraints| are:
+        </p>
+        <ol class=algorithm>
+          <li>Let |result| be a new {{MediaStreamConstraints}} [=dictionary=].</li>
+          <li>Set |result|["audio"] to false.</li>
+          <li>Set |result|["video"] to a copy of |constraints|.</li>
+          <li>Remove any <a data-cite="mediacapture-streams#dfn-required-constraints">required constraints</a> from |result|["video"].</li>
+          <li>Return |result|.</li>
+        </ol>
+      </section>
+    </section>
+
+    <section>
+      <h3>The &lt;<a>microphone</a>&gt; HTML element</h3>
+      <p>
+        The &lt;<dfn data-dfn-type="element">microphone</dfn>&gt; HTML element is an [[HTML]]
+        element that can mediate access to a microphone's audio {{MediaStreamTrack}}, including handling
+        the required [=permission/prompts=] for [=powerful features=].
+      </p>
+      <p>
+        The &lt;<a>microphone</a>&gt; element uses the following
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-dom">DOM interface</a>:
+      </p>
+      <pre class=idl>
+      [Exposed=Window]
+      interface HTMLMicrophoneElement : HTMLElement {
+        [HTMLConstructor] constructor();
+
+        readonly attribute MediaStreamTrack? track;
+        undefined setConstraints(optional MediaTrackConstraintSet constraints = {});
+        readonly attribute any error;
+
+        attribute boolean autostart;
+
+        attribute EventHandler onstream;
+        attribute EventHandler ontrackchange;
+      };
+      </pre>
+
+      <p>The &lt;<a>microphone</a>&gt; element uses the following internal slots:</p>
+      <ul>
+        <li>
+          <dfn data-dfn-for="HTMLMicrophoneElement">[[\track]]</dfn> &mdash;
+          Holds null or a {{MediaStreamTrack}}.
+        </li>
+        <li>
+          <dfn data-dfn-for="HTMLMicrophoneElement">[[\constraints]]</dfn> &mdash;
+          Holds a {{MediaTrackConstraintSet}}.
+        </li>
+        <li>
+          <dfn data-dfn-for="HTMLMicrophoneElement">[[\error]]</dfn> &mdash;
+          Holds a {{DOMException}} or null.
+        </li>
+      </ul>
+
+      <p>
+        The &lt;<a>microphone</a>&gt; element belongs to the [=flow content=],
+        [=phrasing content=], [=interactive content=], and [=palpable content=]
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-categories">categories</a>.
+        It can be used in contexts where [=phrasing content=] is expected. Its
+        content, if any, is its
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#fallback-content">fallback content</a>.
+      </p>
+
+      <p>
+        The &lt;<a>microphone</a>&gt; element supports the following
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-attributes">content attributes</a>:
+      </p>
+      <dl>
+        <dt>
+          <a href="https://html.spec.whatwg.org/multipage/dom.html#global-attributes">global attributes</a>
+        </dt>
+        <dd>&mdash; all global content attributes.</dd>
+        <dt>
+          <dfn data-dfn-for="HTMLMicrophoneElement">autostart</dfn>
+        </dt>
+        <dd>&mdash; A boolean attribute indicating whether to try to start the stream automatically as the element is added to the DOM and rendered.</dd>
+
+      </dl>
+
+      <section>
+        <h4>Algorithms</h4>
+
+        <p>
+          The {{HTMLMicrophoneElement/constructor()}} steps are:
+        </p>
+        <ol class=algorithm>
+          <li>Initialize {{HTMLMicrophoneElement/[[track]]}} to null.</li>
+          <li>Initialize {{HTMLMicrophoneElement/[[error]]}} to null.</li>
+          <li>Initialize {{HTMLMicrophoneElement/[[constraints]]}} to [=this=]'s [=HTMLMicrophoneElement/default constraints=].</li>
+        </ol>
+
+        <p>The &lt;<a>microphone</a>&gt; element's [=insertion steps=], given |element|, are:</p>
+        <ol class=algorithm>
+          <li>
+            If |element| has an {{HTMLMicrophoneElement/autostart}} attribute, and {{HTMLMicrophoneElement/[[track]]}} is null,
+            run the [=HTMLMicrophoneElement/activation initial=] steps on |element|.
+          </li>
+        </ol>
+
+        <p>The {{HTMLMicrophoneElement/track}} <a>getter</a> steps are:</p>
+        <ol class=algorithm>
+          <li>Return {{HTMLMicrophoneElement/[[track]]}}.</li>
+        </ol>
+
+        <p>
+          The {{HTMLMicrophoneElement/setConstraints()}} steps for an |element| and
+          an optional |constraints| parameter are:
+        </p>
+        <ol class=algorithm>
+          <li>
+            Set {{HTMLMicrophoneElement/[[constraints]]}} to the result of
+            [=HTMLMicrophoneElement/constraint filter=] for |element| and
+            |constraints|.
+          </li>
+        </ol>
+
+        <p>The {{HTMLMicrophoneElement/error}} <a>getter</a> steps are:</p>
+        <ol class=algorithm>
+          <li>Return {{HTMLMicrophoneElement/[[error]]}}.</li>
+        </ol>
+
+        <p>
+          The &lt;<a>microphone</a>&gt; <dfn data-dfn-for="HTMLMicrophoneElement">permission name</dfn>
+          is: [=/"microphone"=].
+        </p>
+
+        <p>
+          The &lt;<a>microphone</a>&gt;
+          <dfn data-dfn-for="HTMLMicrophoneElement">default constraints</dfn> are:
+          &laquo;[ ]&raquo;.
+        </p>
+
+        <p>
+          The &lt;<a>microphone</a>&gt; element's [=EventTarget/activation behavior=],
+          given |element|, is:
+        </p>
+        <ol class=algorithm>
+          <li>
+            If {{HTMLMicrophoneElement/[[track]]}} is null, run
+            [=HTMLMicrophoneElement/activation initial=] steps.
+          </li>
+          <li>
+            Otherwise, run [=HTMLMicrophoneElement/activation second=] steps.
+          </li>
+        </ol>
+
+        <p>The <dfn data-dfn-for="HTMLMicrophoneElement">activation initial</dfn> steps are:</p>
+        <ol class=algorithm>
+          <li>[=Assert=]: {{HTMLMicrophoneElement/[[track]]}} is null.</li>
+          <li>Let |permissionName| be |element|'s [=HTMLMicrophoneElement/permission name=].</li>
+          <li>
+            Let |descriptor| be a new {{PermissionDescriptor}} with value
+            &laquo;[ {{PermissionDescriptor/name}} &rarr; |permissionName| ]&raquo;.
+          </li>
+          <li>
+            Let |permissionState| be the result of [=request permission to use=]
+            the [=powerful features=] described by |descriptor| with
+            allowMultiple set to false.
+          </li>
+          <li>If |permissionState| is not {{PermissionState/"granted"}}:
+            <ol>
+              <li>Set {{HTMLMicrophoneElement/[[track]]}} to null.</li>
+              <li>Set {{HTMLMicrophoneElement/[[error]]}} to null.</li>
+              <li>Return.</li>
+            </ol>
+          </li>
+          <li>Let |constraints| be {{HTMLMicrophoneElement/[[constraints]]}}.</li>
+          <li>
+            Let |filteredConstraints| be the result of [=HTMLMicrophoneElement/constraint filter=] for |element| and |constraints|.
+          </li>
+          <li>
+            Let |mediaPromise| be the result of calling
+            {{MediaDevices/getUserMedia()}} with |filteredConstraints| as its first
+            argument.
+          </li>
+          <li>
+            [=promise/React=] to |mediaPromise|:
+            <ol>
+              <li>If |mediaPromise| was fulfilled with value |v|:
+                <ol>
+                  <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
+                  <li>Let |tracks| be the result of calling {{MediaStream/getAudioTracks()}} on |v|.</li>
+                  <li>If |tracks| is empty, set {{HTMLMicrophoneElement/[[track]]}} to null. Otherwise, set {{HTMLMicrophoneElement/[[track]]}} to |tracks|[0].</li>
+                  <li>Set {{HTMLMicrophoneElement/[[error]]}} to null.</li>
+                  <li>Run the [=HTMLMicrophoneElement/track monitor=] steps on |element|.</li>
+                  <li>[=Fire an event=] named `stream` at |element|.</li>
+                </ol>
+              </li>
+              <li>
+                else:
+                <ol>
+                  <li>[=Assert=]: |mediaPromise| was rejected with reason |r|.</li>
+                  <li>[=Assert=]: |r| is a |DOMException|.</li>
+                  <li>Set {{HTMLMicrophoneElement/[[track]]}} to null.</li>
+                  <li>Set {{HTMLMicrophoneElement/[[error]]}} to |r|.</li>
+                  <li>[=Fire an event=] named `stream` at |element|.</li>
+                </ol>
+              </li>
+            </ol>
+          </li>
+        </ol>
+
+        <p>The <dfn data-dfn-for="HTMLMicrophoneElement">activation second</dfn> steps are:</p>
+        <ol class=algorithm>
+          <li>[=Assert=]: {{HTMLMicrophoneElement/[[track]]}} is a {{MediaStreamTrack}}.</li>
+          <li>
+            Set {{HTMLMicrophoneElement/[[track]]}}.{{MediaStreamTrack/enabled}} to the negation of
+            {{HTMLMicrophoneElement/[[track]]}}.{{MediaStreamTrack/enabled}}.
+          </li>
+        </ol>
+
+        <p>The <dfn data-dfn-for="HTMLMicrophoneElement">track monitor</dfn> steps are:</p>
+        <ol class=algorithm>
+          <li>[=Assert=]: {{HTMLMicrophoneElement/[[track]]}} is a {{MediaStreamTrack}}.</li>
+          <li>
+            The user agent MUST monitor the {{HTMLMicrophoneElement/[[track]]}}'s
+            {{MediaStreamTrack/readyState}} (specifically for
+            terminations triggered by {{MediaStreamTrack/stop()}}), its
+            {{MediaStreamTrack/enabled}} state, and its
+            {{MediaStreamTrack/muted}} state.
+          </li>
+          <li>
+            When the state of the monitored {{HTMLMicrophoneElement/[[track]]}} changes, the user agent MUST update the |element|'s
+            internal UI to reflect the active, muted, or ended state of the track, and [=Fire an event=] named `trackchange` at |element|.
+          </li>
+          <li>
+            If {{HTMLMicrophoneElement/[[track]]}}.{{MediaStreamTrack/readyState}} becomes `"ended"`, the user agent MUST
+            set {{HTMLMicrophoneElement/[[track]]}} to null and reset the |element|'s
+            internal UI to its initial request state.
+          </li>
+        </ol>
+
+        <p>
+          The <dfn data-dfn-for="HTMLMicrophoneElement">constraint filter</dfn> steps for an
+          |element| and a {{MediaTrackConstraintSet}} |constraints| are:
+        </p>
+        <ol class=algorithm>
+          <li>Let |result| be a new {{MediaStreamConstraints}} [=dictionary=].</li>
+          <li>Set |result|["audio"] to a copy of |constraints|.</li>
+          <li>Remove any <a data-cite="mediacapture-streams#dfn-required-constraints">required constraints</a> from |result|["audio"].</li>
+          <li>Set |result|["video"] to false.</li>
+          <li>Return |result|.</li>
+        </ol>
+      </section>
+    </section>
+
+    <section>
+      <h3>The &lt;<a>usermedia</a>&gt; HTML element</h3>
+      <p>
+        The &lt;<dfn data-dfn-type="element">usermedia</dfn>&gt; HTML element is an [[HTML]]
+        element that can mediate access to a {{MediaStream}} consisting of one or more tracks, including handling
+        the required [=permission/prompts=] for [=powerful features=].
+      </p>
+      <p>
+        The &lt;<a>usermedia</a>&gt; element uses the following
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-dom">DOM interface</a>:
+      </p>
+      <pre class=idl>
+      dictionary HTMLMediaStreamConstraints {
+        MediaTrackConstraintSet video;
+        MediaTrackConstraintSet audio;
+      };
+
       [Exposed=Window]
       interface HTMLUserMediaElement : HTMLElement {
         [HTMLConstructor] constructor();
 
         readonly attribute MediaStream? stream;
-        undefined setConstraints(MediaStreamConstraints constraints);
+        undefined setConstraints(optional HTMLMediaStreamConstraints constraints = {});
         readonly attribute any error;
 
         attribute boolean autostart;
 
         attribute EventHandler onstream;
-        attribute EventHandler ontrackchanged;
+        attribute EventHandler ontrackchange;
       };
-      HTMLUserMediaElement includes ActivationBlockersMixin;
-    </pre>
-    <p>
-      The &lt;<a>camera</a>&gt; and &lt;<a>microphone</a>&gt;
-      <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-dom">DOM interfaces</a>
-      are almost the same. The &lt;<a>camera</a>&gt; element uses the following
-      <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-dom">DOM interface</a>:
-    </p>
-    <pre class=idl>
-      [Exposed=Window]
-      interface HTMLCameraElement : HTMLElement {
-        [HTMLConstructor] constructor();
+      </pre>
 
-        readonly attribute MediaStream? stream;
-        undefined setConstraints(MediaStreamConstraints constraints);
-        readonly attribute any error;
-
-        attribute boolean autostart;
-
-        attribute EventHandler onstream;
-        attribute EventHandler ontrackchanged;
-      };
-      HTMLCameraElement includes ActivationBlockersMixin;
-    </pre>
-    <p>
-      The &lt;<a>microphone</a>&gt; element uses the following
-      <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-dom">DOM interface</a>:
-    </p>
-    <pre class=idl>
-      [Exposed=Window]
-      interface HTMLMicrophoneElement : HTMLElement {
-        [HTMLConstructor] constructor();
-
-        readonly attribute MediaStream? stream;
-        undefined setConstraints(MediaStreamConstraints constraints);
-        readonly attribute any error;
-
-        attribute boolean autostart;
-
-        attribute EventHandler onstream;
-        attribute EventHandler ontrackchanged;
-      };
-      HTMLMicrophoneElement includes ActivationBlockersMixin;
-    </pre>
-
-    <p>The &lt;<a>usermedia</a>&gt;, &lt;<a>camera</a>&gt;, and &lt;<a>microphone</a>&gt; elements all use the following internal slots:</p>
-    <ul>
-      <li>
-        <dfn data-dfn-for="HTMLUserMediaElement">[[\stream]]</dfn> &mdash;
-        Holds null or a {{MediaStream}}.
-      </li>
-      <li>
-        <dfn data-dfn-for="HTMLUserMediaElement">[[\constraints]]</dfn> &mdash;
-        Holds a {{MediaStreamConstraints}}.
-      </li>
-      <li>
-        <dfn data-dfn-for="HTMLUserMediaElement">[[\error]]</dfn> &mdash;
-        Holds a {{DOMException}}, an {{OverconstrainedError}} or null.
-      </li>
-    </ul>
-
-    <p>
-      The &lt;<a>usermedia</a>&gt;, &lt;<a>camera</a>&gt;, and
-      &lt;<a>microphone</a>&gt; elements belong to the [=flow content=],
-      [=phrasing content=], [=interactive content=], and [=palpable content=]
-      <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-categories">categories</a>.
-      They can be used in contexts where [=phrasing content=] is expected. Their
-      content, if any, are their
-      <a href="https://html.spec.whatwg.org/multipage/dom.html#fallback-content">fallback content</a>.
-      They use the {{ActivationBlockersMixin}} from [[geolocation-element]], to
-      provide protection against programmatic activation.
-    </p>
-
-    <p>
-      The &lt;<a>usermedia</a>&gt;, &lt;<a>camera</a>&gt;, and
-      &lt;<a>microphone</a>&gt; elements all support the following
-      <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-attributes">content attributes</a>:
-    </p>
-    <dl>
-      <dt>
-        <a href="https://html.spec.whatwg.org/multipage/dom.html#global-attributes">global attributes</a>
-      </dt>
-      <dd>&mdash; all global content attributes.</dd>
-      <dt>
-        <dfn data-dfn-for="HTMLUserMediaElement">autostart</dfn>
-      </dt>
-      <dd>&mdash; A boolean attribute indicating whether to try to start the stream automatically as the element is added to the DOM and rendered.</dd>
-      <dt>
-        <a href="https://wicg.github.io/PEPC/geolocation-element.html#dom-activationblockersmixin-isvalid">isValid</a>
-      </dt>
-      <dt>
-        <a href="https://wicg.github.io/PEPC/geolocation-element.html#dom-activationblockersmixin-invalidreason">invalidReason</a>
-      </dt>
-      <dt>
-        <a href="https://wicg.github.io/PEPC/geolocation-element.html#dom-activationblockersmixin-onvalidationstatuschange">onvalidationstatuschange</a>
-      </dt>
-      <dd>&mdash; content attributes from {{ActivationBlockersMixin}}</dd>
-    </dl>
-
-    <section>
-      <h3>Algorithms</h3>
+      <p>The &lt;<a>usermedia</a>&gt; element uses the following internal slots:</p>
+      <ul>
+        <li>
+          <dfn data-dfn-for="HTMLUserMediaElement">[[\stream]]</dfn> &mdash;
+          Holds null or a {{MediaStream}}.
+        </li>
+        <li>
+          <dfn data-dfn-for="HTMLUserMediaElement">[[\constraints]]</dfn> &mdash;
+          Holds an {{HTMLMediaStreamConstraints}}.
+        </li>
+        <li>
+          <dfn data-dfn-for="HTMLUserMediaElement">[[\error]]</dfn> &mdash;
+          Holds a {{DOMException}} or null.
+        </li>
+      </ul>
 
       <p>
-        The {{HTMLUserMediaElement}}, {{HTMLCameraElement}}, and
-        {{HTMLMicrophoneElement}} all use the same constructor steps. Their
-        {{HTMLUserMediaElement/constructor()}} steps are:
+        The &lt;<a>usermedia</a>&gt; element belongs to the [=flow content=],
+        [=phrasing content=], [=interactive content=], and [=palpable content=]
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-categories">categories</a>.
+        It can be used in contexts where [=phrasing content=] is expected. Its
+        content, if any, is its
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#fallback-content">fallback content</a>.
       </p>
-      <ol class=algorithm>
-        <li>Run {{ActivationBlockersMixin}}'s [=ActivationBlockersMixin/initialization steps=].</li>
-        <li>Initialize {{HTMLUserMediaElement/[[stream]]}} to null.</li>
-        <li>Initialize {{HTMLUserMediaElement/[[error]]}} to null.</li>
-        <li>Initialize {{HTMLUserMediaElement/[[constraints]]}} to [=this=]'s [=HTMLUserMediaElement/default constraints=].</li>
-      </ol>
-
-      <p>The &lt;<a>usermedia</a>&gt;, &lt;<a>camera</a>&gt;, and &lt;<a>microphone</a>&gt; elements' [=insertion steps=], given |element|, are:</p>
-      <ol class=algorithm>
-        <li>
-          Run {{ActivationBlockersMixin}}'s
-          [=ActivationBlockersMixin/insertion steps=] given |element|.
-        </li>
-        <li>
-          If |element| has an {{HTMLUserMediaElement/autostart}} attribute, and {{HTMLUserMediaElement/[[stream]]}} is null,
-          run the [=HTMLUserMediaElement/activation initial=] steps on |element|.
-        </li>
-      </ol>
-
-      <p>The &lt;<a>usermedia</a>&gt;, &lt;<a>camera</a>&gt;, and &lt;<a>microphone</a>&gt; elements' [=removing steps=], given |element|, are:</p>
-      <ol class=algorithm>
-        <li>
-          Run {{ActivationBlockersMixin}}'s
-          [=ActivationBlockersMixin/removing steps=] given |element|.
-        </li>
-      </ol>
-
-      <p>The {{HTMLUserMediaElement/stream}} <a>getter</a> steps are:</p>
-      <ol class=algorithm>
-        <li>Return {{HTMLUserMediaElement/[[stream]]}}.</li>
-      </ol>
 
       <p>
-        The {{HTMLUserMediaElement/setConstraints()}} steps for an |element| and
-        a parameter |constraints| steps:
+        The &lt;<a>usermedia</a>&gt; element supports the following
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-attributes">content attributes</a>:
       </p>
-      <ol class=algorithm>
-        <li>
-          Set {{HTMLUserMediaElement/[[constraints]]}} to the result of
-          [=HTMLUserMediaElement/constraint filter=] for |element| and
-          |constraints|.
-        </li>
-      </ol>
+      <dl>
+        <dt>
+          <a href="https://html.spec.whatwg.org/multipage/dom.html#global-attributes">global attributes</a>
+        </dt>
+        <dd>&mdash; all global content attributes.</dd>
+        <dt>
+          <dfn data-dfn-for="HTMLUserMediaElement">autostart</dfn>
+        </dt>
+        <dd>&mdash; A boolean attribute indicating whether to try to start the stream automatically as the element is added to the DOM and rendered.</dd>
 
-      <p>The {{HTMLUserMediaElement/error}} <a>getter</a> steps are:</p>
-      <ol class=algorithm>
-        <li>Return {{HTMLUserMediaElement/[[error]]}}.</li>
-      </ol>
+      </dl>
 
-      <p>
-        The &lt;<a>usermedia</a>&gt;, &lt;<a>camera</a>&gt;, and
-        &lt;<a>microphone</a>&gt; <dfn data-dfn-for="HTMLUserMediaElement">permission name</dfn>
-        are:
-      </p>
-      <table class="simple">
-        <thead>
-          <tr>
-            <th>Element type</th>
-            <th>Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th>&lt;<a>usermedia</a>&gt;</th>
-            <td>
-              The [=string/concatenate|concatentation=] of &laquo; [=/"camera"=],
-              " ", [=/"microphone"=] &raquo;.
-            </td>
-          </tr>
-          <tr>
-            <th>&lt;<a>camera</a>&gt;</th>
-            <td>[=/"camera"=]</td>
-          </tr>
-          <tr>
-            <th>&lt;<a>microphone</a>&gt;</th>
-            <td>[=/"microphone"=]</td>
-          </tr>
-        </tbody>
-      </table>
+      <section>
+        <h4>Algorithms</h4>
 
-      <p>
-        The &lt;<a>usermedia</a>&gt;, &lt;<a>camera</a>&gt;, and
-        &lt;<a>microphone</a>&gt;
-        <dfn data-dfn-for="HTMLUserMediaElement">default constraints</dfn> are:
-      </p>
-      <table class="simple">
-        <thead>
-          <tr>
-            <th>Element type</th>
-            <th>Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th>&lt;<a>usermedia</a>&gt;</th>
-            <td>
-              &laquo;[ {{MediaStreamConstraints/video}} &rarr; true,
-              {{MediaStreamConstraints/audio}} &rarr; true ]&raquo;
-            </td>
-          </tr>
-          <tr>
-            <th>&lt;<a>camera</a>&gt;</th>
-            <td>
-              &laquo;[ {{MediaStreamConstraints/video}} &rarr; true,
-              {{MediaStreamConstraints/audio}} &rarr; false ]&raquo;
-            </td>
-          </tr>
-          <tr>
-            <th>&lt;<a>microphone</a>&gt;</th>
-            <td>
-              &laquo;[ {{MediaStreamConstraints/video}} &rarr; false,
-              {{MediaStreamConstraints/audio}} &rarr; true ]&raquo;
-            </td>
-          </tr>
-        </tbody>
-      </table>
+        <p>
+          The {{HTMLUserMediaElement/constructor()}} steps are:
+        </p>
+        <ol class=algorithm>
+          <li>Initialize {{HTMLUserMediaElement/[[stream]]}} to null.</li>
+          <li>Initialize {{HTMLUserMediaElement/[[error]]}} to null.</li>
+          <li>Initialize {{HTMLUserMediaElement/[[constraints]]}} to [=this=]'s [=HTMLUserMediaElement/default constraints=].</li>
+        </ol>
 
-      <p>
-        The &lt;<a>usermedia</a>&gt;, &lt;<a>camera</a>&gt;, and
-        &lt;<a>microphone</a>&gt; elements' [=EventTarget/activation behavior=],
-        given |element|, is:
-      </p>
-      <ol class=algorithm>
-        <li>
-          If |element|.{{ActivationBlockersMixin/isValid}} is false, then return.
-        </li>
-        <li>
-          If {{HTMLUserMediaElement/[[stream]]}} is null, run
-          [=HTMLUserMediaElement/activation initial=] steps.
-        </li>
-        <li>
-          Otherwise, if |element| is a {{HTMLCameraElement}} or a
-          {{HTMLMicrophoneElement}}, run
-          [=HTMLUserMediaElement/activation second=] steps.
-        </li>
-      </ol>
+        <p>The &lt;<a>usermedia</a>&gt; element's [=insertion steps=], given |element|, are:</p>
+        <ol class=algorithm>
+          <li>
+            If |element| has an {{HTMLUserMediaElement/autostart}} attribute, and {{HTMLUserMediaElement/[[stream]]}} is null,
+            run the [=HTMLUserMediaElement/activation initial=] steps on |element|.
+          </li>
+        </ol>
 
-      <p>The <dfn data-dfn-for="HTMLUserMediaElement">activation initial</dfn> steps are:</p>
-      <ol class=algorithm>
-        <li>[=Assert=]: |element|.{{ActivationBlockersMixin/isValid}}.</li>
-        <li>[=Assert=]: {{HTMLUserMediaElement/[[stream]]}} is null.</li>
-        <li>Let |permissionName| be |element|'s [=HTMLUserMediaElement/permission name=].</li>
-        <li>
-          Let |descriptor| be a new {{PermissionDescriptor}} with value
-          &laquo;[ {{PermissionDescriptor/name}} &rarr; |permissionName| ]&raquo;.
-        </li>
-        <li>
-          Let |permissionState| be the result of [=request permission to use=]
-          the [=powerful features=] described by |descriptor| with
-          allowMultiple set to false.
-        </li>
-        <li>If |permissionState| is not {{PermissionState/"granted"}}:
-          <ol>
-            <li>Set {{HTMLUserMediaElement/[[stream]]}} to null.</li>
-            <li>Set {{HTMLUserMediaElement/[[error]]}} to null.</li>
-            <li>Return.</li>
-          </ol>
-        </li>
-        <li>Let |contraints| be {{HTMLUserMediaElement/[[constraints]]}}.</li>
-        <li>
-          Let |mediaPromise| be the result of calling
-          {{MediaDevices/getUserMedia()}} with |constraints| as its first
-          argument.
-        </li>
-        <li>
-          [=promise/React=] to |mediaPromise|:
-          <ol>
-            <li>If |mediaPromise| was fulfilled with value |v|:
-              <ol>
-                <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
-                <li>Set {{HTMLUserMediaElement/[[stream]]}} to |v|.</li>
-                <li>Set {{HTMLUserMediaElement/[[error]]}} to null.</li>
-                <li>Run the [=HTMLUserMediaElement/track monitor=] steps on |element|.</li>
-                <li>[=Fire an event=] named `stream` at |element|.</li>
-              </ol>
-            </li>
-            <li>
-              else:
-              <ol>
-                <li>[=Assert=]: |mediaPromise| was rejected with reason |r|.</li>
-                <li>[=Assert=]: |r| is a |DOMException| or an |OverConstrainedError|.</li>
-                <li>Set {{HTMLUserMediaElement/[[stream]]}} to null.</li>
-                <li>Set {{HTMLUserMediaElement/[[error]]}} to |r|.</li>
-                <li>[=Fire an event=] named `stream` at |element|.</li>
-              </ol>
-            </li>
-          </ol>
-        </li>
-      </ol>
+        <p>The {{HTMLUserMediaElement/stream}} <a>getter</a> steps are:</p>
+        <ol class=algorithm>
+          <li>Return {{HTMLUserMediaElement/[[stream]]}}.</li>
+        </ol>
 
-      <p>The <dfn data-dfn-for="HTMLUserMediaElement">activation second</dfn> steps are:</p>
-      <ol class=algorithm>
-        <li>[=Assert=]: |element|.{{ActivationBlockersMixin/isValid}}.</li>
-        <li>[=Assert=]: {{HTMLUserMediaElement/[[stream]]}} is a {{MediaStream}}.</li>
-        <li>
-          For each |track| in the result of calling {{MediaStream/getTracks()}}
-          on {{HTMLUserMediaElement/[[stream]]}}:
-          <ol>
-            <li>
-              Set |track|.{{MediaStreamTrack/enabled}} to the negation of
-              |track|.{{MediaStreamTrack/enabled}}.
-            </li>
-          </ol>
-        </li>
-      </ol>
+        <p>
+          The {{HTMLUserMediaElement/setConstraints()}} steps for an |element| and
+          an optional |constraints| parameter are:
+        </p>
+        <ol class=algorithm>
+          <li>
+            Set {{HTMLUserMediaElement/[[constraints]]}} to the result of
+            [=HTMLUserMediaElement/constraint filter=] for |element| and
+            |constraints|.
+          </li>
+        </ol>
 
-      <p>The <dfn data-dfn-for="HTMLUserMediaElement">track monitor</dfn> steps are:</p>
-      <ol class=algorithm>
-        <li>[=Assert=]: {{HTMLUserMediaElement/[[stream]]}} is a {{MediaStream}}.</li>
-        <li>
-          For each |track| in the result of calling {{MediaStream/getTracks()}}
-          on {{HTMLUserMediaElement/[[stream]]}}, the user agent MUST monitor
-          the |track|'s {{MediaStreamTrack/readyState}} (specifically for
-          terminations triggered by {{MediaStreamTrack/stop()}}), its
-          {{MediaStreamTrack/enabled}} state, and its
-          {{MediaStreamTrack/muted}} state.
-        </li>
-        <li>
-          When the state of any monitored |track| changes, the user agent MUST update the |element|'s
-          internal UI to reflect the active, muted, or ended state of the |track|, and [=Fire an event=] named `trackchanged` at |element|.
-        </li>
-        <li>
-          If {{HTMLUserMediaElement/[[stream]]}}.{{MediaStream/active}} becomes false, the user agent MUST
-          set {{HTMLUserMediaElement/[[stream]]}} to null and reset the |element|'s
-          internal UI to its initial request state.
-        </li>
-      </ol>
+        <p>The {{HTMLUserMediaElement/error}} <a>getter</a> steps are:</p>
+        <ol class=algorithm>
+          <li>Return {{HTMLUserMediaElement/[[error]]}}.</li>
+        </ol>
 
-      <p>
-        The <dfn data-dfn-for="HTMLUserMediaElement">constraint filter</dfn> steps for an
-        |element| and {{MediaStreamConstraints}} |constraints| are:
-      </p>
-      <ol class=algorithm>
-        <li>Let |result| be a new [=dictionary=].</li>
-        <li>
-          If |element| is a {{HTMLUserMediaElement}}, set |result| to &laquo;[
-            {{MediaStreamConstraints/audio}} &rarr; |constraints| [{{MediaStreamConstraints/audio}}],
-            {{MediaStreamConstraints/video}} &rarr; |constraints| [{{MediaStreamConstraints/video}}]
-          ]&raquo;.
-        </li>
-        <li>
-          Otherwise, if |element| is a {{HTMLMicrophoneElement}}, set |result| to &laquo;[
-            {{MediaStreamConstraints/audio}} &rarr; |constraints| [{{MediaStreamConstraints/audio}}],
-            {{MediaStreamConstraints/video}} &rarr; false
-          ]&raquo;.
-        </li>
-        <li>
-          Otherwise, if |element| is a {{HTMLCameraElement}}, set |result| to &laquo;[
-            {{MediaStreamConstraints/audio}} &rarr; false,
-            {{MediaStreamConstraints/video}} &rarr; |constraints| [{{MediaStreamConstraints/video}}]
-          ]&raquo;.
-        </li>
-        <li>Return |result|.</li>
-      </ol>
+        <p>
+          The &lt;<a>usermedia</a>&gt; <dfn data-dfn-for="HTMLUserMediaElement">permission name</dfn>
+          is: The [=string/concatenate|concatentation=] of &laquo; [=/"camera"=], " ", [=/"microphone"=] &raquo;.
+        </p>
+
+        <p>
+          The &lt;<a>usermedia</a>&gt;
+          <dfn data-dfn-for="HTMLUserMediaElement">default constraints</dfn> are:
+          &laquo;[ "video" &rarr; &laquo;[ ]&raquo;, "audio" &rarr; &laquo;[ ]&raquo; ]&raquo;.
+        </p>
+
+        <p>
+          The &lt;<a>usermedia</a>&gt; element's [=EventTarget/activation behavior=],
+          given |element|, is:
+        </p>
+        <ol class=algorithm>
+          <li>
+            If {{HTMLUserMediaElement/[[stream]]}} is null, run
+            [=HTMLUserMediaElement/activation initial=] steps.
+          </li>
+        </ol>
+
+        <p>The <dfn data-dfn-for="HTMLUserMediaElement">activation initial</dfn> steps are:</p>
+        <ol class=algorithm>
+          <li>[=Assert=]: {{HTMLUserMediaElement/[[stream]]}} is null.</li>
+          <li>Let |permissionName| be |element|'s [=HTMLUserMediaElement/permission name=].</li>
+          <li>
+            Let |descriptor| be a new {{PermissionDescriptor}} with value
+            &laquo;[ {{PermissionDescriptor/name}} &rarr; |permissionName| ]&raquo;.
+          </li>
+          <li>
+            Let |permissionState| be the result of [=request permission to use=]
+            the [=powerful features=] described by |descriptor| with
+            allowMultiple set to false.
+          </li>
+          <li>If |permissionState| is not {{PermissionState/"granted"}}:
+            <ol>
+              <li>Set {{HTMLUserMediaElement/[[stream]]}} to null.</li>
+              <li>Set {{HTMLUserMediaElement/[[error]]}} to null.</li>
+              <li>Return.</li>
+            </ol>
+          </li>
+          <li>Let |constraints| be {{HTMLUserMediaElement/[[constraints]]}}.</li>
+          <li>
+            Let |filteredConstraints| be the result of [=HTMLUserMediaElement/constraint filter=] for |element| and |constraints|.
+          </li>
+          <li>
+            Let |mediaPromise| be the result of calling
+            {{MediaDevices/getUserMedia()}} with |filteredConstraints| as its first
+            argument.
+          </li>
+          <li>
+            [=promise/React=] to |mediaPromise|:
+            <ol>
+              <li>If |mediaPromise| was fulfilled with value |v|:
+                <ol>
+                  <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
+                  <li>Set {{HTMLUserMediaElement/[[stream]]}} to |v|.</li>
+                  <li>Set {{HTMLUserMediaElement/[[error]]}} to null.</li>
+                  <li>Run the [=HTMLUserMediaElement/track monitor=] steps on |element|.</li>
+                  <li>[=Fire an event=] named `stream` at |element|.</li>
+                </ol>
+              </li>
+              <li>
+                else:
+                <ol>
+                  <li>[=Assert=]: |mediaPromise| was rejected with reason |r|.</li>
+                  <li>[=Assert=]: |r| is a |DOMException|.</li>
+                  <li>Set {{HTMLUserMediaElement/[[stream]]}} to null.</li>
+                  <li>Set {{HTMLUserMediaElement/[[error]]}} to |r|.</li>
+                  <li>[=Fire an event=] named `stream` at |element|.</li>
+                </ol>
+              </li>
+            </ol>
+          </li>
+        </ol>
+
+        <p>The <dfn data-dfn-for="HTMLUserMediaElement">track monitor</dfn> steps are:</p>
+        <ol class=algorithm>
+          <li>[=Assert=]: {{HTMLUserMediaElement/[[stream]]}} is a {{MediaStream}}.</li>
+          <li>
+            For each |track| in the result of calling {{MediaStream/getTracks()}}
+            on {{HTMLUserMediaElement/[[stream]]}}, the user agent MUST monitor
+            the |track|'s {{MediaStreamTrack/readyState}} (specifically for
+            terminations triggered by {{MediaStreamTrack/stop()}}), its
+            {{MediaStreamTrack/enabled}} state, and its
+            {{MediaStreamTrack/muted}} state.
+          </li>
+          <li>
+            When the state of any monitored |track| changes, the user agent MUST update the |element|'s
+            internal UI to reflect the active, muted, or ended state of the |track|, and [=Fire an event=] named `trackchange` at |element|.
+          </li>
+          <li>
+            If {{HTMLUserMediaElement/[[stream]]}}.{{MediaStream/active}} becomes false, the user agent MUST
+            set {{HTMLUserMediaElement/[[stream]]}} to null and reset the |element|'s
+            internal UI to its initial request state.
+          </li>
+        </ol>
+
+        <p>
+          The <dfn data-dfn-for="HTMLUserMediaElement">constraint filter</dfn> steps for an
+          |element| and an {{HTMLMediaStreamConstraints}} |constraints| are:
+        </p>
+        <ol class=algorithm>
+          <li>Let |result| be a new {{MediaStreamConstraints}} [=dictionary=].</li>
+          <li>If |constraints|["audio"] [=map/exists=], set |result|["audio"] to a copy of |constraints|["audio"]. Otherwise, set |result|["audio"] to an empty [=dictionary=].</li>
+          <li>Remove any <a data-cite="mediacapture-streams#dfn-required-constraints">required constraints</a> from |result|["audio"].</li>
+          <li>If |constraints|["video"] [=map/exists=], set |result|["video"] to a copy of |constraints|["video"]. Otherwise, set |result|["video"] to an empty [=dictionary=].</li>
+          <li>Remove any <a data-cite="mediacapture-streams#dfn-required-constraints">required constraints</a> from |result|["video"].</li>
+          <li>Return |result|.</li>
+        </ol>
+      </section>
     </section>
   </section>
   </body>
