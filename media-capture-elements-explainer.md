@@ -48,6 +48,7 @@ interface HTMLCameraElement : HTMLElement {
   attribute EventHandler ontrackchange;
 };
 HTMLCameraElement includes ActivationBlockersMixin;
+HTMLCameraElement includes PowerfulFeatureObserver;
 ```
 
 ### Attributes and Properties
@@ -58,6 +59,7 @@ HTMLCameraElement includes ActivationBlockersMixin;
 *   `onstream`: An `EventHandler` that fires when a `getUserMedia` attempt finishes (either populating `track` or `error`).
 *   `ontrackchange`: An `EventHandler` that fires when the associated track's active/muted/ended state changes.
 *   `isValid`, `invalidReason`, `onvalidationstatuschange`: Provided by the `ActivationBlockersMixin` to protect against programmatic activation and clickjacking.
+*   `onpromptaction`, `onpromptdismiss`: Provided by the `PowerfulFeatureObserver` to monitor permission prompts.
 
 ### Constraints Configuration
 
@@ -120,6 +122,7 @@ interface HTMLMicrophoneElement : HTMLElement {
   attribute EventHandler ontrackchange;
 };
 HTMLMicrophoneElement includes ActivationBlockersMixin;
+HTMLMicrophoneElement includes PowerfulFeatureObserver;
 ```
 
 ### Attributes and Properties
@@ -130,6 +133,7 @@ HTMLMicrophoneElement includes ActivationBlockersMixin;
 *   `onstream`: An `EventHandler` that fires when a `getUserMedia` attempt finishes (either populating `track` or `error`).
 *   `ontrackchange`: An `EventHandler` that fires when the associated track's active/muted/ended state changes.
 *   `isValid`, `invalidReason`, `onvalidationstatuschange`: Provided by the `ActivationBlockersMixin` to protect against programmatic activation and clickjacking.
+*   `onpromptaction`, `onpromptdismiss`: Provided by the `PowerfulFeatureObserver` to monitor permission prompts.
 
 ### Constraints Configuration
 
@@ -188,6 +192,7 @@ interface HTMLUserMediaElement : HTMLElement {
   attribute EventHandler ontrackchange;
 };
 HTMLUserMediaElement includes ActivationBlockersMixin;
+HTMLUserMediaElement includes PowerfulFeatureObserver;
 ```
 
 ### Attributes and Properties
@@ -198,6 +203,7 @@ HTMLUserMediaElement includes ActivationBlockersMixin;
 *   `onstream`: An `EventHandler` that fires when a `getUserMedia` attempt finishes (either populating `stream` or `error`).
 *   `ontrackchange`: An `EventHandler` that fires when the associated tracks' active/muted/ended states change.
 *   `isValid`, `invalidReason`, `onvalidationstatuschange`: Provided by the `ActivationBlockersMixin` to protect against programmatic activation and clickjacking.
+*   `onpromptaction`, `onpromptdismiss`: Provided by the `PowerfulFeatureObserver` to monitor permission prompts.
 
 ### Constraints Configuration
 

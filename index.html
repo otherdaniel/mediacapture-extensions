@@ -2119,6 +2119,7 @@ onmessage = async ({data: {track}}) => {
         attribute EventHandler onstream;
         attribute EventHandler ontrackchange;
       };
+      HTMLCameraElement includes PowerfulFeatureObserver;
       </pre>
 
       <p>The &lt;<a>camera</a>&gt; element uses the following internal slots:</p>
@@ -2156,6 +2157,10 @@ onmessage = async ({data: {track}}) => {
         </dt>
         <dd>&mdash; all global content attributes.</dd>
         <dt>
+          <a href="https://wicg.github.io/PEPC/geolocation-element.html#powerfulfeatureobserver-powerfulfeatureobserver-attributes">PowerfulFeatureObserver attributes</a>
+        </dt>
+        <dd>&mdash; attributes provided by the PowerfulFeatureObserver mixin.</dd>
+        <dt>
           <dfn data-dfn-for="HTMLCameraElement">autostart</dfn>
         </dt>
         <dd>&mdash; A boolean attribute indicating whether to try to start the stream automatically as the element is added to the DOM and rendered.</dd>
@@ -2172,6 +2177,8 @@ onmessage = async ({data: {track}}) => {
           <li>Initialize {{HTMLCameraElement/[[track]]}} to null.</li>
           <li>Initialize {{HTMLCameraElement/[[error]]}} to null.</li>
           <li>Initialize {{HTMLCameraElement/[[constraints]]}} to [=this=]'s [=HTMLCameraElement/default constraints=].</li>
+          <li>Initialize {{PowerfulFeatureObserver/[[Features]]}} to &laquo; "camera" &raquo;.</li>
+          <li>Run <a href="https://wicg.github.io/PEPC/geolocation-element.html#powerfulfeatureobserver">PowerfulFeatureObserver</a>'s <a href="https://wicg.github.io/PEPC/geolocation-element.html#powerfulfeatureobserver-initialization-steps">initialization steps</a>.</li>
         </ol>
 
         <p>The &lt;<a>camera</a>&gt; element's [=insertion steps=], given |element|, are:</p>
@@ -2354,6 +2361,7 @@ onmessage = async ({data: {track}}) => {
         attribute EventHandler onstream;
         attribute EventHandler ontrackchange;
       };
+      HTMLMicrophoneElement includes PowerfulFeatureObserver;
       </pre>
 
       <p>The &lt;<a>microphone</a>&gt; element uses the following internal slots:</p>
@@ -2391,6 +2399,10 @@ onmessage = async ({data: {track}}) => {
         </dt>
         <dd>&mdash; all global content attributes.</dd>
         <dt>
+          <a href="https://wicg.github.io/PEPC/geolocation-element.html#powerfulfeatureobserver-powerfulfeatureobserver-attributes">PowerfulFeatureObserver attributes</a>
+        </dt>
+        <dd>&mdash; attributes provided by the PowerfulFeatureObserver mixin.</dd>
+        <dt>
           <dfn data-dfn-for="HTMLMicrophoneElement">autostart</dfn>
         </dt>
         <dd>&mdash; A boolean attribute indicating whether to try to start the stream automatically as the element is added to the DOM and rendered.</dd>
@@ -2407,6 +2419,8 @@ onmessage = async ({data: {track}}) => {
           <li>Initialize {{HTMLMicrophoneElement/[[track]]}} to null.</li>
           <li>Initialize {{HTMLMicrophoneElement/[[error]]}} to null.</li>
           <li>Initialize {{HTMLMicrophoneElement/[[constraints]]}} to [=this=]'s [=HTMLMicrophoneElement/default constraints=].</li>
+          <li>Initialize {{PowerfulFeatureObserver/[[Features]]}} to &laquo; "microphone" &raquo;.</li>
+          <li>Run <a href="https://wicg.github.io/PEPC/geolocation-element.html#powerfulfeatureobserver">PowerfulFeatureObserver</a>'s <a href="https://wicg.github.io/PEPC/geolocation-element.html#powerfulfeatureobserver-initialization-steps">initialization steps</a>.</li>
         </ol>
 
         <p>The &lt;<a>microphone</a>&gt; element's [=insertion steps=], given |element|, are:</p>
@@ -2594,6 +2608,7 @@ onmessage = async ({data: {track}}) => {
         attribute EventHandler onstream;
         attribute EventHandler ontrackchange;
       };
+      HTMLUserMediaElement includes PowerfulFeatureObserver;
       </pre>
 
       <p>The &lt;<a>usermedia</a>&gt; element uses the following internal slots:</p>
@@ -2631,6 +2646,10 @@ onmessage = async ({data: {track}}) => {
         </dt>
         <dd>&mdash; all global content attributes.</dd>
         <dt>
+          <a href="https://wicg.github.io/PEPC/geolocation-element.html#powerfulfeatureobserver-powerfulfeatureobserver-attributes">PowerfulFeatureObserver attributes</a>
+        </dt>
+        <dd>&mdash; attributes provided by the PowerfulFeatureObserver mixin.</dd>
+        <dt>
           <dfn data-dfn-for="HTMLUserMediaElement">autostart</dfn>
         </dt>
         <dd>&mdash; A boolean attribute indicating whether to try to start the stream automatically as the element is added to the DOM and rendered.</dd>
@@ -2647,6 +2666,8 @@ onmessage = async ({data: {track}}) => {
           <li>Initialize {{HTMLUserMediaElement/[[stream]]}} to null.</li>
           <li>Initialize {{HTMLUserMediaElement/[[error]]}} to null.</li>
           <li>Initialize {{HTMLUserMediaElement/[[constraints]]}} to [=this=]'s [=HTMLUserMediaElement/default constraints=].</li>
+          <li>Initialize {{PowerfulFeatureObserver/[[Features]]}} to &laquo; "camera", "microphone" &raquo;.</li>
+          <li>Run <a href="https://wicg.github.io/PEPC/geolocation-element.html#powerfulfeatureobserver">PowerfulFeatureObserver</a>'s <a href="https://wicg.github.io/PEPC/geolocation-element.html#powerfulfeatureobserver-initialization-steps">initialization steps</a>.</li>
         </ol>
 
         <p>The &lt;<a>usermedia</a>&gt; element's [=insertion steps=], given |element|, are:</p>
