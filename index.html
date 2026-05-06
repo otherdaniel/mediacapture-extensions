@@ -1469,7 +1469,7 @@ partial dictionary MediaTrackCapabilities {
 };
         </pre>
         </p>
-      <h4>Processing considerations</h4>
+      <h3>Processing considerations</h3>
       <p>
         When the "voiceIsolation" setting is set to <code>true</code> by the
         <a>ApplyConstraints algorithm</a>, the UA
@@ -2177,8 +2177,7 @@ onmessage = async ({data: {track}}) => {
         </p>
         <ol class=algorithm>
           <li>
-            Set [=this=].{{HTMLCameraElement/[[constraints]]}} to the result of
-            [=HTMLCameraElement/constraint filter=] for |constraints|.
+            Set [=this=].{{HTMLCameraElement/[[constraints]]}} to |constraints|.
           </li>
         </ol>
 
@@ -2409,9 +2408,7 @@ onmessage = async ({data: {track}}) => {
         </p>
         <ol class=algorithm>
           <li>
-            Set [=this=].{{HTMLMicrophoneElement/[[constraints]]}} to the
-            result of [=HTMLMicrophoneElement/constraint filter=] for
-            |constraints|.
+            Set [=this=].{{HTMLMicrophoneElement/[[constraints]]}} to |constraints|.
           </li>
         </ol>
 
@@ -2652,7 +2649,7 @@ onmessage = async ({data: {track}}) => {
         </p>
         <ol class=algorithm>
           <li>
-            Set {{HTMLUserMediaElement/[[constraints]]}} to the result of
+            Set [=this=].{{HTMLUserMediaElement/[[constraints]]}} to the result of
             [=HTMLUserMediaElement/constraint filter=] with |constraints|.
           </li>
         </ol>
