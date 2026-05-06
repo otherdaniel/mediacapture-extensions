@@ -395,7 +395,7 @@ partial interface MediaStreamTrack {
         <li><p>If <var>value</var>.`[[IsDetached]]` is <code>true</code>, throw a "DataCloneError" DOMException.</p></li>
         <li><p>Set <var>dataHolder</var>.`[[agentCluster]]` to the [=ECMAScript/surrounding agent=]’s [=ECMAScript/agent cluster=].</p></li>
         <li><p>Set <var>dataHolder</var>.`[[id]]` to <var>value</var>.{{MediaStreamTrack/id}}.</p></li>
-        <li><p>Set <var>dataHolder</var>.`[[kind]]` to <var>value</var>.{{MediaStreamTrack/kind}}.</p></li>
+        <li><p>Set <var>dataHolder</var>.`kind` to <var>value</var>.{{MediaStreamTrack/kind}}.</p></li>
         <li><p>Set <var>dataHolder</var>.`[[label]]` to <var>value</var>.{{MediaStreamTrack/label}}.</p></li>
         <li><p>Set <var>dataHolder</var>.`[[readyState]]` to <var>value</var>.{{MediaStreamTrack/readyState}}.</p></li>
         <li><p>Set <var>dataHolder</var>.`[[enabled]]` to <var>value</var>.{{MediaStreamTrack/enabled}}.</p></li>
@@ -412,7 +412,7 @@ partial interface MediaStreamTrack {
         <li><p>If the [=ECMAScript/surrounding agent=]’s [=ECMAScript/agent cluster=] is not
           <var>dataHolder</var>.`[[agentCluster]]`, then throw a "DataCloneError" DOMException.</p></li>
         <li><p>Initialize <var>track</var>.{{MediaStreamTrack/id}} to <var>dataHolder</var>.`[[id]]`.</p></li>
-        <li><p>Initialize <var>track</var>.{{MediaStreamTrack/kind}} to <var>dataHolder</var>.`[[kind]]`.</p></li>
+        <li><p>Initialize <var>track</var>.{{MediaStreamTrack/kind}} to <var>dataHolder</var>.`kind`.</p></li>
         <li><p>Initialize <var>track</var>.{{MediaStreamTrack/label}} to <var>dataHolder</var>.`[[label]]`.</p></li>
         <li><p>Initialize <var>track</var>.{{MediaStreamTrack/readyState}} to <var>dataHolder</var>.`[[readyState]]`.</p></li>
         <li><p>Initialize <var>track</var>.{{MediaStreamTrack/enabled}} to <var>dataHolder</var>.`[[enabled]]`.</p></li>
@@ -2153,8 +2153,8 @@ onmessage = async ({data: {track}}) => {
         agent=]. It's expected that the presentation is chiefly that of a button,
         with text and/or an icon to indicate this will give camera access.
         The presentation is expected to reflect the state of the underlying
-        stream (if any), e.g. by hinting to the user that a stream is live
-        (or not), or that the microphone might be open or muted.
+        track (if any), e.g. by hinting to the user that a track is live
+        (or not), or that the camera might be open or muted.
       </p>
 
       <section>
@@ -2192,10 +2192,11 @@ onmessage = async ({data: {track}}) => {
           <li>If [=this=].{{HTMLCameraElement/[[track]]}} is not null, then
             run [=HTMLCameraElement/activation second=] steps.</li>
           <li>Otherwise: If |event| is [=HTMLCameraElement/trusted=], then
-            run [=HTMLCameraElement/activation initial=] steps.</li>
+            run [=HTMLCameraElement/activation initial=] steps given [=this=].</li>
         </ol>
 
-        <p>The <dfn data-dfn-for="HTMLCameraElement">activation initial</dfn> steps are:</p>
+        <p>The <dfn data-dfn-for="HTMLCameraElement">activation initial</dfn>
+        steps for a given |element| are:</p>
         <ol class=algorithm>
           <li>[=Assert=]: [=this=].{{HTMLCameraElement/[[track]]}} is null.</li>
           <li>
@@ -2225,8 +2226,8 @@ onmessage = async ({data: {track}}) => {
                     <ol>
                       <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
                       <li>Let |tracks| be the set of {{MediaStreamTrack}}s in
-                        |v|'s [=/track set=] whose {{MediaStreamTrack/[[Kind]]}}
-                        is equal to "video". (Issue: `[[Kind]]` isn't exported.)</li>
+                        |v|'s [=/track set=] whose {{MediaStreamTrack/kind}}
+                        is equal to "video".</li>
                       <li>Set
                         {{HTMLCameraElement/[[track]]}} to |tracks|[0].</li>
                       <li>Run the [=HTMLCameraElement/track monitor=] steps on [=this=].</li>
@@ -2301,7 +2302,7 @@ onmessage = async ({data: {track}}) => {
           </li>
           <li>
             When the state of the monitored {{HTMLCameraElement/[[track]]}} changes, the user agent MUST update the |element|'s
-            internal UI to reflect the active, muted, or ended state of the track, and [=Fire an event=] named `trackchange` at |element|.
+            internal UI to reflect the active, muted, or ended state of the track.
           </li>
           <li>
             If {{HTMLCameraElement/[[track]]}}.{{MediaStreamTrack/readyState}} becomes `"ended"`, the user agent MUST
@@ -2382,11 +2383,10 @@ onmessage = async ({data: {track}}) => {
 
       <p>The &lt;<a>microphone</a>&gt; element's presentation is left to the
         [=user agent=]. It's expected that the presentation is chiefly that of a
-        button, with text and/or an icon to indicate this will give camera
+        button, with text and/or an icon to indicate this will give microphone
         access. The presentation is expected to reflect the state of the
-        underlying stream (if any), e.g. by hinting to the user that a stream
-        is live
-(or not), or that the microphone might be open or muted.
+        underlying track (if any), e.g. by hinting to the user that a track
+        is live (or not), or that the microphone might be open or muted.
       </p>
 
       <section>
@@ -2428,12 +2428,12 @@ onmessage = async ({data: {track}}) => {
           </li>
           <li>
             Otherwise: If |event| is [=HTMLMicrophoneElement/trusted=], then run
-            [=HTMLMicrophoneElement/activation initial=] steps.
+            [=HTMLMicrophoneElement/activation initial=] steps given [=this=].
           </li>
         </ol>
 
         <p>The <dfn data-dfn-for="HTMLMicrophoneElement">activation initial</dfn>
-          steps are:</p>
+          steps for a given |element| are:</p>
 
         <ol class=algorithm>
           <li>[=Assert=]: [=this=].{{HTMLMicrophoneElement/[[track]]}} is null.</li>
@@ -2464,7 +2464,7 @@ onmessage = async ({data: {track}}) => {
                     <ol>
                       <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
                       <li>Let |tracks| be the set of {{MediaStreamTrack}}s in
-                        |v|'s [=/track set=] whose {{MediaStreamTrack/[[Kind]]}}
+                        |v|'s [=/track set=] whose {{MediaStreamTrack/kind}}
                         is equal to "audio".</li>
                       <li>Set
                         {{HTMLMicrophoneElement/[[track]]}} to |tracks|[0].</li>
@@ -2540,7 +2540,7 @@ onmessage = async ({data: {track}}) => {
           </li>
           <li>
             When the state of the monitored {{HTMLMicrophoneElement/[[track]]}} changes, the user agent MUST update the |element|'s
-            internal UI to reflect the active, muted, or ended state of the track, and [=Fire an event=] named `trackchange` at |element|.
+            internal UI to reflect the active, muted, or ended state of the track.
           </li>
           <li>
             If {{HTMLMicrophoneElement/[[track]]}}.{{MediaStreamTrack/readyState}} becomes `"ended"`, the user agent MUST
@@ -2626,10 +2626,10 @@ onmessage = async ({data: {track}}) => {
 
       <p>The &lt;<a>usermedia</a>&gt; element's presentation is left to the [=user
         agent=]. It's expected that the presentation is chiefly that of a button,
-        with text and/or an icon to indicate this will give camera access.
-        The presentation is expected to reflect the state of the underlying
+        with text and/or an icon to indicate this will give camera and microphone
+        access. The presentation is expected to reflect the state of the underlying
         stream (if any), e.g. by hinting to the user that a stream is live
-        (or not), or that the microphone might be open or muted.
+        (or not), or that the camera and microphone might be active or muted.
       </p>
 
       <section>
@@ -2668,12 +2668,12 @@ onmessage = async ({data: {track}}) => {
             run [=HTMLUserMediaElement/activation second=] steps.
           </li>
           <li>Otherwise: If |event| is [=HTMLUserMediaElement/trusted=], then
-            run [=HTMLUserMediaElement/activation initial=] steps.
+            run [=HTMLUserMediaElement/activation initial=] steps given [=this=].
           </li>
         </ol>
 
         <p>The <dfn data-dfn-for="HTMLUserMediaElement">activation initial</dfn>
-          steps are:</p>
+          steps for a given |element| are:</p>
         <ol class=algorithm>
           <li>[=Assert=]: [=this=].{{HTMLUserMediaElement/[[stream]]}} is
             null.</li>
