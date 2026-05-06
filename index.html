@@ -1695,7 +1695,7 @@ partial dictionary MediaTrackSupportedConstraints {
   boolean humanFaceDetectionMode = true;
 };</pre>
       <section class="notoc">
-        <h4>Dictionary {{MediaTrackSupportedConstraints}} Members</h4>
+        <h3>Dictionary {{MediaTrackSupportedConstraints}} Members</h3>
         <dl class="dictionary-members" data-dfn-for="MediaTrackSupportedConstraints" data-link-for="MediaTrackSupportedConstraints">
           <dt><dfn>humanFaceDetectionMode</dfn> of type {{boolean}}, defaulting to <code>true</code></dt>
             <dd>See <a href=
@@ -1711,7 +1711,7 @@ partial dictionary MediaTrackCapabilities {
   sequence&lt;DOMString&gt; humanFaceDetectionMode;
 };</pre>
       <section class="notoc">
-        <h4>Dictionary {{MediaTrackCapabilities}} Members</h4>
+        <h3>Dictionary {{MediaTrackCapabilities}} Members</h3>
         <dl class="dictionary-members" data-dfn-for="MediaTrackCapabilities" data-link-for="MediaTrackCapabilities">
           <dt><dfn>humanFaceDetectionMode</dfn> of type <code>sequence&lt;{{DOMString}}&gt;</code></dt>
           <dd>
@@ -1730,13 +1730,12 @@ partial dictionary MediaTrackConstraintSet {
   ConstrainDOMString humanFaceDetectionMode;
 };</pre>
       <section class="notoc">
-        <h4>Dictionary {{MediaTrackConstraintSet}} Members</h4>
+        <h3>Dictionary {{MediaTrackConstraintSet}} Members</h3>
         <dl class="dictionary-members" data-dfn-for="MediaTrackConstraintSet" data-link-for="MediaTrackConstraintSet">
           <dt><dfn>humanFaceDetectionMode</dfn> of type {{ConstrainDOMString}}</dt>
           <dd>See <a href=
             "#def-constraint-humanFaceDetectionMode">
             humanFaceDetectionMode</a> for details.</dd>
-          </dd>
         </dl>
       </section>
     </section>
@@ -1747,13 +1746,12 @@ partial dictionary MediaTrackSettings {
   DOMString humanFaceDetectionMode;
 };</pre>
       <section class="notoc">
-        <h4>Dictionary {{MediaTrackSettings}} Members</h4>
+        <h3>Dictionary {{MediaTrackSettings}} Members</h3>
         <dl class="dictionary-members" data-dfn-for="MediaTrackSettings" data-link-for="MediaTrackSettings">
           <dt><dfn>humanFaceDetectionMode</dfn> of type {{DOMString}}</dt>
           <dd>See <a href=
             "#def-constraint-humanFaceDetectionMode">
             humanFaceDetectionMode</a> for details.</dd>
-          </dd>
         </dl>
       </section>
     </section>
@@ -1766,7 +1764,7 @@ enum HumanFaceDetectionModeEnum {
   "bounding-box-with-landmark-center-point",
 };</pre>
       <section class="notoc">
-        <h4>{{HumanFaceDetectionModeEnum}} Enumeration Description</h4>
+        <h3>{{HumanFaceDetectionModeEnum}} Enumeration Description</h3>
         <dl data-dfn-for="HumanFaceDetectionModeEnum" data-link-for="HumanFaceDetectionModeEnum">
           <dt><dfn><code>none</code></dfn></dt>
           <dd>
@@ -2235,7 +2233,7 @@ onmessage = async ({data: {track}}) => {
 
                     </ol>
                   </li>
-                  <li>Otherwise:</li>
+                  <li>Otherwise:
                     <ol>
                       <li>[=Assert=]: |mediaPromise| was rejected with reason |r|.</li>
                       <li>[=Assert=]: |r| is a |DOMException|.</li>
@@ -2473,7 +2471,7 @@ onmessage = async ({data: {track}}) => {
 
                     </ol>
                   </li>
-                  <li>Otherwise:</li>
+                  <li>Otherwise:
                     <ol>
                       <li>[=Assert=]: |mediaPromise| was rejected with reason |r|.</li>
                       <li>[=Assert=]: |r| is a |DOMException|.</li>
@@ -2731,7 +2729,7 @@ onmessage = async ({data: {track}}) => {
 
         <p>
           The &lt;<a>usermedia</a>&gt; element's
-          <dfn for=HTMLUserMediaElement>activation second</dfn> steps are:
+          <dfn data-dfn-for="HTMLUserMediaElement">activation second</dfn> steps are:
         </p>
         <ol class=algorithm>
           <li>[=Assert=]: [=this=].{{HTMLUserMediaElement/[[stream]]}} is a
