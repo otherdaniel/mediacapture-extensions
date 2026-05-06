@@ -2224,17 +2224,11 @@ onmessage = async ({data: {track}}) => {
                   <li>If |mediaPromise| was fulfilled with value |v|:
                     <ol>
                       <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
-                      <li>Let |tracks| be the result of calling {{MediaStream/getVideoTracks()}} on |v|.</li>
-                      <li>If |tracks| is not empty, set
+                      <li>Let |tracks| be the set of {{MediaStreamTrack}}s in
+                        |v|'s [=/track set=] whose {{MediaStreamTrack/[[Kind]]}}
+                        is equal to "video". (Issue: `[[Kind]]` isn't exported.)</li>
+                      <li>Set
                         {{HTMLCameraElement/[[track]]}} to |tracks|[0].</li>
-                      <li>If {{HTMLCameraElement/[[track]]}} is null:
-                        <ol>
-                          <li>[=Fire an event=] named `error` on [=this=],
-                            using {{DOMException}}.
-                            (Description still TBD.)</li>
-                          <li>Return.</li>
-                        </ol>
-                      </li>
                       <li>Run the [=HTMLCameraElement/track monitor=] steps on [=this=].</li>
                       <li>[=Fire an event=] named `stream` on [=this=].</li>
 
@@ -2469,17 +2463,11 @@ onmessage = async ({data: {track}}) => {
                   <li>If |mediaPromise| was fulfilled with value |v|:
                     <ol>
                       <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
-                      <li>Let |tracks| be the result of calling {{MediaStream/getAudioTracks()}} on |v|.</li>
-                      <li>If |tracks| is not empty, set
+                      <li>Let |tracks| be the set of {{MediaStreamTrack}}s in
+                        |v|'s [=/track set=] whose {{MediaStreamTrack/[[Kind]]}}
+                        is equal to "audio".</li>
+                      <li>Set
                         {{HTMLMicrophoneElement/[[track]]}} to |tracks|[0].</li>
-                      <li>If {{HTMLMicrophoneElement/[[track]]}} is null:
-                        <ol>
-                          <li>[=Fire an event=] named `error` on [=this=],
-                            using {{DOMException}}.
-                            (Description still TBD.)</li>
-                          <li>Return.</li>
-                        </ol>
-                      </li>
                       <li>Run the [=HTMLMicrophoneElement/track monitor=] steps on [=this=].</li>
                       <li>[=Fire an event=] named `stream` on [=this=].</li>
 
