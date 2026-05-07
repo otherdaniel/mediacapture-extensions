@@ -2108,10 +2108,12 @@ onmessage = async ({data: {track}}) => {
         [HTMLConstructor] constructor();
 
         readonly attribute MediaStreamTrack? track;
+        readonly attribute DOMException? error;
         undefined setConstraints(optional MediaTrackConstraintSet constraints = {});
 
         attribute EventHandler onstream;
         attribute EventHandler onerror;
+        attribute EventHandler oncancel;
       };
       </pre>
 
@@ -2125,6 +2127,26 @@ onmessage = async ({data: {track}}) => {
           <dfn data-dfn-for="HTMLCameraElement">[[\constraints]]</dfn> &mdash;
           Holds a {{MediaTrackConstraintSet}}.
         </li>
+        <li>
+          <dfn data-dfn-for="HTMLCameraElement">[[\error]]</dfn> &mdash;
+          Holds null or a {{DOMException}}.
+        </li>
+      </ul>
+
+      <p>The &lt;<a>camera</a>&gt; element's activation is filtered to allow
+        only activitations that result from genuine user action. Each activation
+        is expected to fire an event on one of three event handlers, depending
+        on whether the activation was successful:</p>
+
+      <ul>
+        <li><dfn data-dfn-for=HTMLCameraElement>onstream</dfn> &mdash;
+          Activation was successful and a media stream is available.</li>
+        <li><dfn data-dfn-for=HTMLCameraElement>oncancel</dfn> &mdash;
+          Activation was not successful, because the user decided not to proceed.
+          For example, by not accepting a permission prompt.</li>
+        <li><dfn data-dfn-for=HTMLCameraElement>onerror</dfn> &mdash;
+          Activation has failed. No media stream is available. The
+          {{HTMLCameraElement/error}} attribute holds additional information.</li>
       </ul>
 
       <p>
@@ -2164,11 +2186,17 @@ onmessage = async ({data: {track}}) => {
         <ol class=algorithm>
           <li>Initialize [=this=].{{HTMLCameraElement/[[track]]}} to null.</li>
           <li>Initialize [=this=].{{HTMLCameraElement/[[constraints]]}} to «».</li>
+          <li>Initialize [=this=].{{HTMLCameraElement/[[error]]}} to null.</li>
         </ol>
 
         <p>The <dfn data-dfn-for=HTMLCameraElement>track</dfn> <a>getter</a> steps are:</p>
         <ol class=algorithm>
           <li>Return [=this=].{{HTMLCameraElement/[[track]]}}.</li>
+        </ol>
+
+        <p>The <dfn data-dfn-for=HTMLCameraElement>error</dfn> <a>getter</a> steps are:</p>
+        <ol class=algorithm>
+          <li>Return [=this=].{{HTMLCameraElement/[[error]]}}.</li>
         </ol>
 
         <p>
@@ -2177,7 +2205,9 @@ onmessage = async ({data: {track}}) => {
         </p>
         <ol class=algorithm>
           <li>
-            Set [=this=].{{HTMLCameraElement/[[constraints]]}} to |constraints|.
+            Set [=this=].{{HTMLCameraElement/[[constraints]]}} to |constraints|
+            to the result of [=HTMLCameraElement/constraint filter=] with
+            |constraints|.
           </li>
         </ol>
 
@@ -2214,7 +2244,7 @@ onmessage = async ({data: {track}}) => {
 
                 <div class=note>
                 The call to the {{MediaDevices/getUserMedia()}} method should
-                be replaced with anon-IDL entry point or algorithm.</div>
+                be replaced with a non-IDL entry point or algorithm.</div>
               </li>
               <li>
                 [=promise/React=] to |mediaPromise|:
@@ -2236,6 +2266,7 @@ onmessage = async ({data: {track}}) => {
                     <ol>
                       <li>[=Assert=]: |mediaPromise| was rejected with reason |r|.</li>
                       <li>[=Assert=]: |r| is a |DOMException|.</li>
+                      <li>Set [=this=].{{HTMLCameraElement/[[error]]}} to |r|.
                       <li>[=Fire an event=] named `error` on [=this=],
                         using {{DOMException}}.
                         (Description still TBD.)</li>
@@ -2246,7 +2277,7 @@ onmessage = async ({data: {track}}) => {
               </li>
             </ol>
           </li>
-          <li>Otherwise, [=fire an event=] named `error` on [=this=],
+          <li>Otherwise, [=fire an event=] named `cancel` on [=this=],
             using {{DOMException}}.
             (Description still TBD.)</li>
         </ol>
@@ -2339,10 +2370,12 @@ onmessage = async ({data: {track}}) => {
         [HTMLConstructor] constructor();
 
         readonly attribute MediaStreamTrack? track;
+        readonly attribute DOMException? error;
         undefined setConstraints(optional MediaTrackConstraintSet constraints = {});
 
         attribute EventHandler onstream;
         attribute EventHandler onerror;
+        attribute EventHandler oncancel;
       };
       </pre>
 
@@ -2356,7 +2389,27 @@ onmessage = async ({data: {track}}) => {
           <dfn data-dfn-for="HTMLMicrophoneElement">[[\constraints]]</dfn> &mdash;
           Holds a {{MediaTrackConstraintSet}}.
         </li>
+        <li>
+          <dfn data-dfn-for="HTMLMicrophoneElement">[[\error]]</dfn> &mdash;
+          Holds null or a {{DOMException}}.
+        </li>
      </ul>
+
+     <p>The &lt;<a>microphone</a>&gt; element's activation is filtered to allow
+        only activitations that result from genuine user action. Each activation
+        is expected to fire an event on one of three event handlers, depending
+        on whether the activation was successful:</p>
+
+      <ul>
+        <li><dfn data-dfn-for=HTMLMicrophoneElement>onstream</dfn> &mdash;
+          Activation was successful and a media stream is available.</li>
+        <li><dfn data-dfn-for=HTMLMicrophoneElement>oncancel</dfn> &mdash;
+          Activation was not successful, because the user decided not to proceed.
+          For example, by not accepting a permission prompt.</li>
+        <li><dfn data-dfn-for=HTMLMicrophoneElement>onerror</dfn> &mdash;
+          Activation has failed. No media stream is available. The
+          {{HTMLMicrophoneElement/error}} attribute holds additional information.</li>
+      </ul>
 
       <p>
         The &lt;<a>microphone</a>&gt; element belongs to the [=flow content=],
@@ -2395,6 +2448,7 @@ onmessage = async ({data: {track}}) => {
         <ol class=algorithm>
           <li>Initialize [=this=].{{HTMLMicrophoneElement/[[track]]}} to null.</li>
           <li>Initialize [=this=].{{HTMLMicrophoneElement/[[constraints]]}} to «».</li>
+          <li>Initialize [=this=].{{HTMLMicrophoneElement/[[error]]}} to null.</li>
         </ol>
 
         <p>The <dfn data-dfn-for=HTMLMicrophoneElement>track</dfn> <a>getter</a>
@@ -2403,12 +2457,18 @@ onmessage = async ({data: {track}}) => {
           <li>Return [=this=].{{HTMLMicrophoneElement/[[track]]}}.</li>
         </ol>
 
+        <p>The <dfn data-dfn-for=HTMLMicrophoneElement>error</dfn> <a>getter</a> steps are:</p>
+        <ol class=algorithm>
+          <li>Return [=this=].{{HTMLMicrophoneElement/[[error]]}}.</li>
+        </ol>
+
         <p>The <dfn data-dfn-for=HTMLMicrophoneElement>setConstraints()</dfn> steps with
           a parameter |constraints| are:
         </p>
         <ol class=algorithm>
           <li>
-            Set [=this=].{{HTMLMicrophoneElement/[[constraints]]}} to |constraints|.
+            Set [=this=].{{HTMLMicrophoneElement/[[constraints]]}} to the result
+            of [=HTMLMicrophoneElement/constraint filter=] with |constraints|.
           </li>
         </ol>
 
@@ -2450,7 +2510,7 @@ onmessage = async ({data: {track}}) => {
 
                 <div class=note>
                 The call to the {{MediaDevices/getUserMedia()}} method should
-                be replaced with anon-IDL entry point or algorithm.</div>
+                be replaced with a non-IDL entry point or algorithm.</div>
               </li>
               <li>
                 [=promise/React=] to |mediaPromise|:
@@ -2472,6 +2532,7 @@ onmessage = async ({data: {track}}) => {
                     <ol>
                       <li>[=Assert=]: |mediaPromise| was rejected with reason |r|.</li>
                       <li>[=Assert=]: |r| is a |DOMException|.</li>
+                      <li>Set {{HTMLMicrophoneElement/[[error]]}} to |r|.
                       <li>[=Fire an event=] named `error` on [=this=],
                         using {{DOMException}}.
                         (Description still TBD.)</li>
@@ -2482,7 +2543,7 @@ onmessage = async ({data: {track}}) => {
               </li>
             </ol>
           </li>
-          <li>Otherwise, [=fire an event=] named `error` on [=this=],
+          <li>Otherwise, [=fire an event=] named `cancel` on [=this=],
             using {{DOMException}}.
             (Description still TBD.)</li>
         </ol>
@@ -2580,10 +2641,12 @@ onmessage = async ({data: {track}}) => {
         [HTMLConstructor] constructor();
 
         readonly attribute MediaStream? stream;
+        readonly attribute DOMException? error;
         undefined setConstraints(optional HTMLMediaStreamConstraints constraints = {});
 
         attribute EventHandler onstream;
         attribute EventHandler onerror;
+        attribute EventHandler oncancel;
       };
       </pre>
 
@@ -2597,6 +2660,26 @@ onmessage = async ({data: {track}}) => {
           <dfn data-dfn-for="HTMLUserMediaElement">[[\constraints]]</dfn> &mdash;
           Holds an {{HTMLMediaStreamConstraints}}.
         </li>
+        <li>
+          <dfn data-dfn-for="HTMLUserMediaElement">[[\error]]</dfn> &mdash;
+          Holds null or a {{DOMException}}.
+        </li>
+      </ul>
+
+     <p>The &lt;<a>usermedia</a>&gt; element's activation is filtered to allow
+        only activitations that result from genuine user action. Each activation
+        is expected to fire an event on one of three event handlers, depending
+        on whether the activation was successful:</p>
+
+      <ul>
+        <li><dfn data-dfn-for=HTMLUserMediaElement>onstream</dfn> &mdash;
+          Activation was successful and a media stream is available.</li>
+        <li><dfn data-dfn-for=HTMLUserMediaElement>oncancel</dfn> &mdash;
+          Activation was not successful, because the user decided not to proceed.
+          For example, by not accepting a permission prompt.</li>
+        <li><dfn data-dfn-for=HTMLUserMediaElement>onerror</dfn> &mdash;
+          Activation has failed. No media stream is available. The
+          {{HTMLUserMediaElement/error}} attribute holds additional information.</li>
       </ul>
 
       <p>
@@ -2634,14 +2717,21 @@ onmessage = async ({data: {track}}) => {
           steps are:
         </p>
         <ol class=algorithm>
-          <li>Initialize {{HTMLUserMediaElement/[[stream]]}} to null.</li>
-          <li>Initialize {{HTMLUserMediaElement/[[constraints]]}} to «».</li>
+          <li>Initialize [=this=].{{HTMLUserMediaElement/[[stream]]}} to null.</li>
+          <li>Initialize [=this=].{{HTMLUserMediaElement/[[constraints]]}} to «».</li>
+          <li>Initialize [=this=].{{HTMLUserMediaElement/[[error]]}} to null.</li>
         </ol>
 
         <p>The <dfn data-dfn-for=HTMLUserMediaElement>stream</dfn>
           <a>getter</a> steps are:</p>
         <ol class=algorithm>
           <li>Return {{HTMLUserMediaElement/[[stream]]}}.</li>
+        </ol>
+
+        <p>The <dfn data-dfn-for=HTMLUserMediaElement>error</dfn>
+          <a>getter</a> steps are:</p>
+        <ol class=algorithm>
+          <li>Return {{HTMLUserMediaElement/[[error]]}}.</li>
         </ol>
 
         <p>The <dfn data-dfn-for=HTMLUserMediaElement>setConstraints()</dfn>
@@ -2691,7 +2781,7 @@ onmessage = async ({data: {track}}) => {
                 {{HTMLUserMediaElement/[[constraints]]}} as its first argument.
                 <div class=note>
                   The call to the {{MediaDevices/getUserMedia()}} method should
-                  be replaced with anon-IDL entry point or algorithm.
+                  be replaced with a non-IDL entry point or algorithm.
                 </div>
               </li>
               <li>[=promise/React=] to |mediaPromise|:
@@ -2710,6 +2800,7 @@ onmessage = async ({data: {track}}) => {
                     <ol>
                       <li>[=Assert=]: |mediaPromise| was rejected with reason |r|.</li>
                       <li>[=Assert=]: |r| is a |DOMException|.</li>
+                      <li>Set {{HTMLUserMediaElement/[[error]]}} to |r|.
                       <li>[=Fire an event=] named `error` on [=this=],
                         using {{DOMException}}. (Description still TBD.).</li>
                       <li>Return.</li>
@@ -2719,7 +2810,7 @@ onmessage = async ({data: {track}}) => {
               </li>
             </ol>
           </li>
-          <li>[=Fire an event=] named `error` on [=this=],
+          <li>[=Fire an event=] named `cancel` on [=this=],
              using {{DOMException}}. (Description still TBD.).
           </li>
         </ol>
