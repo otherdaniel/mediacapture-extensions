@@ -2177,7 +2177,9 @@ onmessage = async ({data: {track}}) => {
         </p>
         <ol class=algorithm>
           <li>
-            Set [=this=].{{HTMLCameraElement/[[constraints]]}} to |constraints|.
+            Set [=this=].{{HTMLCameraElement/[[constraints]]}} to |constraints|
+            to the result of [=HTMLCameraElement/constraint filter=] with
+            |constraints|.
           </li>
         </ol>
 
@@ -2408,7 +2410,8 @@ onmessage = async ({data: {track}}) => {
         </p>
         <ol class=algorithm>
           <li>
-            Set [=this=].{{HTMLMicrophoneElement/[[constraints]]}} to |constraints|.
+            Set [=this=].{{HTMLMicrophoneElement/[[constraints]]}} to the result
+            of [=HTMLMicrophoneElement/constraint filter=] with |constraints|.
           </li>
         </ol>
 
