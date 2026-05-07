@@ -395,7 +395,7 @@ partial interface MediaStreamTrack {
         <li><p>If <var>value</var>.`[[IsDetached]]` is <code>true</code>, throw a "DataCloneError" DOMException.</p></li>
         <li><p>Set <var>dataHolder</var>.`[[agentCluster]]` to the [=ECMAScript/surrounding agent=]’s [=ECMAScript/agent cluster=].</p></li>
         <li><p>Set <var>dataHolder</var>.`[[id]]` to <var>value</var>.{{MediaStreamTrack/id}}.</p></li>
-        <li><p>Set <var>dataHolder</var>.`kind` to <var>value</var>.{{MediaStreamTrack/kind}}.</p></li>
+        <li><p>Set <var>dataHolder</var>.`[[kind]]` to <var>value</var>.{{MediaStreamTrack/kind}}.</p></li>
         <li><p>Set <var>dataHolder</var>.`[[label]]` to <var>value</var>.{{MediaStreamTrack/label}}.</p></li>
         <li><p>Set <var>dataHolder</var>.`[[readyState]]` to <var>value</var>.{{MediaStreamTrack/readyState}}.</p></li>
         <li><p>Set <var>dataHolder</var>.`[[enabled]]` to <var>value</var>.{{MediaStreamTrack/enabled}}.</p></li>
@@ -412,7 +412,7 @@ partial interface MediaStreamTrack {
         <li><p>If the [=ECMAScript/surrounding agent=]’s [=ECMAScript/agent cluster=] is not
           <var>dataHolder</var>.`[[agentCluster]]`, then throw a "DataCloneError" DOMException.</p></li>
         <li><p>Initialize <var>track</var>.{{MediaStreamTrack/id}} to <var>dataHolder</var>.`[[id]]`.</p></li>
-        <li><p>Initialize <var>track</var>.{{MediaStreamTrack/kind}} to <var>dataHolder</var>.`kind`.</p></li>
+        <li><p>Initialize <var>track</var>.{{MediaStreamTrack/kind}} to <var>dataHolder</var>.`[[kind]]`.</p></li>
         <li><p>Initialize <var>track</var>.{{MediaStreamTrack/label}} to <var>dataHolder</var>.`[[label]]`.</p></li>
         <li><p>Initialize <var>track</var>.{{MediaStreamTrack/readyState}} to <var>dataHolder</var>.`[[readyState]]`.</p></li>
         <li><p>Initialize <var>track</var>.{{MediaStreamTrack/enabled}} to <var>dataHolder</var>.`[[enabled]]`.</p></li>
@@ -1469,7 +1469,7 @@ partial dictionary MediaTrackCapabilities {
 };
         </pre>
         </p>
-      <h3>Processing considerations</h3>
+      <h4>Processing considerations</h4>
       <p>
         When the "voiceIsolation" setting is set to <code>true</code> by the
         <a>ApplyConstraints algorithm</a>, the UA
@@ -1695,7 +1695,7 @@ partial dictionary MediaTrackSupportedConstraints {
   boolean humanFaceDetectionMode = true;
 };</pre>
       <section class="notoc">
-        <h3>Dictionary {{MediaTrackSupportedConstraints}} Members</h3>
+        <h4>Dictionary {{MediaTrackSupportedConstraints}} Members</h4>
         <dl class="dictionary-members" data-dfn-for="MediaTrackSupportedConstraints" data-link-for="MediaTrackSupportedConstraints">
           <dt><dfn>humanFaceDetectionMode</dfn> of type {{boolean}}, defaulting to <code>true</code></dt>
             <dd>See <a href=
@@ -1711,7 +1711,7 @@ partial dictionary MediaTrackCapabilities {
   sequence&lt;DOMString&gt; humanFaceDetectionMode;
 };</pre>
       <section class="notoc">
-        <h3>Dictionary {{MediaTrackCapabilities}} Members</h3>
+        <h4>Dictionary {{MediaTrackCapabilities}} Members</h4>
         <dl class="dictionary-members" data-dfn-for="MediaTrackCapabilities" data-link-for="MediaTrackCapabilities">
           <dt><dfn>humanFaceDetectionMode</dfn> of type <code>sequence&lt;{{DOMString}}&gt;</code></dt>
           <dd>
@@ -1730,7 +1730,7 @@ partial dictionary MediaTrackConstraintSet {
   ConstrainDOMString humanFaceDetectionMode;
 };</pre>
       <section class="notoc">
-        <h3>Dictionary {{MediaTrackConstraintSet}} Members</h3>
+        <h4>Dictionary {{MediaTrackConstraintSet}} Members</h4>
         <dl class="dictionary-members" data-dfn-for="MediaTrackConstraintSet" data-link-for="MediaTrackConstraintSet">
           <dt><dfn>humanFaceDetectionMode</dfn> of type {{ConstrainDOMString}}</dt>
           <dd>See <a href=
@@ -1746,7 +1746,7 @@ partial dictionary MediaTrackSettings {
   DOMString humanFaceDetectionMode;
 };</pre>
       <section class="notoc">
-        <h3>Dictionary {{MediaTrackSettings}} Members</h3>
+        <h4>Dictionary {{MediaTrackSettings}} Members</h4>
         <dl class="dictionary-members" data-dfn-for="MediaTrackSettings" data-link-for="MediaTrackSettings">
           <dt><dfn>humanFaceDetectionMode</dfn> of type {{DOMString}}</dt>
           <dd>See <a href=
@@ -1764,7 +1764,7 @@ enum HumanFaceDetectionModeEnum {
   "bounding-box-with-landmark-center-point",
 };</pre>
       <section class="notoc">
-        <h3>{{HumanFaceDetectionModeEnum}} Enumeration Description</h3>
+        <h4>{{HumanFaceDetectionModeEnum}} Enumeration Description</h4>
         <dl data-dfn-for="HumanFaceDetectionModeEnum" data-link-for="HumanFaceDetectionModeEnum">
           <dt><dfn><code>none</code></dfn></dt>
           <dd>
