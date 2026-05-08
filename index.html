@@ -2141,13 +2141,22 @@ onmessage = async ({data: {track}}) => {
         on whether the activation was successful:</p>
 
       <ul>
-        <li><dfn data-dfn-for=HTMLCameraElement>ontrack</dfn> &mdash;
-          Activation was successful and a media track is available.</li>
-        <li><dfn data-dfn-for=HTMLCameraElement>oncancel</dfn> &mdash;
-          Activation was not successful, because the user decided not to proceed.
+        <li><dfn data-dfn-for=HTMLCameraElement>ontrack</dfn>
+          &mdash; [=Event handler IDL attribute=] for the `track`
+          [=event handler=] of [=event handler event type|type=] {{Event}}.
+          It is fired when activation was successful and a media stream is
+          available.</li>
+        <li><dfn data-dfn-for=HTMLCameraElement>oncancel</dfn>
+          &mdash; [=Event handler IDL attribute=] for the `cancel`
+          [=event handler=] of [=event handler event type|type=] {{Event}}.
+          It is fired when activation was not successful because the user
+          decided not to proceed.
           For example, by not accepting a permission prompt.</li>
-        <li><dfn data-dfn-for=HTMLCameraElement>onerror</dfn> &mdash;
-          Activation has failed. No media track is available. The
+        <li><dfn data-dfn-for=HTMLCameraElement>onerror</dfn>
+          &mdash; [=Event handler IDL attribute=] for the `error`
+          [=event handler=] of [=event handler event type|type=] {{Event}}.
+          It is fired when activation has failed for reasons other than user
+          choice. No media stream is available. The
           {{HTMLCameraElement/error}} attribute holds additional information.</li>
       </ul>
 
@@ -2169,6 +2178,10 @@ onmessage = async ({data: {track}}) => {
           <a href="https://html.spec.whatwg.org/multipage/dom.html#global-attributes">global attributes</a>
         </dt>
         <dd>&mdash; all global content attributes.</dd>
+        <dt>{{HTMLCameraElement/ontrack}}</dt>
+        <dt>{{HTMLCameraElement/oncancel}}</dt>
+        <dt>{{HTMLCameraElement/onerror}}</dt>
+        <dd>&mdash; [=event handler IDL attributes=]</dd>
       </dl>
 
       <p>The &lt;<a>camera</a>&gt; element's presentation is left to the [=user
@@ -2299,12 +2312,12 @@ onmessage = async ({data: {track}}) => {
         <p>To determine whether an {{Event}} |event| is
           <dfn data-dfn-for=HTMLCameraElement>trusted</dfn>:</p>
 
-        <p class=note>{{HTMLCameraElement}} stream creation is supposed to happen by
+        <div class=note>{{HTMLCameraElement}} stream creation is supposed to happen by
           genuine user action. [=User agents=] SHOULD suppress activation
           for "click-jacking", as well as for programmatic activation. Since
           exact critera for these are difficult to specify, we presently leave
           this as implementation defined. [=User agents=] MUST at minimum
-          reject untrusted events.</p>
+          reject untrusted events.</div>
 
         <ol class=algorithm>
           <li>If |event|.{{Event/isTrusted}} is false: Return false.</li>
@@ -2402,15 +2415,24 @@ onmessage = async ({data: {track}}) => {
         is expected to fire an event on one of three event handlers, depending
         on whether the activation was successful:</p>
 
-      <ul>
-        <li><dfn data-dfn-for=HTMLMicrophoneElement>ontrack</dfn> &mdash;
-          Activation was successful and a media track is available.</li>
-        <li><dfn data-dfn-for=HTMLMicrophoneElement>oncancel</dfn> &mdash;
-          Activation was not successful, because the user decided not to proceed.
-          For example, by not accepting a permission prompt.</li>
-        <li><dfn data-dfn-for=HTMLMicrophoneElement>onerror</dfn> &mdash;
-          Activation has failed. No media track is available. The
-          {{HTMLMicrophoneElement/error}} attribute holds additional information.</li>
+     <ul>
+       <li><dfn data-dfn-for=HTMLMicrophoneElement>ontrack</dfn>
+         &mdash; [=Event handler IDL attribute=] for the `track`
+         [=event handler=] of [=event handler event type|type=] {{Event}}.
+         It is fired when activation was successful and a media stream is
+         available.</li>
+       <li><dfn data-dfn-for=HTMLMicrophoneElement>oncancel</dfn>
+         &mdash; [=Event handler IDL attribute=] for the `cancel`
+         [=event handler=] of [=event handler event type|type=] {{Event}}.
+         It is fired when activation was not successful because the user
+         decided not to proceed.
+         For example, by not accepting a permission prompt.</li>
+       <li><dfn data-dfn-for=HTMLMicrophoneElement>onerror</dfn>
+         &mdash; [=Event handler IDL attribute=] for the `error`
+         [=event handler=] of [=event handler event type|type=] {{Event}}.
+         It is fired when activation has failed for reasons other than user
+         choice. No media stream is available. The
+         {{HTMLMicrophoneElement/error}} attribute holds additional information.</li>
       </ul>
 
       <p>
@@ -2431,6 +2453,10 @@ onmessage = async ({data: {track}}) => {
           <a href="https://html.spec.whatwg.org/multipage/dom.html#global-attributes">global attributes</a>
         </dt>
         <dd>&mdash; all global content attributes.</dd>
+        <dt>{{HTMLMicrophoneElement/ontrack}}</dt>
+        <dt>{{HTMLMicrophoneElement/oncancel}}</dt>
+        <dt>{{HTMLMicrophoneElement/onerror}}</dt>
+        <dd>&mdash; [=event handler IDL attributes=]</dd>
       </dl>
 
       <p>The &lt;<a>microphone</a>&gt; element's presentation is left to the
@@ -2564,12 +2590,12 @@ onmessage = async ({data: {track}}) => {
         <p>To determine whether an {{Event}} |event| is
           <dfn data-dfn-for=HTMLMicrophoneElement>trusted</dfn>:</p>
 
-        <p class=note>{{HTMLMicrophoneElement}} stream creation is supposed to happen by
+        <div class=note>{{HTMLMicrophoneElement}} stream creation is supposed to happen by
           genuine user action. [=User agents=] SHOULD suppress activation
           for "click-jacking", as well as for programmatic activation. Since
           exact critera for these are difficult to specify, we presently leave
           this as implementation defined. [=User agents=] MUST at minimum
-          reject untrusted events.</p>
+          reject untrusted events.</div>
 
         <ol class=algorithm>
           <li>If |event|.{{Event/isTrusted}} is false: Return false.</li>
@@ -2668,19 +2694,28 @@ onmessage = async ({data: {track}}) => {
         </li>
       </ul>
 
-     <p>The &lt;<a>usermedia</a>&gt; element's activation is filtered to allow
-        only activitations that result from genuine user action. Each activation
-        is expected to fire an event on one of three event handlers, depending
-        on whether the activation was successful:</p>
+      <p>The &lt;<a>usermedia</a>&gt; element's activation is filtered to allow
+         only activitations that result from genuine user action. Each activation
+         is expected to fire an event on one of three event handlers, depending
+         on whether the activation was successful:</p>
 
       <ul>
-        <li><dfn data-dfn-for=HTMLUserMediaElement>onstream</dfn> &mdash;
-          Activation was successful and a media stream is available.</li>
-        <li><dfn data-dfn-for=HTMLUserMediaElement>oncancel</dfn> &mdash;
-          Activation was not successful, because the user decided not to proceed.
+        <li><dfn data-dfn-for=HTMLUserMediaElement>onstream</dfn>
+          &mdash; [=Event handler IDL attribute=] for the `stream`
+          [=event handler=] of [=event handler event type|type=] {{Event}}.
+          It is fired when activation was successful and a media stream is
+          available.</li>
+        <li><dfn data-dfn-for=HTMLUserMediaElement>oncancel</dfn>
+          &mdash; [=Event handler IDL attribute=] for the `cancel`
+          [=event handler=] of [=event handler event type|type=] {{Event}}.
+          It is fired when activation was not successful because the user
+          decided not to proceed.
           For example, by not accepting a permission prompt.</li>
-        <li><dfn data-dfn-for=HTMLUserMediaElement>onerror</dfn> &mdash;
-          Activation has failed. No media stream is available. The
+        <li><dfn data-dfn-for=HTMLUserMediaElement>onerror</dfn>
+          &mdash; [=Event handler IDL attribute=] for the `error`
+          [=event handler=] of [=event handler event type|type=] {{Event}}.
+          It is fired when activation has failed for reasons other than user
+          choice. No media stream is available. The
           {{HTMLUserMediaElement/error}} attribute holds additional information.</li>
       </ul>
 
@@ -2702,6 +2737,10 @@ onmessage = async ({data: {track}}) => {
           <a href="https://html.spec.whatwg.org/multipage/dom.html#global-attributes">global attributes</a>
         </dt>
         <dd>&mdash; all global content attributes.</dd>
+        <dt>{{HTMLUserMediaElement/onstream}}</dt>
+        <dt>{{HTMLUserMediaElement/oncancel}}</dt>
+        <dt>{{HTMLUserMediaElement/onerror}}</dt>
+        <dd>&mdash; [=event handler IDL attributes=]</dd>
       </dl>
 
       <p>The &lt;<a>usermedia</a>&gt; element's presentation is left to the [=user
@@ -2833,12 +2872,12 @@ onmessage = async ({data: {track}}) => {
         <p>To determine whether an {{Event}} |event| is
           <dfn data-dfn-for=HTMLUserMediaElement>trusted</dfn>:</p>
 
-        <p class=note>{{HTMLUserMediaElement}} stream creation is supposed to happen by
+        <div class=note>{{HTMLUserMediaElement}} stream creation is supposed to happen by
           genuine user action. [=User agents=] SHOULD suppress activation
           for "click-jacking", as well as for programmatic activation. Since
           exact critera for these are difficult to specify, we presently leave
           this as implementation defined. [=User agents=] MUST at minimum
-          reject untrusted events.</p>
+          reject untrusted events.</div>
 
         <ol class=algorithm>
           <li>If |event|.{{Event/isTrusted}} is false: Return false.</li>
