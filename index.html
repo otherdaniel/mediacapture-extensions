@@ -2218,13 +2218,20 @@ onmessage = async ({data: {track}}) => {
           given |event| is:
         </p>
         <ol class=algorithm>
-          <li>If [=this=].{{HTMLCameraElement/[[track]]}} is not null, then
-            run [=HTMLCameraElement/activation second=] steps.</li>
-          <li>Otherwise: If |event| is [=HTMLCameraElement/trusted=], then
-            run [=HTMLCameraElement/activation initial=] steps given [=this=].</li>
+          <li>If |event| is [=HTMLCameraElement/trusted=], then run
+            [=HTMLCameraElement/activation start stream=] steps given [=this=].</li>
         </ol>
 
-        <p>The <dfn data-dfn-for="HTMLCameraElement">activation initial</dfn>
+        <div class=note>
+          &lt;<a>camera</a>&gt;'s [=EventTarget/activation behavior=]
+          currently ignores activation when it already has a
+          {{HTMLCameraElement/[[track]]}} set. The intent is that the
+          a &lt;<a>camera</a>&gt; element with an active stream will act
+          as a toggle to allow users to control the stream. The details still
+          need to be determined.
+        </div>
+
+        <p>The <dfn data-dfn-for="HTMLCameraElement">activation start stream</dfn>
         steps for a given |element| are:</p>
         <ol class=algorithm>
           <li>[=Assert=]: [=this=].{{HTMLCameraElement/[[track]]}} is null.</li>
@@ -2282,18 +2289,6 @@ onmessage = async ({data: {track}}) => {
           <li>Otherwise, [=fire an event=] named `cancel` on [=this=],
             using {{DOMException}}.
             (Description still TBD.)</li>
-        </ol>
-
-        <p>The <dfn data-dfn-for="HTMLCameraElement">activation second</dfn>
-          steps are:</p>
-        <ol class=algorithm>
-          <li>[=Assert=]: [=this=].{{HTMLCameraElement/[[track]]}} is a
-            {{MediaStreamTrack}}.</li>
-          <li>
-            Set [=this=].{{HTMLCameraElement/[[track]]}}.{{MediaStreamTrack/enabled}}
-            to the negation of
-            [=this=].{{HTMLCameraElement/[[track]]}}.{{MediaStreamTrack/enabled}}.
-          </li>
         </ol>
 
         <p>To determine whether an {{Event}} |event| is
@@ -2480,16 +2475,23 @@ onmessage = async ({data: {track}}) => {
         </p>
         <ol class=algorithm>
           <li>
-            If [=this=].{{HTMLMicrophoneElement/[[track]]}} is not null, then
-            run [=HTMLMicrophoneElement/activation second=] steps.
-          </li>
-          <li>
-            Otherwise: If |event| is [=HTMLMicrophoneElement/trusted=], then run
-            [=HTMLMicrophoneElement/activation initial=] steps given [=this=].
+            If |event| is [=HTMLMicrophoneElement/trusted=], then run
+            [=HTMLMicrophoneElement/activation start stream=] steps given
+            [=this=].
           </li>
         </ol>
 
-        <p>The <dfn data-dfn-for="HTMLMicrophoneElement">activation initial</dfn>
+        <div class=note>
+          &lt;<a>microphone</a>&gt;'s [=EventTarget/activation behavior=]
+          currently ignores activation when it already has a
+          {{HTMLMicrophoneElement/[[track]]}} set. The intent is that the
+          a &lt;<a>microphone</a>&gt; element with an active stream will act
+          as a toggle to allow users to control the stream. The details still
+          need to be determined.
+        </div>
+
+        <p>The
+          <dfn data-dfn-for="HTMLMicrophoneElement">activation start stream</dfn>
           steps for a given |element| are:</p>
 
         <ol class=algorithm>
@@ -2548,18 +2550,6 @@ onmessage = async ({data: {track}}) => {
           <li>Otherwise, [=fire an event=] named `cancel` on [=this=],
             using {{DOMException}}.
             (Description still TBD.)</li>
-        </ol>
-
-        <p>The <dfn data-dfn-for="HTMLMicrophoneElement">activation second</dfn>
-          steps are:</p>
-        <ol class=algorithm>
-          <li>[=Assert=]: [=this=].{{HTMLMicrophoneElement/[[track]]}} is a
-            {{MediaStreamTrack}}.</li>
-          <li>
-            Set [=this=].{{HTMLMicrophoneElement/[[track]]}}.{{MediaStreamTrack/enabled}}
-            to the negation of
-            [=this=].{{HTMLMicrophoneElement/[[track]]}}.{{MediaStreamTrack/enabled}}.
-          </li>
         </ol>
 
         <p>To determine whether an {{Event}} |event| is
@@ -2752,15 +2742,23 @@ onmessage = async ({data: {track}}) => {
           given |event|, is:
         </p>
         <ol class=algorithm>
-          <li>If [=this=].{{HTMLUserMediaElement/[[stream]]}} is not null, then
-            run [=HTMLUserMediaElement/activation second=] steps.
-          </li>
-          <li>Otherwise: If |event| is [=HTMLUserMediaElement/trusted=], then
-            run [=HTMLUserMediaElement/activation initial=] steps given [=this=].
+          <li>If |event| is [=HTMLUserMediaElement/trusted=], then
+            run [=HTMLUserMediaElement/activation start stream=] steps given
+            [=this=].
           </li>
         </ol>
 
-        <p>The <dfn data-dfn-for="HTMLUserMediaElement">activation initial</dfn>
+        <div class=note>
+          &lt;<a>usermedia</a>&gt;'s [=EventTarget/activation behavior=]
+          currently ignores activation when it already has a
+          {{HTMLUserMediaElement/[[stream]]}} set. The intent is that the
+          a &lt;<a>usermedia</a>&gt; element with an active stream will act
+          as a toggle to allow users to control the stream. The details still
+          need to be determined.
+        </div>
+
+
+        <p>The <dfn data-dfn-for="HTMLUserMediaElement">activation start stream</dfn>
           steps for a given |element| are:</p>
         <ol class=algorithm>
           <li>[=Assert=]: [=this=].{{HTMLUserMediaElement/[[stream]]}} is
@@ -2815,30 +2813,6 @@ onmessage = async ({data: {track}}) => {
           </li>
           <li>[=Fire an event=] named `cancel` on [=this=],
              using {{DOMException}}. (Description still TBD.).
-          </li>
-        </ol>
-
-        <p>
-          The &lt;<a>usermedia</a>&gt; element's
-          <dfn data-dfn-for="HTMLUserMediaElement">activation second</dfn> steps are:
-        </p>
-        <ol class=algorithm>
-          <li>[=Assert=]: [=this=].{{HTMLUserMediaElement/[[stream]]}} is a
-            {{MediaStream}}.</li>
-          <li>Let |enabled| be true.</li>
-          <li>
-            [=list/iterate|For each=] |track| of
-            {{HTMLUserMediaElement/[[stream]]}}'s [=/track set=]:
-            <ol>
-              <li>If |track|.{{MediaStreamTrack/enabled}} is false, set |enabled| to false.</li>
-            </ol>
-          </li>
-          <li>
-            [=list/iterate|For each=] |track| of
-            {{HTMLUserMediaElement/[[stream]]}}'s [=/track set=]:
-            <ol>
-              <li>Set |track|.{{MediaStreamTrack/enabled}} to the negation of |enabled|.</li>
-            </ol>
           </li>
         </ol>
 
