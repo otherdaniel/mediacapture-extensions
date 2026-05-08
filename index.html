@@ -2113,7 +2113,7 @@ onmessage = async ({data: {track}}) => {
         readonly attribute DOMException? error;
         undefined setConstraints(optional MediaTrackConstraintSet constraints = {});
 
-        attribute EventHandler onstream;
+        attribute EventHandler ontrack;
         attribute EventHandler onerror;
         attribute EventHandler oncancel;
       };
@@ -2141,13 +2141,13 @@ onmessage = async ({data: {track}}) => {
         on whether the activation was successful:</p>
 
       <ul>
-        <li><dfn data-dfn-for=HTMLCameraElement>onstream</dfn> &mdash;
-          Activation was successful and a media stream is available.</li>
+        <li><dfn data-dfn-for=HTMLCameraElement>ontrack</dfn> &mdash;
+          Activation was successful and a media track is available.</li>
         <li><dfn data-dfn-for=HTMLCameraElement>oncancel</dfn> &mdash;
           Activation was not successful, because the user decided not to proceed.
           For example, by not accepting a permission prompt.</li>
         <li><dfn data-dfn-for=HTMLCameraElement>onerror</dfn> &mdash;
-          Activation has failed. No media stream is available. The
+          Activation has failed. No media track is available. The
           {{HTMLCameraElement/error}} attribute holds additional information.</li>
       </ul>
 
@@ -2267,7 +2267,7 @@ onmessage = async ({data: {track}}) => {
                       <li>Set
                         {{HTMLCameraElement/[[track]]}} to |tracks|[0].</li>
                       <li>Run the [=HTMLCameraElement/track monitor=] steps on [=this=].</li>
-                      <li>[=Fire an event=] named `stream` on [=this=].</li>
+                      <li>[=Fire an event=] named `track` on [=this=].</li>
 
                     </ol>
                   </li>
@@ -2370,7 +2370,7 @@ onmessage = async ({data: {track}}) => {
         readonly attribute DOMException? error;
         undefined setConstraints(optional MediaTrackConstraintSet constraints = {});
 
-        attribute EventHandler onstream;
+        attribute EventHandler ontrack;
         attribute EventHandler onerror;
         attribute EventHandler oncancel;
       };
@@ -2398,13 +2398,13 @@ onmessage = async ({data: {track}}) => {
         on whether the activation was successful:</p>
 
       <ul>
-        <li><dfn data-dfn-for=HTMLMicrophoneElement>onstream</dfn> &mdash;
-          Activation was successful and a media stream is available.</li>
+        <li><dfn data-dfn-for=HTMLMicrophoneElement>ontrack</dfn> &mdash;
+          Activation was successful and a media track is available.</li>
         <li><dfn data-dfn-for=HTMLMicrophoneElement>oncancel</dfn> &mdash;
           Activation was not successful, because the user decided not to proceed.
           For example, by not accepting a permission prompt.</li>
         <li><dfn data-dfn-for=HTMLMicrophoneElement>onerror</dfn> &mdash;
-          Activation has failed. No media stream is available. The
+          Activation has failed. No media track is available. The
           {{HTMLMicrophoneElement/error}} attribute holds additional information.</li>
       </ul>
 
@@ -2528,7 +2528,7 @@ onmessage = async ({data: {track}}) => {
                       <li>Set
                         {{HTMLMicrophoneElement/[[track]]}} to |tracks|[0].</li>
                       <li>Run the [=HTMLMicrophoneElement/track monitor=] steps on [=this=].</li>
-                      <li>[=Fire an event=] named `stream` on [=this=].</li>
+                      <li>[=Fire an event=] named `track` on [=this=].</li>
 
                     </ol>
                   </li>
