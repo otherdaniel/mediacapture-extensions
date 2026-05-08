@@ -2105,7 +2105,7 @@ onmessage = async ({data: {track}}) => {
         <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-dom">DOM interface</a>:
       </p>
       <pre class=idl>
-      [Exposed=Window]
+      [Exposed=Window, SecureContext]
       interface HTMLCameraElement : HTMLElement {
         [HTMLConstructor] constructor();
 
@@ -2367,7 +2367,7 @@ onmessage = async ({data: {track}}) => {
         <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-dom">DOM interface</a>:
       </p>
       <pre class=idl>
-      [Exposed=Window]
+      [Exposed=Window, SecureContext]
       interface HTMLMicrophoneElement : HTMLElement {
         [HTMLConstructor] constructor();
 
@@ -2633,12 +2633,13 @@ onmessage = async ({data: {track}}) => {
         <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-dom">DOM interface</a>:
       </p>
       <pre class=idl>
+      [SecureContext]
       dictionary HTMLMediaStreamConstraints {
         MediaTrackConstraintSet video;
         MediaTrackConstraintSet audio;
       };
 
-      [Exposed=Window]
+      [Exposed=Window, SecureContext]
       interface HTMLUserMediaElement : HTMLElement {
         [HTMLConstructor] constructor();
 
