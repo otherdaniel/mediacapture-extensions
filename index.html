@@ -2218,8 +2218,13 @@ onmessage = async ({data: {track}}) => {
           given |event| is:
         </p>
         <ol class=algorithm>
-          <li>If |event| is [=HTMLCameraElement/trusted=], then run
-            [=HTMLCameraElement/activation start stream=] steps given [=this=].</li>
+          <li>If |event| is not [=HTMLCameraElement/trusted=], then
+            [=fire an event=] named `error`, using an "{{InvalidStateError}}"
+            {{DOMException}}.
+          </li>
+          <li>Otherwise, if {{HTMLCameraElement/[[track]]}} is not null, then run
+            [=HTMLCameraElement/activation start stream=] steps given [=this=].
+          </li>
         </ol>
 
         <div class=note>
@@ -2277,7 +2282,7 @@ onmessage = async ({data: {track}}) => {
                       <li>[=Assert=]: |r| is a |DOMException|.</li>
                       <li>Set [=this=].{{HTMLCameraElement/[[error]]}} to |r|.
                       <li>[=Fire an event=] named `error` on [=this=],
-                        using {{DOMException}}.
+                        using |r|.
                         (Description still TBD.)</li>
                       <li>Return.</li>
                     </ol>
@@ -2474,9 +2479,13 @@ onmessage = async ({data: {track}}) => {
           [=EventTarget/activation behavior=] given |event| is:
         </p>
         <ol class=algorithm>
+          <li>If |event| is not [=HTMLMicrophoneElement/trusted=], then
+            [=fire an event=] named `error`, using an "{{InvalidStateError}}"
+            {{DOMException}}.
+          </li>
           <li>
-            If |event| is [=HTMLMicrophoneElement/trusted=], then run
-            [=HTMLMicrophoneElement/activation start stream=] steps given
+            Otherwise, if {{HTMLMicrophoneElement/[[track]]}} is not null, then
+            run [=HTMLMicrophoneElement/activation start stream=] steps given
             [=this=].
           </li>
         </ol>
@@ -2538,7 +2547,7 @@ onmessage = async ({data: {track}}) => {
                       <li>[=Assert=]: |r| is a |DOMException|.</li>
                       <li>Set {{HTMLMicrophoneElement/[[error]]}} to |r|.
                       <li>[=Fire an event=] named `error` on [=this=],
-                        using {{DOMException}}.
+                        using |r|.
                         (Description still TBD.)</li>
                       <li>Return.</li>
                     </ol>
@@ -2742,7 +2751,12 @@ onmessage = async ({data: {track}}) => {
           given |event|, is:
         </p>
         <ol class=algorithm>
-          <li>If |event| is [=HTMLUserMediaElement/trusted=], then
+          <li>If |event| is not [=HTMLUserMediaElement/trusted=], then
+            [=fire an event=] named `error`, using an "{{InvalidStateError}}"
+            {{DOMException}}.
+          </li>
+          <li>
+            Otherwise, if {{HTMLUserMediaElement/[[stream]]}} is not null, then
             run [=HTMLUserMediaElement/activation start stream=] steps given
             [=this=].
           </li>
