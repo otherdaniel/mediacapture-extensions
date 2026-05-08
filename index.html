@@ -2225,10 +2225,10 @@ onmessage = async ({data: {track}}) => {
         <div class=note>
           &lt;<a>camera</a>&gt;'s [=EventTarget/activation behavior=]
           currently ignores activation when it already has a
-          {{HTMLCameraElement/[[track]]}} set. The intent is that the
-          a &lt;<a>camera</a>&gt; element with an active stream will act
-          as a toggle to allow users to control the stream. The details still
-          need to be determined.
+          {{HTMLCameraElement/[[track]]}} set. The intent is that an element
+          with an inactive track will start a new one. And an element with an
+          active track will act as a toggle to allow users to control the
+          stream. The details still need to be determined.
         </div>
 
         <p>The <dfn data-dfn-for="HTMLCameraElement">activation start stream</dfn>
@@ -2330,9 +2330,9 @@ onmessage = async ({data: {track}}) => {
             internal UI to reflect the active, muted, or ended state of the track.
           </li>
           <li>
-            If {{HTMLCameraElement/[[track]]}}.{{MediaStreamTrack/readyState}} becomes `"ended"`, the user agent MUST
-            set {{HTMLCameraElement/[[track]]}} to null and reset the |element|'s
-            internal UI to its initial request state.
+            If {{HTMLCameraElement/[[track]]}}.{{MediaStreamTrack/readyState}}
+            becomes `"ended"`, the user agent MUST update its presentation
+            appropriately.
           </li>
         </ol>
 
@@ -2484,10 +2484,10 @@ onmessage = async ({data: {track}}) => {
         <div class=note>
           &lt;<a>microphone</a>&gt;'s [=EventTarget/activation behavior=]
           currently ignores activation when it already has a
-          {{HTMLMicrophoneElement/[[track]]}} set. The intent is that the
-          a &lt;<a>microphone</a>&gt; element with an active stream will act
-          as a toggle to allow users to control the stream. The details still
-          need to be determined.
+          {{HTMLMicrophoneElement/[[track]]}} set. The intent is that an element
+          with an inactive track will start a new one. And an element with an
+          active track will act as a toggle to allow users to control the
+          stream. The details still need to be determined.
         </div>
 
         <p>The
@@ -2591,9 +2591,9 @@ onmessage = async ({data: {track}}) => {
             internal UI to reflect the active, muted, or ended state of the track.
           </li>
           <li>
-            If {{HTMLMicrophoneElement/[[track]]}}.{{MediaStreamTrack/readyState}} becomes `"ended"`, the user agent MUST
-            set {{HTMLMicrophoneElement/[[track]]}} to null and reset the |element|'s
-            internal UI to its initial request state.
+            If {{HTMLMicrophoneElement/[[track]]}}.{{MediaStreamTrack/readyState}}
+            becomes `"ended"`, the user agent MUST update its presentation
+            appropriately.
           </li>
         </ol>
 
@@ -2751,10 +2751,10 @@ onmessage = async ({data: {track}}) => {
         <div class=note>
           &lt;<a>usermedia</a>&gt;'s [=EventTarget/activation behavior=]
           currently ignores activation when it already has a
-          {{HTMLUserMediaElement/[[stream]]}} set. The intent is that the
-          a &lt;<a>usermedia</a>&gt; element with an active stream will act
-          as a toggle to allow users to control the stream. The details still
-          need to be determined.
+          {{HTMLUserMediaElement/[[stream]]}} set. The intent is that an element
+          with an inactive stream will start a new one. And an element with an
+          active stream will act as a toggle to allow users to control the
+          stream. The details still need to be determined.
         </div>
 
 
@@ -2849,8 +2849,8 @@ onmessage = async ({data: {track}}) => {
             internal UI to reflect the active, muted, or ended state of the |track|.
           </li>
           <li>
-            If {{HTMLUserMediaElement/[[stream]]}}.{{MediaStream/active}} becomes false, the user agent MUST
-            set {{HTMLUserMediaElement/[[stream]]}} to null and reset the |element|'s
+            If {{HTMLUserMediaElement/[[stream]]}}.{{MediaStream/active}}
+            becomes `"ended"`, the user agent MUST reset the |element|'s
             internal UI to its initial request state.
           </li>
         </ol>
