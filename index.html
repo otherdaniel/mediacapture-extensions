@@ -2254,59 +2254,58 @@ onmessage = async ({data: {track}}) => {
         <ol class=algorithm>
           <li>[=Assert=]: [=this=].{{HTMLCameraElement/[[track]]}} is null.</li>
           <li>
-            Let |descriptor| be a new {{PermissionDescriptor}} with value
-            «[ {{PermissionDescriptor/name}} → [=/"camera"=] ]».
+            Let |mediaPromise| be the result of calling
+            [=this=].{{MediaDevices/getUserMedia()}} with {{HTMLCameraElement/[[constraints]]}}
+            as its first argument.
+
+            <div class=note>
+            The call to the {{MediaDevices/getUserMedia()}} method should
+            be replaced with a non-IDL entry point or algorithm.</div>
+            <div class=note>
+              {{MediaDevices/getUserMedia()}} encourages User Agents
+              <q>to bundle concurrent requests for different kinds of media
+                into a single user-facing permission prompt</q>.
+              This applies to here as well. The expected user experience
+              is a single permission prompt that covers the usage of the given
+              element with the given constraints, or even no prompt if the user
+              has already permitted this request before.
+            </div>
           </li>
           <li>
-            Let |permissionState| be the result of [=request permission to use=]
-            the [=powerful features=] described by |descriptor| with
-            allowMultiple set to false.
-          </li>
-          <li>If |permissionState| is {{PermissionState/"granted"}}:
+            [=promise/React=] to |mediaPromise|:
             <ol>
-              <li>
-                Let |mediaPromise| be the result of calling
-                [=this=].{{MediaDevices/getUserMedia()}} with {{HTMLCameraElement/[[constraints]]}}
-                as its first argument.
-
-                <div class=note>
-                The call to the {{MediaDevices/getUserMedia()}} method should
-                be replaced with a non-IDL entry point or algorithm.</div>
-              </li>
-              <li>
-                [=promise/React=] to |mediaPromise|:
+              <li>If |mediaPromise| was fulfilled with value |v|:
                 <ol>
-                  <li>If |mediaPromise| was fulfilled with value |v|:
-                    <ol>
-                      <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
-                      <li>Let |tracks| be the set of {{MediaStreamTrack}}s in
-                        |v|'s [=/track set=] whose {{MediaStreamTrack/kind}}
-                        is equal to "video".</li>
-                      <li>Set
-                        {{HTMLCameraElement/[[track]]}} to |tracks|[0].</li>
-                      <li>Run the [=HTMLCameraElement/track monitor=] steps on [=this=].</li>
-                      <li>[=Fire an event=] named `track` on [=this=].</li>
+                  <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
+                  <li>Let |tracks| be the set of {{MediaStreamTrack}}s in
+                    |v|'s [=/track set=] whose {{MediaStreamTrack/kind}}
+                    is equal to "video".</li>
+                  <li>Set
+                    {{HTMLCameraElement/[[track]]}} to |tracks|[0].</li>
+                  <li>Run the [=HTMLCameraElement/track monitor=] steps on [=this=].</li>
+                  <li>[=Fire an event=] named `track` on [=this=].</li>
 
-                    </ol>
-                  </li>
-                  <li>Otherwise:
-                    <ol>
-                      <li>[=Assert=]: |mediaPromise| was rejected with reason |r|.</li>
-                      <li>[=Assert=]: |r| is a |DOMException|.</li>
-                      <li>Set [=this=].{{HTMLCameraElement/[[error]]}} to |r|.
-                      <li>[=Fire an event=] named `error` on [=this=],
-                        using |r|.
-                        (Description still TBD.)</li>
-                      <li>Return.</li>
-                    </ol>
-                  </li>
+                </ol>
+              </li>
+              <li>Otherwise:
+                <ol>
+                  <li>[=Assert=]: |mediaPromise| was rejected with reason |r|.</li>
+                  <li>If |r| indicated that the {{MediaDevices/getUserMedia()}}
+                    call has failed due to user action or inaction, such as a
+                    user rejecting or not answering a permission prompt raised
+                    by {{MediaDevices/getUserMedia()}}, then
+                    [=fire an event=] named `cancel` on [=this=], using
+                    {{DOMException}}, and return.</li>
+                  <li>[=Assert=]: |r| is a |DOMException|.</li>
+                  <li>Set [=this=].{{HTMLCameraElement/[[error]]}} to |r|.
+                  <li>[=Fire an event=] named `error` on [=this=],
+                    using |r|.
+                    (Description still TBD.)</li>
+                  <li>Return.</li>
                 </ol>
               </li>
             </ol>
           </li>
-          <li>Otherwise, [=fire an event=] named `cancel` on [=this=],
-            using {{DOMException}}.
-            (Description still TBD.)</li>
         </ol>
 
         <p>To determine whether an {{Event}} |event| is
@@ -2532,59 +2531,57 @@ onmessage = async ({data: {track}}) => {
         <ol class=algorithm>
           <li>[=Assert=]: [=this=].{{HTMLMicrophoneElement/[[track]]}} is null.</li>
           <li>
-            Let |descriptor| be a new {{PermissionDescriptor}} with value
-            «[ {{PermissionDescriptor/name}} → [=/"microphone"=] ]».
+            Let |mediaPromise| be the result of calling
+            [=this=].{{MediaDevices/getUserMedia()}} with
+            {{HTMLMicrophoneElement/[[constraints]]}} as its first argument.
+            <div class=note>
+            The call to the {{MediaDevices/getUserMedia()}} method should
+            be replaced with a non-IDL entry point or algorithm.</div>
+            <div class=note>
+              {{MediaDevices/getUserMedia()}} encourages User Agents
+              <q>to bundle concurrent requests for different kinds of media
+                into a single user-facing permission prompt</q>.
+              This applies to here as well. The expected user experience
+              is a single permission prompt that covers the usage of the given
+              element with the given constraints, or even no prompt if the user
+              has already permitted this request before.
+            </div>
           </li>
           <li>
-            Let |permissionState| be the result of [=request permission to use=]
-            the [=powerful features=] described by |descriptor| with
-            allowMultiple set to false.
-          </li>
-          <li>If |permissionState| is {{PermissionState/"granted"}}:
+            [=promise/React=] to |mediaPromise|:
             <ol>
-              <li>
-                Let |mediaPromise| be the result of calling
-                [=this=].{{MediaDevices/getUserMedia()}} with {{HTMLMicrophoneElement/[[constraints]]}}
-                as its first argument.
-
-                <div class=note>
-                The call to the {{MediaDevices/getUserMedia()}} method should
-                be replaced with a non-IDL entry point or algorithm.</div>
-              </li>
-              <li>
-                [=promise/React=] to |mediaPromise|:
+              <li>If |mediaPromise| was fulfilled with value |v|:
                 <ol>
-                  <li>If |mediaPromise| was fulfilled with value |v|:
-                    <ol>
-                      <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
-                      <li>Let |tracks| be the set of {{MediaStreamTrack}}s in
-                        |v|'s [=/track set=] whose {{MediaStreamTrack/kind}}
-                        is equal to "audio".</li>
-                      <li>Set
-                        {{HTMLMicrophoneElement/[[track]]}} to |tracks|[0].</li>
-                      <li>Run the [=HTMLMicrophoneElement/track monitor=] steps on [=this=].</li>
-                      <li>[=Fire an event=] named `track` on [=this=].</li>
+                  <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
+                  <li>Let |tracks| be the set of {{MediaStreamTrack}}s in
+                    |v|'s [=/track set=] whose {{MediaStreamTrack/kind}}
+                    is equal to "audio".</li>
+                  <li>Set
+                    {{HTMLMicrophoneElement/[[track]]}} to |tracks|[0].</li>
+                  <li>Run the [=HTMLMicrophoneElement/track monitor=] steps on [=this=].</li>
+                  <li>[=Fire an event=] named `track` on [=this=].</li>
 
-                    </ol>
-                  </li>
-                  <li>Otherwise:
-                    <ol>
-                      <li>[=Assert=]: |mediaPromise| was rejected with reason |r|.</li>
-                      <li>[=Assert=]: |r| is a |DOMException|.</li>
-                      <li>Set {{HTMLMicrophoneElement/[[error]]}} to |r|.
-                      <li>[=Fire an event=] named `error` on [=this=],
-                        using |r|.
-                        (Description still TBD.)</li>
-                      <li>Return.</li>
-                    </ol>
-                  </li>
+                </ol>
+              </li>
+              <li>Otherwise:
+                <ol>
+                  <li>[=Assert=]: |mediaPromise| was rejected with reason |r|.</li>
+                  <li>If |r| indicated that the {{MediaDevices/getUserMedia()}}
+                    call has failed due to user action or inaction, such as a
+                    user rejecting or not answering a permission prompt raised
+                    by {{MediaDevices/getUserMedia()}}, then
+                    [=fire an event=] named `cancel` on [=this=], using
+                    {{DOMException}}, and return.</li>
+                  <li>[=Assert=]: |r| is a |DOMException|.</li>
+                  <li>Set {{HTMLMicrophoneElement/[[error]]}} to |r|.
+                  <li>[=Fire an event=] named `error` on [=this=],
+                    using |r|.
+                    (Description still TBD.)</li>
+                  <li>Return.</li>
                 </ol>
               </li>
             </ol>
           </li>
-          <li>Otherwise, [=fire an event=] named `cancel` on [=this=],
-            using {{DOMException}}.
-            (Description still TBD.)</li>
         </ol>
 
         <p>To determine whether an {{Event}} |event| is
@@ -2816,56 +2813,52 @@ onmessage = async ({data: {track}}) => {
         <ol class=algorithm>
           <li>[=Assert=]: [=this=].{{HTMLUserMediaElement/[[stream]]}} is
             null.</li>
-          <li>Let |permissionName| be the [=string/concatenate|concatentation=]
-            of &laquo; [=/"camera"=], " ", [=/"microphone"=] &raquo;.
-          <li>
-            Let |descriptor| be a new {{PermissionDescriptor}} with value
-            &laquo;[ {{PermissionDescriptor/name}} &rarr; |permissionName|
-            ]&raquo;.
+          <li>Let |mediaPromise| be the result of calling
+            [=this=].{{MediaDevices/getUserMedia()}} with
+            {{HTMLUserMediaElement/[[constraints]]}} as its first argument.
+            <div class=note>
+              The call to the {{MediaDevices/getUserMedia()}} method should
+              be replaced with a non-IDL entry point or algorithm.
+            </div>
+            <div class=note>
+              {{MediaDevices/getUserMedia()}} encourages User Agents
+              <q>to bundle concurrent requests for different kinds of media
+                into a single user-facing permission prompt</q>.
+              This applies here as well. The expected user experience
+              is a single permission prompt that covers the usage of the given
+              element with the given constraints, or even no prompt if the user
+              has already permitted this request before.
+            </div>
           </li>
-          <li>
-            Let |permissionState| be the result of [=request permission to use=]
-            the [=powerful features=] described by |descriptor| with
-            allowMultiple set to false.
-          </li>
-          <li>If |permissionState| is {{PermissionState/"granted"}}:
+          <li>[=promise/React=] to |mediaPromise|:
             <ol>
-              <li>Let |mediaPromise| be the result of calling
-                [=this=].{{MediaDevices/getUserMedia()}} with
-                {{HTMLUserMediaElement/[[constraints]]}} as its first argument.
-                <div class=note>
-                  The call to the {{MediaDevices/getUserMedia()}} method should
-                  be replaced with a non-IDL entry point or algorithm.
-                </div>
-              </li>
-              <li>[=promise/React=] to |mediaPromise|:
+              <li>If |mediaPromise| was fulfilled with value |v|:
                 <ol>
-                  <li>If |mediaPromise| was fulfilled with value |v|:
-                    <ol>
-                      <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
-                      <li>Set {{HTMLUserMediaElement/[[stream]]}} to |v|.</li>
-                      <li>Run the [=HTMLUserMediaElement/track monitor=]
-                        steps on [=this=].</li>
-                      <li>[=Fire an event=] named `stream` on [=this=].</li>
-                    </ol>
-                  </li>
-                  <li>
-                    Otherwise:
-                    <ol>
-                      <li>[=Assert=]: |mediaPromise| was rejected with reason |r|.</li>
-                      <li>[=Assert=]: |r| is a |DOMException|.</li>
-                      <li>Set {{HTMLUserMediaElement/[[error]]}} to |r|.
-                      <li>[=Fire an event=] named `error` on [=this=],
-                        using {{DOMException}}. (Description still TBD.).</li>
-                      <li>Return.</li>
-                    </ol>
-                  </li>
+                  <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
+                  <li>Set {{HTMLUserMediaElement/[[stream]]}} to |v|.</li>
+                  <li>Run the [=HTMLUserMediaElement/track monitor=]
+                    steps on [=this=].</li>
+                  <li>[=Fire an event=] named `stream` on [=this=].</li>
+                </ol>
+              </li>
+              <li>
+                Otherwise:
+                <ol>
+                  <li>[=Assert=]: |mediaPromise| was rejected with reason |r|.</li>
+                  <li>If |r| indicated that the {{MediaDevices/getUserMedia()}}
+                    call has failed due to user action or inaction, such as a
+                    user rejecting or not answering a permission prompt raised
+                    by {{MediaDevices/getUserMedia()}}, then
+                    [=fire an event=] named `cancel` on [=this=], using
+                    {{DOMException}}, and return.</li>
+                  <li>[=Assert=]: |r| is a |DOMException|.</li>
+                  <li>Set {{HTMLUserMediaElement/[[error]]}} to |r|.
+                  <li>[=Fire an event=] named `error` on [=this=],
+                    using {{DOMException}}. (Description still TBD.).</li>
+                  <li>Return.</li>
                 </ol>
               </li>
             </ol>
-          </li>
-          <li>[=Fire an event=] named `cancel` on [=this=],
-             using {{DOMException}}. (Description still TBD.).
           </li>
         </ol>
 
