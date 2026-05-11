@@ -2280,6 +2280,7 @@ onmessage = async ({data: {track}}) => {
                   <li>Let |tracks| be the set of {{MediaStreamTrack}}s in
                     |v|'s [=/track set=] whose {{MediaStreamTrack/kind}}
                     is equal to "video".</li>
+                  <li>[=Assert=]: |tracks|[0] [=set/exists=].</li>
                   <li>Set
                     {{HTMLCameraElement/[[track]]}} to |tracks|[0].</li>
                   <li>Run the [=HTMLCameraElement/track monitor=] steps on [=this=].</li>
@@ -2556,6 +2557,7 @@ onmessage = async ({data: {track}}) => {
                   <li>Let |tracks| be the set of {{MediaStreamTrack}}s in
                     |v|'s [=/track set=] whose {{MediaStreamTrack/kind}}
                     is equal to "audio".</li>
+                  <li>[=Assert=]: |tracks|[0] [=set/exists=].</li>
                   <li>Set
                     {{HTMLMicrophoneElement/[[track]]}} to |tracks|[0].</li>
                   <li>Run the [=HTMLMicrophoneElement/track monitor=] steps on [=this=].</li>
