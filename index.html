@@ -2105,7 +2105,7 @@ onmessage = async ({data: {track}}) => {
         <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-dom">DOM interface</a>:
       </p>
       <pre class=idl>
-      [Exposed=Window]
+      [Exposed=Window, SecureContext]
       interface HTMLCameraElement : HTMLElement {
         [HTMLConstructor] constructor();
 
@@ -2113,7 +2113,7 @@ onmessage = async ({data: {track}}) => {
         readonly attribute DOMException? error;
         undefined setConstraints(optional MediaTrackConstraintSet constraints = {});
 
-        attribute EventHandler onstream;
+        attribute EventHandler ontrack;
         attribute EventHandler onerror;
         attribute EventHandler oncancel;
       };
@@ -2141,13 +2141,22 @@ onmessage = async ({data: {track}}) => {
         on whether the activation was successful:</p>
 
       <ul>
-        <li><dfn data-dfn-for=HTMLCameraElement>onstream</dfn> &mdash;
-          Activation was successful and a media stream is available.</li>
-        <li><dfn data-dfn-for=HTMLCameraElement>oncancel</dfn> &mdash;
-          Activation was not successful, because the user decided not to proceed.
+        <li><dfn data-dfn-for=HTMLCameraElement>ontrack</dfn>
+          &mdash; [=Event handler IDL attribute=] for the `track`
+          [=event handler=] of [=event handler event type|type=] {{Event}}.
+          It is fired when activation was successful and a media stream is
+          available.</li>
+        <li><dfn data-dfn-for=HTMLCameraElement>oncancel</dfn>
+          &mdash; [=Event handler IDL attribute=] for the `cancel`
+          [=event handler=] of [=event handler event type|type=] {{Event}}.
+          It is fired when activation was not successful because the user
+          decided not to proceed.
           For example, by not accepting a permission prompt.</li>
-        <li><dfn data-dfn-for=HTMLCameraElement>onerror</dfn> &mdash;
-          Activation has failed. No media stream is available. The
+        <li><dfn data-dfn-for=HTMLCameraElement>onerror</dfn>
+          &mdash; [=Event handler IDL attribute=] for the `error`
+          [=event handler=] of [=event handler event type|type=] {{Event}}.
+          It is fired when activation has failed for reasons other than user
+          choice. No media stream is available. The
           {{HTMLCameraElement/error}} attribute holds additional information.</li>
       </ul>
 
@@ -2169,6 +2178,10 @@ onmessage = async ({data: {track}}) => {
           <a href="https://html.spec.whatwg.org/multipage/dom.html#global-attributes">global attributes</a>
         </dt>
         <dd>&mdash; all global content attributes.</dd>
+        <dt>{{HTMLCameraElement/ontrack}}</dt>
+        <dt>{{HTMLCameraElement/oncancel}}</dt>
+        <dt>{{HTMLCameraElement/onerror}}</dt>
+        <dd>&mdash; [=event handler IDL attributes=]</dd>
       </dl>
 
       <p>The &lt;<a>camera</a>&gt; element's presentation is left to the [=user
@@ -2218,93 +2231,93 @@ onmessage = async ({data: {track}}) => {
           given |event| is:
         </p>
         <ol class=algorithm>
-          <li>If [=this=].{{HTMLCameraElement/[[track]]}} is not null, then
-            run [=HTMLCameraElement/activation second=] steps.</li>
-          <li>Otherwise: If |event| is [=HTMLCameraElement/trusted=], then
-            run [=HTMLCameraElement/activation initial=] steps given [=this=].</li>
+          <li>If |event| is not [=HTMLCameraElement/trusted=], then
+            [=fire an event=] named `error`, using an "{{InvalidStateError}}"
+            {{DOMException}}.
+          </li>
+          <li>Otherwise, if {{HTMLCameraElement/[[track]]}} is not null, then run
+            [=HTMLCameraElement/activation start stream=] steps given [=this=].
+          </li>
         </ol>
 
-        <p>The <dfn data-dfn-for="HTMLCameraElement">activation initial</dfn>
+        <div class=note>
+          &lt;<a>camera</a>&gt;'s [=EventTarget/activation behavior=]
+          currently ignores activation when it already has a
+          {{HTMLCameraElement/[[track]]}} set. The intent is that an element
+          with an inactive track will start a new one. And an element with an
+          active track will act as a toggle to allow users to control the
+          stream. The details still need to be determined.
+        </div>
+
+        <p>The <dfn data-dfn-for="HTMLCameraElement">activation start stream</dfn>
         steps for a given |element| are:</p>
         <ol class=algorithm>
           <li>[=Assert=]: [=this=].{{HTMLCameraElement/[[track]]}} is null.</li>
           <li>
-            Let |descriptor| be a new {{PermissionDescriptor}} with value
-            «[ {{PermissionDescriptor/name}} → [=/"camera"=] ]».
+            Let |mediaPromise| be the result of calling
+            [=this=].{{MediaDevices/getUserMedia()}} with {{HTMLCameraElement/[[constraints]]}}
+            as its first argument.
+
+            <div class=note>
+            The call to the {{MediaDevices/getUserMedia()}} method should
+            be replaced with a non-IDL entry point or algorithm.</div>
+            <div class=note>
+              {{MediaDevices/getUserMedia()}} encourages User Agents
+              <q>to bundle concurrent requests for different kinds of media
+                into a single user-facing permission prompt</q>.
+              This applies to here as well. The expected user experience
+              is a single permission prompt that covers the usage of the given
+              element with the given constraints, or even no prompt if the user
+              has already permitted this request before.
+            </div>
           </li>
           <li>
-            Let |permissionState| be the result of [=request permission to use=]
-            the [=powerful features=] described by |descriptor| with
-            allowMultiple set to false.
-          </li>
-          <li>If |permissionState| is {{PermissionState/"granted"}}:
+            [=promise/React=] to |mediaPromise|:
             <ol>
-              <li>
-                Let |mediaPromise| be the result of calling
-                [=this=].{{MediaDevices/getUserMedia()}} with {{HTMLCameraElement/[[constraints]]}}
-                as its first argument.
-
-                <div class=note>
-                The call to the {{MediaDevices/getUserMedia()}} method should
-                be replaced with a non-IDL entry point or algorithm.</div>
-              </li>
-              <li>
-                [=promise/React=] to |mediaPromise|:
+              <li>If |mediaPromise| was fulfilled with value |v|:
                 <ol>
-                  <li>If |mediaPromise| was fulfilled with value |v|:
-                    <ol>
-                      <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
-                      <li>Let |tracks| be the set of {{MediaStreamTrack}}s in
-                        |v|'s [=/track set=] whose {{MediaStreamTrack/kind}}
-                        is equal to "video".</li>
-                      <li>Set
-                        {{HTMLCameraElement/[[track]]}} to |tracks|[0].</li>
-                      <li>Run the [=HTMLCameraElement/track monitor=] steps on [=this=].</li>
-                      <li>[=Fire an event=] named `stream` on [=this=].</li>
+                  <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
+                  <li>Let |tracks| be the set of {{MediaStreamTrack}}s in
+                    |v|'s [=/track set=] whose {{MediaStreamTrack/kind}}
+                    is equal to "video".</li>
+                  <li>[=Assert=]: |tracks|[0] [=set/exists=].</li>
+                  <li>Set
+                    {{HTMLCameraElement/[[track]]}} to |tracks|[0].</li>
+                  <li>Run the [=HTMLCameraElement/track monitor=] steps on [=this=].</li>
+                  <li>[=Fire an event=] named `track` on [=this=].</li>
 
-                    </ol>
-                  </li>
-                  <li>Otherwise:
-                    <ol>
-                      <li>[=Assert=]: |mediaPromise| was rejected with reason |r|.</li>
-                      <li>[=Assert=]: |r| is a |DOMException|.</li>
-                      <li>Set [=this=].{{HTMLCameraElement/[[error]]}} to |r|.
-                      <li>[=Fire an event=] named `error` on [=this=],
-                        using {{DOMException}}.
-                        (Description still TBD.)</li>
-                      <li>Return.</li>
-                    </ol>
-                  </li>
+                </ol>
+              </li>
+              <li>Otherwise:
+                <ol>
+                  <li>[=Assert=]: |mediaPromise| was rejected with reason |r|.</li>
+                  <li>If |r| indicated that the {{MediaDevices/getUserMedia()}}
+                    call has failed due to user action or inaction, such as a
+                    user rejecting or not answering a permission prompt raised
+                    by {{MediaDevices/getUserMedia()}}, then
+                    [=fire an event=] named `cancel` on [=this=], using
+                    {{DOMException}}, and return.</li>
+                  <li>[=Assert=]: |r| is a |DOMException|.</li>
+                  <li>Set [=this=].{{HTMLCameraElement/[[error]]}} to |r|.
+                  <li>[=Fire an event=] named `error` on [=this=],
+                    using |r|.
+                    (Description still TBD.)</li>
+                  <li>Return.</li>
                 </ol>
               </li>
             </ol>
-          </li>
-          <li>Otherwise, [=fire an event=] named `cancel` on [=this=],
-            using {{DOMException}}.
-            (Description still TBD.)</li>
-        </ol>
-
-        <p>The <dfn data-dfn-for="HTMLCameraElement">activation second</dfn>
-          steps are:</p>
-        <ol class=algorithm>
-          <li>[=Assert=]: [=this=].{{HTMLCameraElement/[[track]]}} is a
-            {{MediaStreamTrack}}.</li>
-          <li>
-            Set [=this=].{{HTMLCameraElement/[[track]]}}.{{MediaStreamTrack/enabled}}
-            to the negation of
-            [=this=].{{HTMLCameraElement/[[track]]}}.{{MediaStreamTrack/enabled}}.
           </li>
         </ol>
 
         <p>To determine whether an {{Event}} |event| is
           <dfn data-dfn-for=HTMLCameraElement>trusted</dfn>:</p>
 
-        <p class=note>{{HTMLCameraElement}} stream creation is supposed to happen by
+        <div class=note>{{HTMLCameraElement}} stream creation is supposed to happen by
           genuine user action. [=User agents=] SHOULD suppress activation
           for "click-jacking", as well as for programmatic activation. Since
           exact critera for these are difficult to specify, we presently leave
           this as implementation defined. [=User agents=] MUST at minimum
-          reject untrusted events.</p>
+          reject untrusted events.</div>
 
         <ol class=algorithm>
           <li>If |event|.{{Event/isTrusted}} is false: Return false.</li>
@@ -2335,9 +2348,9 @@ onmessage = async ({data: {track}}) => {
             internal UI to reflect the active, muted, or ended state of the track.
           </li>
           <li>
-            If {{HTMLCameraElement/[[track]]}}.{{MediaStreamTrack/readyState}} becomes `"ended"`, the user agent MUST
-            set {{HTMLCameraElement/[[track]]}} to null and reset the |element|'s
-            internal UI to its initial request state.
+            If {{HTMLCameraElement/[[track]]}}.{{MediaStreamTrack/readyState}}
+            becomes `"ended"`, the user agent MUST update its presentation
+            appropriately.
           </li>
         </ol>
 
@@ -2367,7 +2380,7 @@ onmessage = async ({data: {track}}) => {
         <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-dom">DOM interface</a>:
       </p>
       <pre class=idl>
-      [Exposed=Window]
+      [Exposed=Window, SecureContext]
       interface HTMLMicrophoneElement : HTMLElement {
         [HTMLConstructor] constructor();
 
@@ -2375,7 +2388,7 @@ onmessage = async ({data: {track}}) => {
         readonly attribute DOMException? error;
         undefined setConstraints(optional MediaTrackConstraintSet constraints = {});
 
-        attribute EventHandler onstream;
+        attribute EventHandler ontrack;
         attribute EventHandler onerror;
         attribute EventHandler oncancel;
       };
@@ -2402,15 +2415,24 @@ onmessage = async ({data: {track}}) => {
         is expected to fire an event on one of three event handlers, depending
         on whether the activation was successful:</p>
 
-      <ul>
-        <li><dfn data-dfn-for=HTMLMicrophoneElement>onstream</dfn> &mdash;
-          Activation was successful and a media stream is available.</li>
-        <li><dfn data-dfn-for=HTMLMicrophoneElement>oncancel</dfn> &mdash;
-          Activation was not successful, because the user decided not to proceed.
-          For example, by not accepting a permission prompt.</li>
-        <li><dfn data-dfn-for=HTMLMicrophoneElement>onerror</dfn> &mdash;
-          Activation has failed. No media stream is available. The
-          {{HTMLMicrophoneElement/error}} attribute holds additional information.</li>
+     <ul>
+       <li><dfn data-dfn-for=HTMLMicrophoneElement>ontrack</dfn>
+         &mdash; [=Event handler IDL attribute=] for the `track`
+         [=event handler=] of [=event handler event type|type=] {{Event}}.
+         It is fired when activation was successful and a media stream is
+         available.</li>
+       <li><dfn data-dfn-for=HTMLMicrophoneElement>oncancel</dfn>
+         &mdash; [=Event handler IDL attribute=] for the `cancel`
+         [=event handler=] of [=event handler event type|type=] {{Event}}.
+         It is fired when activation was not successful because the user
+         decided not to proceed.
+         For example, by not accepting a permission prompt.</li>
+       <li><dfn data-dfn-for=HTMLMicrophoneElement>onerror</dfn>
+         &mdash; [=Event handler IDL attribute=] for the `error`
+         [=event handler=] of [=event handler event type|type=] {{Event}}.
+         It is fired when activation has failed for reasons other than user
+         choice. No media stream is available. The
+         {{HTMLMicrophoneElement/error}} attribute holds additional information.</li>
       </ul>
 
       <p>
@@ -2431,6 +2453,10 @@ onmessage = async ({data: {track}}) => {
           <a href="https://html.spec.whatwg.org/multipage/dom.html#global-attributes">global attributes</a>
         </dt>
         <dd>&mdash; all global content attributes.</dd>
+        <dt>{{HTMLMicrophoneElement/ontrack}}</dt>
+        <dt>{{HTMLMicrophoneElement/oncancel}}</dt>
+        <dt>{{HTMLMicrophoneElement/onerror}}</dt>
+        <dd>&mdash; [=event handler IDL attributes=]</dd>
       </dl>
 
       <p>The &lt;<a>microphone</a>&gt; element's presentation is left to the
@@ -2479,98 +2505,96 @@ onmessage = async ({data: {track}}) => {
           [=EventTarget/activation behavior=] given |event| is:
         </p>
         <ol class=algorithm>
-          <li>
-            If [=this=].{{HTMLMicrophoneElement/[[track]]}} is not null, then
-            run [=HTMLMicrophoneElement/activation second=] steps.
+          <li>If |event| is not [=HTMLMicrophoneElement/trusted=], then
+            [=fire an event=] named `error`, using an "{{InvalidStateError}}"
+            {{DOMException}}.
           </li>
           <li>
-            Otherwise: If |event| is [=HTMLMicrophoneElement/trusted=], then run
-            [=HTMLMicrophoneElement/activation initial=] steps given [=this=].
+            Otherwise, if {{HTMLMicrophoneElement/[[track]]}} is not null, then
+            run [=HTMLMicrophoneElement/activation start stream=] steps given
+            [=this=].
           </li>
         </ol>
 
-        <p>The <dfn data-dfn-for="HTMLMicrophoneElement">activation initial</dfn>
+        <div class=note>
+          &lt;<a>microphone</a>&gt;'s [=EventTarget/activation behavior=]
+          currently ignores activation when it already has a
+          {{HTMLMicrophoneElement/[[track]]}} set. The intent is that an element
+          with an inactive track will start a new one. And an element with an
+          active track will act as a toggle to allow users to control the
+          stream. The details still need to be determined.
+        </div>
+
+        <p>The
+          <dfn data-dfn-for="HTMLMicrophoneElement">activation start stream</dfn>
           steps for a given |element| are:</p>
 
         <ol class=algorithm>
           <li>[=Assert=]: [=this=].{{HTMLMicrophoneElement/[[track]]}} is null.</li>
           <li>
-            Let |descriptor| be a new {{PermissionDescriptor}} with value
-            «[ {{PermissionDescriptor/name}} → [=/"microphone"=] ]».
+            Let |mediaPromise| be the result of calling
+            [=this=].{{MediaDevices/getUserMedia()}} with
+            {{HTMLMicrophoneElement/[[constraints]]}} as its first argument.
+            <div class=note>
+            The call to the {{MediaDevices/getUserMedia()}} method should
+            be replaced with a non-IDL entry point or algorithm.</div>
+            <div class=note>
+              {{MediaDevices/getUserMedia()}} encourages User Agents
+              <q>to bundle concurrent requests for different kinds of media
+                into a single user-facing permission prompt</q>.
+              This applies to here as well. The expected user experience
+              is a single permission prompt that covers the usage of the given
+              element with the given constraints, or even no prompt if the user
+              has already permitted this request before.
+            </div>
           </li>
           <li>
-            Let |permissionState| be the result of [=request permission to use=]
-            the [=powerful features=] described by |descriptor| with
-            allowMultiple set to false.
-          </li>
-          <li>If |permissionState| is {{PermissionState/"granted"}}:
+            [=promise/React=] to |mediaPromise|:
             <ol>
-              <li>
-                Let |mediaPromise| be the result of calling
-                [=this=].{{MediaDevices/getUserMedia()}} with {{HTMLMicrophoneElement/[[constraints]]}}
-                as its first argument.
-
-                <div class=note>
-                The call to the {{MediaDevices/getUserMedia()}} method should
-                be replaced with a non-IDL entry point or algorithm.</div>
-              </li>
-              <li>
-                [=promise/React=] to |mediaPromise|:
+              <li>If |mediaPromise| was fulfilled with value |v|:
                 <ol>
-                  <li>If |mediaPromise| was fulfilled with value |v|:
-                    <ol>
-                      <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
-                      <li>Let |tracks| be the set of {{MediaStreamTrack}}s in
-                        |v|'s [=/track set=] whose {{MediaStreamTrack/kind}}
-                        is equal to "audio".</li>
-                      <li>Set
-                        {{HTMLMicrophoneElement/[[track]]}} to |tracks|[0].</li>
-                      <li>Run the [=HTMLMicrophoneElement/track monitor=] steps on [=this=].</li>
-                      <li>[=Fire an event=] named `stream` on [=this=].</li>
+                  <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
+                  <li>Let |tracks| be the set of {{MediaStreamTrack}}s in
+                    |v|'s [=/track set=] whose {{MediaStreamTrack/kind}}
+                    is equal to "audio".</li>
+                  <li>[=Assert=]: |tracks|[0] [=set/exists=].</li>
+                  <li>Set
+                    {{HTMLMicrophoneElement/[[track]]}} to |tracks|[0].</li>
+                  <li>Run the [=HTMLMicrophoneElement/track monitor=] steps on [=this=].</li>
+                  <li>[=Fire an event=] named `track` on [=this=].</li>
 
-                    </ol>
-                  </li>
-                  <li>Otherwise:
-                    <ol>
-                      <li>[=Assert=]: |mediaPromise| was rejected with reason |r|.</li>
-                      <li>[=Assert=]: |r| is a |DOMException|.</li>
-                      <li>Set {{HTMLMicrophoneElement/[[error]]}} to |r|.
-                      <li>[=Fire an event=] named `error` on [=this=],
-                        using {{DOMException}}.
-                        (Description still TBD.)</li>
-                      <li>Return.</li>
-                    </ol>
-                  </li>
+                </ol>
+              </li>
+              <li>Otherwise:
+                <ol>
+                  <li>[=Assert=]: |mediaPromise| was rejected with reason |r|.</li>
+                  <li>If |r| indicated that the {{MediaDevices/getUserMedia()}}
+                    call has failed due to user action or inaction, such as a
+                    user rejecting or not answering a permission prompt raised
+                    by {{MediaDevices/getUserMedia()}}, then
+                    [=fire an event=] named `cancel` on [=this=], using
+                    {{DOMException}}, and return.</li>
+                  <li>[=Assert=]: |r| is a |DOMException|.</li>
+                  <li>Set {{HTMLMicrophoneElement/[[error]]}} to |r|.
+                  <li>[=Fire an event=] named `error` on [=this=],
+                    using |r|.
+                    (Description still TBD.)</li>
+                  <li>Return.</li>
                 </ol>
               </li>
             </ol>
-          </li>
-          <li>Otherwise, [=fire an event=] named `cancel` on [=this=],
-            using {{DOMException}}.
-            (Description still TBD.)</li>
-        </ol>
-
-        <p>The <dfn data-dfn-for="HTMLMicrophoneElement">activation second</dfn>
-          steps are:</p>
-        <ol class=algorithm>
-          <li>[=Assert=]: [=this=].{{HTMLMicrophoneElement/[[track]]}} is a
-            {{MediaStreamTrack}}.</li>
-          <li>
-            Set [=this=].{{HTMLMicrophoneElement/[[track]]}}.{{MediaStreamTrack/enabled}}
-            to the negation of
-            [=this=].{{HTMLMicrophoneElement/[[track]]}}.{{MediaStreamTrack/enabled}}.
           </li>
         </ol>
 
         <p>To determine whether an {{Event}} |event| is
           <dfn data-dfn-for=HTMLMicrophoneElement>trusted</dfn>:</p>
 
-        <p class=note>{{HTMLMicrophoneElement}} stream creation is supposed to happen by
+        <div class=note>{{HTMLMicrophoneElement}} stream creation is supposed to happen by
           genuine user action. [=User agents=] SHOULD suppress activation
           for "click-jacking", as well as for programmatic activation. Since
           exact critera for these are difficult to specify, we presently leave
           this as implementation defined. [=User agents=] MUST at minimum
-          reject untrusted events.</p>
+          reject untrusted events.</div>
 
         <ol class=algorithm>
           <li>If |event|.{{Event/isTrusted}} is false: Return false.</li>
@@ -2601,9 +2625,9 @@ onmessage = async ({data: {track}}) => {
             internal UI to reflect the active, muted, or ended state of the track.
           </li>
           <li>
-            If {{HTMLMicrophoneElement/[[track]]}}.{{MediaStreamTrack/readyState}} becomes `"ended"`, the user agent MUST
-            set {{HTMLMicrophoneElement/[[track]]}} to null and reset the |element|'s
-            internal UI to its initial request state.
+            If {{HTMLMicrophoneElement/[[track]]}}.{{MediaStreamTrack/readyState}}
+            becomes `"ended"`, the user agent MUST update its presentation
+            appropriately.
           </li>
         </ol>
 
@@ -2633,12 +2657,13 @@ onmessage = async ({data: {track}}) => {
         <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-dom">DOM interface</a>:
       </p>
       <pre class=idl>
+      [SecureContext]
       dictionary HTMLMediaStreamConstraints {
         MediaTrackConstraintSet video;
         MediaTrackConstraintSet audio;
       };
 
-      [Exposed=Window]
+      [Exposed=Window, SecureContext]
       interface HTMLUserMediaElement : HTMLElement {
         [HTMLConstructor] constructor();
 
@@ -2668,19 +2693,28 @@ onmessage = async ({data: {track}}) => {
         </li>
       </ul>
 
-     <p>The &lt;<a>usermedia</a>&gt; element's activation is filtered to allow
-        only activitations that result from genuine user action. Each activation
-        is expected to fire an event on one of three event handlers, depending
-        on whether the activation was successful:</p>
+      <p>The &lt;<a>usermedia</a>&gt; element's activation is filtered to allow
+         only activitations that result from genuine user action. Each activation
+         is expected to fire an event on one of three event handlers, depending
+         on whether the activation was successful:</p>
 
       <ul>
-        <li><dfn data-dfn-for=HTMLUserMediaElement>onstream</dfn> &mdash;
-          Activation was successful and a media stream is available.</li>
-        <li><dfn data-dfn-for=HTMLUserMediaElement>oncancel</dfn> &mdash;
-          Activation was not successful, because the user decided not to proceed.
+        <li><dfn data-dfn-for=HTMLUserMediaElement>onstream</dfn>
+          &mdash; [=Event handler IDL attribute=] for the `stream`
+          [=event handler=] of [=event handler event type|type=] {{Event}}.
+          It is fired when activation was successful and a media stream is
+          available.</li>
+        <li><dfn data-dfn-for=HTMLUserMediaElement>oncancel</dfn>
+          &mdash; [=Event handler IDL attribute=] for the `cancel`
+          [=event handler=] of [=event handler event type|type=] {{Event}}.
+          It is fired when activation was not successful because the user
+          decided not to proceed.
           For example, by not accepting a permission prompt.</li>
-        <li><dfn data-dfn-for=HTMLUserMediaElement>onerror</dfn> &mdash;
-          Activation has failed. No media stream is available. The
+        <li><dfn data-dfn-for=HTMLUserMediaElement>onerror</dfn>
+          &mdash; [=Event handler IDL attribute=] for the `error`
+          [=event handler=] of [=event handler event type|type=] {{Event}}.
+          It is fired when activation has failed for reasons other than user
+          choice. No media stream is available. The
           {{HTMLUserMediaElement/error}} attribute holds additional information.</li>
       </ul>
 
@@ -2702,6 +2736,10 @@ onmessage = async ({data: {track}}) => {
           <a href="https://html.spec.whatwg.org/multipage/dom.html#global-attributes">global attributes</a>
         </dt>
         <dd>&mdash; all global content attributes.</dd>
+        <dt>{{HTMLUserMediaElement/onstream}}</dt>
+        <dt>{{HTMLUserMediaElement/oncancel}}</dt>
+        <dt>{{HTMLUserMediaElement/onerror}}</dt>
+        <dd>&mdash; [=event handler IDL attributes=]</dd>
       </dl>
 
       <p>The &lt;<a>usermedia</a>&gt; element's presentation is left to the [=user
@@ -2751,92 +2789,77 @@ onmessage = async ({data: {track}}) => {
           given |event|, is:
         </p>
         <ol class=algorithm>
-          <li>If [=this=].{{HTMLUserMediaElement/[[stream]]}} is not null, then
-            run [=HTMLUserMediaElement/activation second=] steps.
+          <li>If |event| is not [=HTMLUserMediaElement/trusted=], then
+            [=fire an event=] named `error`, using an "{{InvalidStateError}}"
+            {{DOMException}}.
           </li>
-          <li>Otherwise: If |event| is [=HTMLUserMediaElement/trusted=], then
-            run [=HTMLUserMediaElement/activation initial=] steps given [=this=].
+          <li>
+            Otherwise, if {{HTMLUserMediaElement/[[stream]]}} is not null, then
+            run [=HTMLUserMediaElement/activation start stream=] steps given
+            [=this=].
           </li>
         </ol>
 
-        <p>The <dfn data-dfn-for="HTMLUserMediaElement">activation initial</dfn>
+        <div class=note>
+          &lt;<a>usermedia</a>&gt;'s [=EventTarget/activation behavior=]
+          currently ignores activation when it already has a
+          {{HTMLUserMediaElement/[[stream]]}} set. The intent is that an element
+          with an inactive stream will start a new one. And an element with an
+          active stream will act as a toggle to allow users to control the
+          stream. The details still need to be determined.
+        </div>
+
+
+        <p>The <dfn data-dfn-for="HTMLUserMediaElement">activation start stream</dfn>
           steps for a given |element| are:</p>
         <ol class=algorithm>
           <li>[=Assert=]: [=this=].{{HTMLUserMediaElement/[[stream]]}} is
             null.</li>
-          <li>Let |permissionName| be the [=string/concatenate|concatentation=]
-            of &laquo; [=/"camera"=], " ", [=/"microphone"=] &raquo;.
-          <li>
-            Let |descriptor| be a new {{PermissionDescriptor}} with value
-            &laquo;[ {{PermissionDescriptor/name}} &rarr; |permissionName|
-            ]&raquo;.
+          <li>Let |mediaPromise| be the result of calling
+            [=this=].{{MediaDevices/getUserMedia()}} with
+            {{HTMLUserMediaElement/[[constraints]]}} as its first argument.
+            <div class=note>
+              The call to the {{MediaDevices/getUserMedia()}} method should
+              be replaced with a non-IDL entry point or algorithm.
+            </div>
+            <div class=note>
+              {{MediaDevices/getUserMedia()}} encourages User Agents
+              <q>to bundle concurrent requests for different kinds of media
+                into a single user-facing permission prompt</q>.
+              This applies here as well. The expected user experience
+              is a single permission prompt that covers the usage of the given
+              element with the given constraints, or even no prompt if the user
+              has already permitted this request before.
+            </div>
           </li>
-          <li>
-            Let |permissionState| be the result of [=request permission to use=]
-            the [=powerful features=] described by |descriptor| with
-            allowMultiple set to false.
-          </li>
-          <li>If |permissionState| is {{PermissionState/"granted"}}:
+          <li>[=promise/React=] to |mediaPromise|:
             <ol>
-              <li>Let |mediaPromise| be the result of calling
-                [=this=].{{MediaDevices/getUserMedia()}} with
-                {{HTMLUserMediaElement/[[constraints]]}} as its first argument.
-                <div class=note>
-                  The call to the {{MediaDevices/getUserMedia()}} method should
-                  be replaced with a non-IDL entry point or algorithm.
-                </div>
-              </li>
-              <li>[=promise/React=] to |mediaPromise|:
+              <li>If |mediaPromise| was fulfilled with value |v|:
                 <ol>
-                  <li>If |mediaPromise| was fulfilled with value |v|:
-                    <ol>
-                      <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
-                      <li>Set {{HTMLUserMediaElement/[[stream]]}} to |v|.</li>
-                      <li>Run the [=HTMLUserMediaElement/track monitor=]
-                        steps on [=this=].</li>
-                      <li>[=Fire an event=] named `stream` on [=this=].</li>
-                    </ol>
-                  </li>
-                  <li>
-                    Otherwise:
-                    <ol>
-                      <li>[=Assert=]: |mediaPromise| was rejected with reason |r|.</li>
-                      <li>[=Assert=]: |r| is a |DOMException|.</li>
-                      <li>Set {{HTMLUserMediaElement/[[error]]}} to |r|.
-                      <li>[=Fire an event=] named `error` on [=this=],
-                        using {{DOMException}}. (Description still TBD.).</li>
-                      <li>Return.</li>
-                    </ol>
-                  </li>
+                  <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
+                  <li>Set {{HTMLUserMediaElement/[[stream]]}} to |v|.</li>
+                  <li>Run the [=HTMLUserMediaElement/track monitor=]
+                    steps on [=this=].</li>
+                  <li>[=Fire an event=] named `stream` on [=this=].</li>
                 </ol>
               </li>
-            </ol>
-          </li>
-          <li>[=Fire an event=] named `cancel` on [=this=],
-             using {{DOMException}}. (Description still TBD.).
-          </li>
-        </ol>
-
-        <p>
-          The &lt;<a>usermedia</a>&gt; element's
-          <dfn data-dfn-for="HTMLUserMediaElement">activation second</dfn> steps are:
-        </p>
-        <ol class=algorithm>
-          <li>[=Assert=]: [=this=].{{HTMLUserMediaElement/[[stream]]}} is a
-            {{MediaStream}}.</li>
-          <li>Let |enabled| be true.</li>
-          <li>
-            [=list/iterate|For each=] |track| of
-            {{HTMLUserMediaElement/[[stream]]}}'s [=/track set=]:
-            <ol>
-              <li>If |track|.{{MediaStreamTrack/enabled}} is false, set |enabled| to false.</li>
-            </ol>
-          </li>
-          <li>
-            [=list/iterate|For each=] |track| of
-            {{HTMLUserMediaElement/[[stream]]}}'s [=/track set=]:
-            <ol>
-              <li>Set |track|.{{MediaStreamTrack/enabled}} to the negation of |enabled|.</li>
+              <li>
+                Otherwise:
+                <ol>
+                  <li>[=Assert=]: |mediaPromise| was rejected with reason |r|.</li>
+                  <li>If |r| indicated that the {{MediaDevices/getUserMedia()}}
+                    call has failed due to user action or inaction, such as a
+                    user rejecting or not answering a permission prompt raised
+                    by {{MediaDevices/getUserMedia()}}, then
+                    [=fire an event=] named `cancel` on [=this=], using
+                    {{DOMException}}, and return.</li>
+                  <li>[=Assert=]: |r| is a |DOMException|.</li>
+                  <li>Set {{HTMLUserMediaElement/[[error]]}} to |r|.
+                  <li>[=Fire an event=] named `error` on [=this=],
+                    using {{DOMException}}. (Description still TBD.).</li>
+                  <li>Return.</li>
+                </ol>
+              </li>
             </ol>
           </li>
         </ol>
@@ -2844,12 +2867,12 @@ onmessage = async ({data: {track}}) => {
         <p>To determine whether an {{Event}} |event| is
           <dfn data-dfn-for=HTMLUserMediaElement>trusted</dfn>:</p>
 
-        <p class=note>{{HTMLUserMediaElement}} stream creation is supposed to happen by
+        <div class=note>{{HTMLUserMediaElement}} stream creation is supposed to happen by
           genuine user action. [=User agents=] SHOULD suppress activation
           for "click-jacking", as well as for programmatic activation. Since
           exact critera for these are difficult to specify, we presently leave
           this as implementation defined. [=User agents=] MUST at minimum
-          reject untrusted events.</p>
+          reject untrusted events.</div>
 
         <ol class=algorithm>
           <li>If |event|.{{Event/isTrusted}} is false: Return false.</li>
@@ -2874,8 +2897,8 @@ onmessage = async ({data: {track}}) => {
             internal UI to reflect the active, muted, or ended state of the |track|.
           </li>
           <li>
-            If {{HTMLUserMediaElement/[[stream]]}}.{{MediaStream/active}} becomes false, the user agent MUST
-            set {{HTMLUserMediaElement/[[stream]]}} to null and reset the |element|'s
+            If {{HTMLUserMediaElement/[[stream]]}}.{{MediaStream/active}}
+            becomes `"ended"`, the user agent MUST reset the |element|'s
             internal UI to its initial request state.
           </li>
         </ol>
