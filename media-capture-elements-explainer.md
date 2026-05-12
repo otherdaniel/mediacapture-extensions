@@ -36,10 +36,12 @@ The `<camera>` element provides a dedicated UI for requesting and controlling ac
 
 ### Attributes and Properties
 
-*   `track`: A read-only property that holds the associated `MediaStreamTrack` object (video). It is populated automatically upon successful user interaction.
+*   `track`: A property that holds the associated `MediaStreamTrack` object (video). It is populated automatically upon successful user interaction.
+*   `error`: A property that holds a `DOMException` or `null`. Populated if stream acquisition fails.
 *   `autostart`: A boolean attribute. If present, the UA will attempt to start the stream automatically as the element is added to the DOM and rendered (provided permissions are already granted).
-*   `onstream`: An `EventHandler` that fires when a hardware acquisition attempt completes successfully and populates the `track` property.
-*   `onerror`: An `EventHandler` that fires when a stream acquisition attempt fails. To allow the element to carry detailed diagnostic info without bloating the main element interface, it is proposed that this event object carries a dedicated error payload containing, for example, a DOMException along with optional platform-specific diagnostic parameters.
+*   `ontrack`: An `EventHandler` that fires when a hardware acquisition attempt completes successfully and populates the `track` property.
+*   `onerror`: An `EventHandler` that fires when a stream acquisition attempt fails. See Error Handling below for details.
+*   `oncancel`: An `EventHandler` that fires when the user cancels or dismisses the permission prompt during acquisition.
 
 ### Constraints Configuration
 
@@ -51,22 +53,9 @@ Developers can specify a `MediaTrackConstraintSet` to dictate the parameters of 
 
 ```javascript
 const cameraEl = document.querySelector('camera');
-const videoEl = document.querySelector('video');
 
 // Configure high-resolution constraints directly
 cameraEl.setConstraints({ width: 1920, height: 1080 });
-
-// Handle successful stream acquisition
-cameraEl.addEventListener("stream", () => {
-  const stream = new MediaStream([cameraEl.track]);
-  videoEl.srcObject = stream;
-});
-
-// Handle stream acquisition failure with detailed error event diagnostics
-cameraEl.addEventListener("error", (event) => {
-  const exception = event.detail?.exception; // Proposed error dictionary payload
-  console.error(`Camera acquisition failed: ${exception.name}`);
-});
 ```
 
 ## The `<microphone>` HTML element
@@ -77,10 +66,12 @@ The `<microphone>` element provides a dedicated UI for requesting and controllin
 
 ### Attributes and Properties
 
-*   `track`: A read-only property that holds the associated `MediaStreamTrack` object (audio). It is populated automatically upon successful user interaction.
+*   `track`: A property that holds the associated `MediaStreamTrack` object (audio). It is populated automatically upon successful user interaction.
+*   `error`: A property that holds a `DOMException` or `null`. Populated if stream acquisition fails.
 *   `autostart`: A boolean attribute. If present, the UA will attempt to start the stream automatically as the element is added to the DOM and rendered (provided permissions are already granted).
-*   `onstream`: An `EventHandler` that fires when a hardware acquisition attempt completes successfully and populates the `track` property.
-*   `onerror`: An `EventHandler` that fires when a stream acquisition attempt fails. To allow the element to carry detailed diagnostic info without bloating the main element interface, it is proposed that this event object carries a dedicated error payload containing, for example, a DOMException along with optional platform-specific diagnostic parameters.
+*   `ontrack`: An `EventHandler` that fires when a hardware acquisition attempt completes successfully and populates the `track` property.
+*   `onerror`: An `EventHandler` that fires when a stream acquisition attempt fails. See Error Handling below for details.
+*   `oncancel`: An `EventHandler` that fires when the user cancels or dismisses the permission prompt during acquisition.
 
 ### Constraints Configuration
 
@@ -95,16 +86,6 @@ const micEl = document.querySelector('microphone');
 
 // Configure echo cancellation and noise suppression
 micEl.setConstraints({ echoCancellation: true, noiseSuppression: true });
-
-// Handle successful microphone track acquisition
-micEl.addEventListener("stream", () => {
-  console.log("Audio track successfully acquired:", micEl.track);
-});
-
-// Handle acquisition failure
-micEl.addEventListener("error", (event) => {
-  console.error("Audio acquisition failed:", event.detail?.exception.name);
-});
 ```
 
 ## The `<usermedia>` HTML element
@@ -115,10 +96,12 @@ The `<usermedia>` element controls combined audio and video capture. Unlike `<ca
 
 ### Attributes and Properties
 
-*   `stream`: A read-only property that holds the associated `MediaStream` object. It is populated automatically upon successful user interaction.
+*   `stream`: A property that holds the associated `MediaStream` object. It is populated automatically upon successful user interaction.
+*   `error`: A property that holds a `DOMException` or `null`. Populated if stream acquisition fails.
 *   `autostart`: A boolean attribute. If present, the UA will attempt to start the stream automatically as the element is added to the DOM and rendered (provided permissions are already granted).
 *   `onstream`: An `EventHandler` that fires when a hardware acquisition attempt completes successfully and populates the `stream` property.
-*   `onerror`: An `EventHandler` that fires when a stream acquisition attempt fails. To allow the element to carry detailed diagnostic info without bloating the main element interface, it is proposed that this event object carries a dedicated error payload containing, for example, a DOMException along with optional platform-specific diagnostic parameters.
+*   `onerror`: An `EventHandler` that fires when a stream acquisition attempt fails. See Error Handling below for details.
+*   `oncancel`: An `EventHandler` that fires when the user cancels or dismisses the permission prompt during acquisition.
 
 ### Constraints Configuration
 
@@ -130,31 +113,47 @@ Developers can specify `HTMLMediaStreamConstraints` to dictate the parameters of
 
 ```javascript
 const umElement = document.querySelector('usermedia');
-const videoEl = document.querySelector('video');
 
 // Configure constraints for combined audio/video capture
 umElement.setConstraints({
   video: { width: 1280 },
   audio: {}
 });
-
-// Handle successful stream acquisition
-umElement.addEventListener("stream", () => {
-  videoEl.srcObject = umElement.stream;
-});
-
-// Handle stream acquisition failure
-umElement.addEventListener("error", (event) => {
-  console.error("Combined stream acquisition failed:", event.detail?.exception.name);
-});
 ```
 
 ## User Journey & Interaction Model
 
 1.  Request State (Inactive): An element with no active associated `MediaStream` is in a request state. A User Gesture (click) triggers a permission prompt (if not already granted). Alternatively, if the `autostart` attribute is present when the element is rendered in the DOM, the UA will attempt to bypass the click requirement and automatically start the stream (provided permissions are already granted).
-2.  Acquisition: Upon grant, the UA implicitly executes a `getUserMedia` request using the element's configured constraints. The resulting track or stream is assigned to the `track` or `stream` property. If acquisition succeeds, the element fires the `stream` event and begins monitoring the resulting `MediaStreamTrack`s. If acquisition fails, the element fires the `error` event carrying detailed payload diagnostics.
-3.  Control State (Active for `<camera>` and `<microphone>` only): The element updates its internal UI (e.g., from "Use Camera" to "Mute Camera"). Subsequent clicks on `<camera>` or `<microphone>` elements will trigger the element's secondary activation steps, natively toggling the `enabled` property of all associated `MediaStreamTrack`s. The `<usermedia>` element skips this second-click behavior due to the complexity of managing potentially independent active/ended states for multiple audio and video tracks.
-4.  Track Monitoring: The element acts as an active monitor for its internal tracks or streams, observing their `enabled`, `muted`, and `ended` states (including manual `track.stop()` calls) to ensure its UI remains securely synchronized with the underlying hardware state. Any state changes will update the element's UI. If all tracks terminate, the element resets to its initial request state, and a subsequent click will fetch a new stream.
+2.  Acquisition (Success): Upon grant, the UA implicitly executes a `getUserMedia` request using the element's configured constraints. The resulting track or stream is assigned to the `track` or `stream` property, the element fires the `track` (or `stream`) event, and begins monitoring the resulting tracks.
+
+    ```javascript
+    const cameraEl = document.querySelector('camera');
+    const videoEl = document.querySelector('video');
+
+    // Handle successful track acquisition
+    cameraEl.addEventListener("track", () => {
+      const stream = new MediaStream([cameraEl.track]);
+      videoEl.srcObject = stream;
+    });
+    ```
+3.  Error Handling: If stream acquisition fails (e.g., due to platform denial or security error), the element populates its `error` property and fires an `error` event.
+
+    ```javascript
+    // Handle stream acquisition failure
+    cameraEl.addEventListener("error", () => {
+      console.error(`Camera acquisition failed: ${cameraEl.error?.name}`);
+    });
+    ```
+4.  User Cancellation: If the user decides not to proceed (for example dismisses or closes the permission prompt without granting or denying access), the element fires a `cancel` event.
+
+    ```javascript
+    // Handle prompt cancellation
+    cameraEl.addEventListener("cancel", () => {
+      console.log("Permission prompt was dismissed by the user.");
+    });
+    ```
+5.  Control State (Active for `<camera>` and `<microphone>` only): The element updates its internal UI (e.g., from "Use Camera" to "Mute Camera"). Subsequent clicks on `<camera>` or `<microphone>` elements will trigger the element's secondary activation steps, natively toggling the `enabled` property of all associated `MediaStreamTrack`s. The `<usermedia>` element skips this second-click behavior due to the complexity of managing potentially independent active/ended states for multiple audio and video tracks.
+6.  Track Monitoring: The element acts as an active monitor for its internal tracks or streams, observing their `enabled`, `muted`, and `ended` states (including manual `track.stop()` calls) to ensure its UI remains securely synchronized with the underlying hardware state. Any state changes will update the element's UI. If all tracks terminate, the element resets to its initial request state, and a subsequent click will fetch a new stream.
 
 ## Key Scenarios
 
