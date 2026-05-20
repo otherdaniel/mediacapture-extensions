@@ -2289,7 +2289,7 @@ onmessage = async ({data: {track}}) => {
                   <li>Set
                     {{HTMLCameraElement/[[track]]}} to |tracks|[0].</li>
                   <li>Run the [=HTMLCameraElement/track monitor=] steps on [=this=].</li>
-                  <li>[=Fire an event=] named `track` on [=this=].</li>
+                  <li>[=AllUserMediaElements/Queue an event=] named `track` on [=this=].</li>
 
                 </ol>
               </li>
@@ -2550,7 +2550,7 @@ onmessage = async ({data: {track}}) => {
                   <li>Set
                     {{HTMLMicrophoneElement/[[track]]}} to |tracks|[0].</li>
                   <li>Run the [=HTMLMicrophoneElement/track monitor=] steps on [=this=].</li>
-                  <li>[=Fire an event=] named `track` on [=this=].</li>
+                  <li>[=AllUserMediaElements/Queue an event=] named `track` on [=this=].</li>
 
                 </ol>
               </li>
@@ -2565,7 +2565,7 @@ onmessage = async ({data: {track}}) => {
                     [=this=], using {{DOMException}}, and return.</li>
                   <li>[=Assert=]: |r| is a |DOMException|.</li>
                   <li>Set {{HTMLMicrophoneElement/[[error]]}} to |r|.
-                  <li>[=Fire an event=] named `error` on [=this=],
+                  <li>[=AllUserMediaElements/Queue an event=] named `error` on [=this=],
                     using |r|.
                     (Description still TBD.)</li>
                 </ol>
@@ -2812,7 +2812,7 @@ onmessage = async ({data: {track}}) => {
                   <li>Set {{HTMLUserMediaElement/[[stream]]}} to |v|.</li>
                   <li>Run the [=HTMLUserMediaElement/track monitor=]
                     steps on [=this=].</li>
-                  <li>[=Fire an event=] named `stream` on [=this=].</li>
+                  <li>[=AllUserMediaElements/Queue an event=] named `stream` on [=this=].</li>
                 </ol>
               </li>
               <li>
@@ -2827,7 +2827,7 @@ onmessage = async ({data: {track}}) => {
                     [=this=], using {{DOMException}}, and return.</li>
                   <li>[=Assert=]: |r| is a |DOMException|.</li>
                   <li>Set {{HTMLUserMediaElement/[[error]]}} to |r|.
-                  <li>[=Fire an event=] named `error` on [=this=],
+                  <li>[=AllUserMediaElements/Queue an event=] named `error` on [=this=],
                     using {{DOMException}}. (Description still TBD.).</li>
                 </ol>
               </li>
