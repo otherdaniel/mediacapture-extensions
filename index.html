@@ -2191,6 +2191,17 @@ onmessage = async ({data: {track}}) => {
         (or not), or that the camera might be open or muted.
       </p>
 
+      <p>The [=user agent=] is expected to monitor the state of the underlying
+        track and to continuously reflect this state in the user interface of
+        the [^camera^] element. For example,
+        whether a track has been requested but is waiting for user action;
+        whether it is active or has been stopped (by any means, including
+        direct calls to {{MediaStreamTrack/stop()}}), or whether a track is
+        muted. This specification does not explicitly call out when such state
+        changes might occur, or demand a specific set of states to display to
+        the user.
+      </p>
+
       <section>
         <h4>Algorithms</h4>
 
@@ -2288,9 +2299,7 @@ onmessage = async ({data: {track}}) => {
                   <li>[=Assert=]: |tracks|'s [=list/size=] is 1.</li>
                   <li>Set
                     {{HTMLCameraElement/[[track]]}} to |tracks|[0].</li>
-                  <li>Run the [=HTMLCameraElement/track monitor=] steps on [=this=].</li>
                   <li>[=AllUserMediaElements/Queue an event=] named `track` on [=this=].</li>
-
                 </ol>
               </li>
               <li>Otherwise:
@@ -2310,34 +2319,6 @@ onmessage = async ({data: {track}}) => {
                 </ol>
               </li>
             </ol>
-          </li>
-        </ol>
-
-        <p>The <dfn data-dfn-for="HTMLCameraElement">track monitor</dfn> steps are:</p>
-        <ol class=algorithm>
-          <li>[=Assert=]: {{HTMLCameraElement/[[track]]}} is a {{MediaStreamTrack}}.</li>
-          <li>
-            The user agent monitors the {{HTMLCameraElement/[[track]]}}'s
-            {{MediaStreamTrack/readyState}} (including for
-            terminations triggered by {{MediaStreamTrack/stop()}}), and its
-            {{MediaStreamTrack/muted}} state.
-            <div class=note>This monitoring is mostly provided by existing
-              event handlers on {{MediaStreamTrack}}, except that the
-              {{MediaStreamTrack/stop()}} method
-              <a href="https://w3c.github.io/mediacapture-main/#ends-nostop">will not dispatch any events</a>.
-              However, a track ending due to {{MediaStreamTrack/stop()}}
-              should still reflect the {{HTMLCameraElement}} state.
-            </div>
-          </li>
-          <li>
-            When the state of the monitored {{HTMLCameraElement/[[track]]}}
-            changes, the user agent updates the |element|'s internal UI to
-            reflect the active, muted, or ended state of the track.
-          </li>
-          <li>
-            If {{HTMLCameraElement/[[track]]}}.{{MediaStreamTrack/readyState}}
-            becomes `"ended"`, the user agent updates its presentation
-            appropriately.
           </li>
         </ol>
 
@@ -2454,6 +2435,17 @@ onmessage = async ({data: {track}}) => {
         is live (or not), or that the microphone might be open or muted.
       </p>
 
+      <p>The [=user agent=] is expected to monitor the state of the underlying
+        track and to continuously reflect this state in the user interface of
+        the [^microphone^] element. For example,
+        whether a track has been requested but is waiting for user action;
+        whether it is active or has been stopped (by any means, including
+        direct calls to {{MediaStreamTrack/stop()}}), or whether a track is
+        muted. This specification does not explicitly call out when such state
+        changes might occur, or demand a specific set of states to display to
+        the user.
+      </p>
+
       <section>
         <h4>Algorithms</h4>
 
@@ -2549,9 +2541,7 @@ onmessage = async ({data: {track}}) => {
                   <li>[=Assert=]: |tracks|'s [=list/size=] is 1.</li>
                   <li>Set
                     {{HTMLMicrophoneElement/[[track]]}} to |tracks|[0].</li>
-                  <li>Run the [=HTMLMicrophoneElement/track monitor=] steps on [=this=].</li>
                   <li>[=AllUserMediaElements/Queue an event=] named `track` on [=this=].</li>
-
                 </ol>
               </li>
               <li>Otherwise:
@@ -2571,35 +2561,6 @@ onmessage = async ({data: {track}}) => {
                 </ol>
               </li>
             </ol>
-          </li>
-        </ol>
-
-        <p>The <dfn data-dfn-for="HTMLMicrophoneElement">track monitor</dfn> steps are:</p>
-        <ol class=algorithm>
-          <li>[=Assert=]: {{HTMLMicrophoneElement/[[track]]}} is a {{MediaStreamTrack}}.</li>
-          <li>
-            The user agent monitors the {{HTMLMicrophoneElement/[[track]]}}'s
-            {{MediaStreamTrack/readyState}} (including for
-            terminations triggered by {{MediaStreamTrack/stop()}}), its
-            {{MediaStreamTrack/enabled}} state, and its
-            {{MediaStreamTrack/muted}} state.
-            <div class=note>This monitoring is mostly provided by existing
-              event handlers on {{MediaStreamTrack}}, except that the
-              {{MediaStreamTrack/stop()}} method
-              <a href="https://w3c.github.io/mediacapture-main/#ends-nostop">will not dispatch any events</a>.
-              However, a track ending due to {{MediaStreamTrack/stop()}}
-              should still reflect the {{HTMLMicrophoneElement}} state.
-            </div>
-          </li>
-          <li>
-            When the state of the monitored {{HTMLMicrophoneElement/[[track]]}}
-            changes, the user agent updates the |element|'s internal UI to
-            reflect the active, muted, or ended state of the track.
-          </li>
-          <li>
-            If {{HTMLMicrophoneElement/[[track]]}}.{{MediaStreamTrack/readyState}}
-            becomes `"ended"`, the user agent updates its presentation
-            appropriately.
           </li>
         </ol>
 
@@ -2721,6 +2682,17 @@ onmessage = async ({data: {track}}) => {
         (or not), or that the camera and microphone might be active or muted.
       </p>
 
+      <p>The [=user agent=] is expected to monitor the state of the underlying
+        track and to continuously reflect this state in the user interface of
+        the [^usermedia^] element. For example,
+        whether the stream has been requested but is waiting for user action;
+        whether it is active or has been stopped (by any means, including
+        direct calls to {{MediaStreamTrack/stop()}}), or whether a track is
+        muted. This specification does not explicitly call out when such state
+        changes might occur, or demand a specific set of states to display to
+        the user.
+      </p>
+
       <section>
         <h4>Algorithms</h4>
 
@@ -2810,8 +2782,6 @@ onmessage = async ({data: {track}}) => {
                 <ol>
                   <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
                   <li>Set {{HTMLUserMediaElement/[[stream]]}} to |v|.</li>
-                  <li>Run the [=HTMLUserMediaElement/track monitor=]
-                    steps on [=this=].</li>
                   <li>[=AllUserMediaElements/Queue an event=] named `stream` on [=this=].</li>
                 </ol>
               </li>
@@ -2832,29 +2802,6 @@ onmessage = async ({data: {track}}) => {
                 </ol>
               </li>
             </ol>
-          </li>
-        </ol>
-
-        <p>The <dfn data-dfn-for="HTMLUserMediaElement">track monitor</dfn> steps are:</p>
-        <ol class=algorithm>
-          <li>[=Assert=]: {{HTMLUserMediaElement/[[stream]]}} is a {{MediaStream}}.</li>
-          <li>
-            For each |track| in the result of calling {{MediaStream/getTracks()}}
-            on {{HTMLUserMediaElement/[[stream]]}}, the user agent monitors
-            the |track|'s {{MediaStreamTrack/readyState}} (specifically for
-            terminations triggered by {{MediaStreamTrack/stop()}}), its
-            {{MediaStreamTrack/enabled}} state, and its
-            {{MediaStreamTrack/muted}} state.
-          </li>
-          <li>
-            When the state of any monitored |track| changes, the user agent
-            updates the |element|'s internal UI to reflect the active, muted,
-            or ended state of the |track|.
-          </li>
-          <li>
-            If {{HTMLUserMediaElement/[[stream]]}}.{{MediaStream/active}}
-            becomes `"ended"`, the user agent reset the |element|'s internal
-            UI to its initial request state.
           </li>
         </ol>
 
