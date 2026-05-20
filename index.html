@@ -2240,10 +2240,9 @@ onmessage = async ({data: {track}}) => {
             <div class=note>
               [^camera^]'s [=EventTarget/activation behavior=]
               currently ignores activation when it already has a
-              {{HTMLCameraElement/[[track]]}} set. The intent is that an element
-              with an ended track will start a new one. The behaviour for
-              an element with an active track still need to be determined.
-            </div>
+              {{HTMLCameraElement/[[track]]}} set. The behaviour for
+              an element with a track still needs to be determined.
+           </div>
           </li>
           <li>Run [=HTMLCameraElement/activation start stream=] steps given
             [=this=].
@@ -2290,7 +2289,7 @@ onmessage = async ({data: {track}}) => {
                   <li>Set
                     {{HTMLCameraElement/[[track]]}} to |tracks|[0].</li>
                   <li>Run the [=HTMLCameraElement/track monitor=] steps on [=this=].</li>
-                  <li>[=Fire an event=] named `track` on [=this=].</li>
+                  <li>[=AllUserMediaElements/Queue an event=] named `track` on [=this=].</li>
 
                 </ol>
               </li>
@@ -2348,10 +2347,10 @@ onmessage = async ({data: {track}}) => {
         </p>
         <ol class=algorithm>
           <li>Let |result| be a new {{MediaStreamConstraints}} [=dictionary=].</li>
-          <li>Set |result|["{{MediaStreamConstraints/video}}"] to a copy of
-            |constraints|.</li>
           <li>Remove any <a data-cite="mediacapture-streams#dfn-required-constraints">required constraints</a
-            > from |result|["{{MediaStreamConstraints/video}}"].</li>
+            > from |constraints|.</li>
+          <li>Set |result|["{{MediaStreamConstraints/video}}"] to
+            |constraints|.</li>
           <li>Return |result|.</li>
         </ol>
       </section>
@@ -2507,9 +2506,8 @@ onmessage = async ({data: {track}}) => {
         <div class=note>
           [^microphone^]'s [=EventTarget/activation behavior=]
           currently ignores activation when it already has a
-          {{HTMLMicrophoneElement/[[track]]}} set. The intent is that an element
-          with an ended track will start a new one. The behaviour for
-          an element with an active track still need to be determined.
+          {{HTMLMicrophoneElement/[[track]]}} set. The behaviour for
+          an element with a track still needs to be determined.
         </div>
 
         <p>The
@@ -2552,7 +2550,7 @@ onmessage = async ({data: {track}}) => {
                   <li>Set
                     {{HTMLMicrophoneElement/[[track]]}} to |tracks|[0].</li>
                   <li>Run the [=HTMLMicrophoneElement/track monitor=] steps on [=this=].</li>
-                  <li>[=Fire an event=] named `track` on [=this=].</li>
+                  <li>[=AllUserMediaElements/Queue an event=] named `track` on [=this=].</li>
 
                 </ol>
               </li>
@@ -2567,7 +2565,7 @@ onmessage = async ({data: {track}}) => {
                     [=this=], using {{DOMException}}, and return.</li>
                   <li>[=Assert=]: |r| is a |DOMException|.</li>
                   <li>Set {{HTMLMicrophoneElement/[[error]]}} to |r|.
-                  <li>[=Fire an event=] named `error` on [=this=],
+                  <li>[=AllUserMediaElements/Queue an event=] named `error` on [=this=],
                     using |r|.
                     (Description still TBD.)</li>
                 </ol>
@@ -2611,9 +2609,9 @@ onmessage = async ({data: {track}}) => {
         </p>
         <ol class=algorithm>
           <li>Let |result| be a new {{MediaStreamConstraints}} [=dictionary=].</li>
-          <li>Set |result|["{{MediaStreamConstraints/audio}}"] to a copy of
+          <li>Remove any <a data-cite="mediacapture-streams#dfn-required-constraints">required constraints</a> from |constraints|</li>
+          <li>Set |result|["{{MediaStreamConstraints/audio}}"] to
             |constraints|.</li>
-          <li>Remove any <a data-cite="mediacapture-streams#dfn-required-constraints">required constraints</a> from |result|["{{MediaStreamConstraints/audio}}"].</li>
           <li>Return |result|.</li>
         </ol>
       </section>
@@ -2624,7 +2622,7 @@ onmessage = async ({data: {track}}) => {
       <p>
         The &lt;<dfn data-dfn-type="element">usermedia</dfn>&gt; HTML element
         is an [[HTML]] element that can mediate access to a {{MediaStream}}
-        consisting of a microphone and camera track.
+        consisting of a microphone and a camera track.
         The [^usermedia^] element is {{SecureContext}} restricted. Outside
         of a [=secure context=] it uses the default [=element interface=].
         In a [=secure context=] it uses the following [=element interface=]:
@@ -2776,9 +2774,8 @@ onmessage = async ({data: {track}}) => {
         <div class=note>
           [^usermedia^]'s [=EventTarget/activation behavior=]
           currently ignores activation when it already has a
-          {{HTMLUserMediaElement/[[stream]]}} set. The intent is that an element
-          with an ended stream will start a new one. The behaviour for
-          an element with an active stream still need to be determined.
+          {{HTMLUserMediaElement/[[stream]]}} set. The behaviour for
+          an element with a stream still needs to be determined.
        </div>
 
 
@@ -2815,7 +2812,7 @@ onmessage = async ({data: {track}}) => {
                   <li>Set {{HTMLUserMediaElement/[[stream]]}} to |v|.</li>
                   <li>Run the [=HTMLUserMediaElement/track monitor=]
                     steps on [=this=].</li>
-                  <li>[=Fire an event=] named `stream` on [=this=].</li>
+                  <li>[=AllUserMediaElements/Queue an event=] named `stream` on [=this=].</li>
                 </ol>
               </li>
               <li>
@@ -2830,7 +2827,7 @@ onmessage = async ({data: {track}}) => {
                     [=this=], using {{DOMException}}, and return.</li>
                   <li>[=Assert=]: |r| is a |DOMException|.</li>
                   <li>Set {{HTMLUserMediaElement/[[error]]}} to |r|.
-                  <li>[=Fire an event=] named `error` on [=this=],
+                  <li>[=AllUserMediaElements/Queue an event=] named `error` on [=this=],
                     using {{DOMException}}. (Description still TBD.).</li>
                 </ol>
               </li>
@@ -2868,21 +2865,30 @@ onmessage = async ({data: {track}}) => {
         <ol class=algorithm>
           <li>Let |result| be a new {{MediaStreamConstraints}} [=dictionary=].</li>
           <li>If |constraints|["{{HTMLMediaStreamConstraints/audio}}"]
-            [=map/exists=], set |result|["{{MediaStreamConstraints/audio}}"] to
-            a copy of |constraints|["{{HTMLMediaStreamConstraints/audio}}"].
-            Otherwise, set |result|["{{MediaStreamConstraints/audio}}"] to
+            [=map/exists=]:
+            <ol>
+              <li>Remove any
+                <a data-cite="mediacapture-streams#dfn-required-constraints">required constraints</a>
+                from |constraints|["{{MediaStreamConstraints/audio}}"].</li>
+              <li>Set |result|["{{MediaStreamConstraints/audio}}"] to
+                |constraints|["{{HTMLMediaStreamConstraints/audio}}"].</li>
+            </ol>
+          </li>
+          <li>Otherwise, set |result|["{{MediaStreamConstraints/audio}}"] to
             an empty [=dictionary=].</li>
-          <li>Remove any
-            <a data-cite="mediacapture-streams#dfn-required-constraints">required constraints</a>
-            from |result|["{{MediaStreamConstraints/audio}}"].</li>
           <li>If |constraints|["{{HTMLMediaStreamConstraints/video}}"]
-            [=map/exists=], set |result|["{{MediaStreamConstraints/video}}"] to
-            a copy of |constraints|["{{HTMLMediaStreamConstraints/video}}"].
+            [=map/exists=]:
+            <ol>
+              <li>Remove any
+                <a data-cite="mediacapture-streams#dfn-required-constraints">required constraints</a>
+                from |constraints|["{{MediaStreamConstraints/video}}"].</li>
+              <li>Set |result|["{{MediaStreamConstraints/video}}"] to
+                |constraints|["{{HTMLMediaStreamConstraints/video}}"].</li>
+            </ol>
+          </li>
+          <li>
             Otherwise, set |result|["{{MediaStreamConstraints/video}}"] to an
             empty [=dictionary=].</li>
-          <li>Remove any
-            <a data-cite="mediacapture-streams#dfn-required-constraints">required constraints</a>
-            from |result|["{{MediaStreamConstraints/video}}"].</li>
           <li>Return |result|.</li>
         </ol>
       </section>
