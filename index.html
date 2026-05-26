@@ -2099,12 +2099,10 @@ onmessage = async ({data: {track}}) => {
         The &lt;<dfn data-dfn-type="element">camera</dfn>&gt; HTML element is an
         [[HTML]] element that can mediate access to a camera's video
         {{MediaStreamTrack}}.
-        The [^camera^] element is {{SecureContext}} restricted. Outside
-        of a [=secure context=] it uses the default [=element interface=].
-        In a [=secure context=] it uses the following [=element interface=]:
+        The [^camera^] element uses the following [=element interface=]:
       </p>
       <pre class=idl>
-      [Exposed=Window, SecureContext]
+      [Exposed=Window]
       interface HTMLCameraElement : HTMLElement {
         [HTMLConstructor] constructor();
 
@@ -2183,6 +2181,13 @@ onmessage = async ({data: {track}}) => {
         <dd>&mdash; [=event handler IDL attributes=]</dd>
       </dl>
 
+      <p>The [^camera^] element, like the underlying
+        {{MediaDevices}} interface and {{MediaDevices/getUserMedia()}} method,
+        only work in a [=/secure context=]. In a [=/non-secure context=],
+        [^camera^] displays its
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#fallback-content">fallback content</a>.
+      </p>
+
       <p>The [^camera^] element's presentation is left to the [=user
         agent=]. It's expected that the presentation is chiefly that of a button,
         with text and/or an icon to indicate this is managing camera access.
@@ -2241,6 +2246,8 @@ onmessage = async ({data: {track}}) => {
           given |event| is:
         </p>
         <ol class=algorithm>
+          <li>If [=this=]'s [=Node/node document=] is a [=/non-secure context=],
+            then return.</li>
           <li>If |event| is not [=AllUserMediaElements/trusted=], then
             [=AllUserMediaElements/queue an event=] named `error` on [=this=],
             using an "{{InvalidStateError}}" {{DOMException}} and abort these
@@ -2343,12 +2350,10 @@ onmessage = async ({data: {track}}) => {
         The &lt;<dfn data-dfn-type="element">microphone</dfn>&gt; HTML element
         is an [[HTML]] element that can mediate access to a microphone's audio
         {{MediaStreamTrack}}.
-        The [^microphone^] element is {{SecureContext}} restricted. Outside
-        of a [=secure context=] it uses the default [=element interface=].
-        In a [=secure context=] it uses the following [=element interface=]:
+        The [^microphone^] element uses the following [=element interface=]:
       </p>
       <pre class=idl>
-      [Exposed=Window, SecureContext]
+      [Exposed=Window]
       interface HTMLMicrophoneElement : HTMLElement {
         [HTMLConstructor] constructor();
 
@@ -2435,6 +2440,13 @@ onmessage = async ({data: {track}}) => {
         is live (or not), or that the microphone might be open or muted.
       </p>
 
+      <p>The [^microphone^] element, like the underlying
+        {{MediaDevices}} interface and {{MediaDevices/getUserMedia()}} method,
+        only work in a [=/secure context=]. In a [=/non-secure context=],
+        [^microphone^] displays its
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#fallback-content">fallback content</a>.
+      </p>
+
       <p>The [=user agent=] is expected to monitor the state of the underlying
         track and to continuously reflect this state in the user interface of
         the [^microphone^] element. For example,
@@ -2484,6 +2496,8 @@ onmessage = async ({data: {track}}) => {
           [=EventTarget/activation behavior=] given |event| is:
         </p>
         <ol class=algorithm>
+          <li>If [=this=]'s [=Node/node document=] is a [=/non-secure context=],
+            then return.</li>
           <li>If |event| is not [=AllUserMediaElements/trusted=], then
             [=AllUserMediaElements/queue an event=] named `error`, using an
             "{{InvalidStateError}}" {{DOMException}}.
@@ -2584,18 +2598,15 @@ onmessage = async ({data: {track}}) => {
         The &lt;<dfn data-dfn-type="element">usermedia</dfn>&gt; HTML element
         is an [[HTML]] element that can mediate access to a {{MediaStream}}
         consisting of a microphone and a camera track.
-        The [^usermedia^] element is {{SecureContext}} restricted. Outside
-        of a [=secure context=] it uses the default [=element interface=].
-        In a [=secure context=] it uses the following [=element interface=]:
+        The [^usermedia^] element uses the following [=element interface=]:
       </p>
       <pre class=idl>
-      [SecureContext]
       dictionary HTMLMediaStreamConstraints {
         MediaTrackConstraintSet video;
         MediaTrackConstraintSet audio;
       };
 
-      [Exposed=Window, SecureContext]
+      [Exposed=Window]
       interface HTMLUserMediaElement : HTMLElement {
         [HTMLConstructor] constructor();
 
@@ -2682,6 +2693,14 @@ onmessage = async ({data: {track}}) => {
         (or not), or that the camera and microphone might be active or muted.
       </p>
 
+      <p>
+        The [^usermedia^] element, like the underlying
+        {{MediaDevices}} interface and {{MediaDevices/getUserMedia()}} method,
+        only work in a [=/secure context=]. In a [=/non-secure context=],
+        [^usermedia^] displays its
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#fallback-content">fallback content</a>.
+      </p>
+
       <p>The [=user agent=] is expected to monitor the state of the underlying
         track and to continuously reflect this state in the user interface of
         the [^usermedia^] element. For example,
@@ -2732,6 +2751,8 @@ onmessage = async ({data: {track}}) => {
           given |event|, is:
         </p>
         <ol class=algorithm>
+          <li>If [=this=]'s [=Node/node document=] is a [=/non-secure context=],
+            then return.</li>
           <li>If |event| is not [=AllUserMediaElements/trusted=], then
             [=AllUserMediaElements/queue an event=] named `error`, using an
             "{{InvalidStateError}}" {{DOMException}}.
