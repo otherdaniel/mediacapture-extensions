@@ -2246,7 +2246,10 @@ onmessage = async ({data: {track}}) => {
           given |event| is:
         </p>
         <ol class=algorithm>
-          <li>If [=this=]'s [=Node/node document=] is a [=/non-secure context=],
+          <li>If [=this=]'s [=node navigable=] is a [=/non-secure context=],
+            then return.</li>
+          <li>If [=this=]'s [=node navigable=]'s [=navigable/active window=]
+            does not have [=/transient activation|transient user activation=],
             then return.</li>
           <li>If |event| is not [=AllUserMediaElements/trusted=], then
             [=AllUserMediaElements/queue an event=] named `error` on [=this=],
@@ -2496,7 +2499,10 @@ onmessage = async ({data: {track}}) => {
           [=EventTarget/activation behavior=] given |event| is:
         </p>
         <ol class=algorithm>
-          <li>If [=this=]'s [=Node/node document=] is a [=/non-secure context=],
+          <li>If [=this=]'s [=node navigable=] is a [=/non-secure context=],
+            then return.</li>
+          <li>If [=this=]'s [=node navigable=]'s [=navigable/active window=]
+            does not have [=/transient activation|transient user activation=],
             then return.</li>
           <li>If |event| is not [=AllUserMediaElements/trusted=], then
             [=AllUserMediaElements/queue an event=] named `error`, using an
@@ -2751,7 +2757,10 @@ onmessage = async ({data: {track}}) => {
           given |event|, is:
         </p>
         <ol class=algorithm>
-          <li>If [=this=]'s [=Node/node document=] is a [=/non-secure context=],
+          <li>If [=this=]'s [=node navigable=] is a [=/non-secure context=],
+            then return.</li>
+          <li>If [=this=]'s [=node navigable=]'s [=navigable/active window=]
+            does not have [=/transient activation|transient user activation=],
             then return.</li>
           <li>If |event| is not [=AllUserMediaElements/trusted=], then
             [=AllUserMediaElements/queue an event=] named `error`, using an
