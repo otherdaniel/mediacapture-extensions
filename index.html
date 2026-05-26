@@ -2235,9 +2235,7 @@ onmessage = async ({data: {track}}) => {
         </p>
         <ol class=algorithm>
           <li>
-            Set [=this=].{{HTMLCameraElement/[[constraints]]}} to |constraints|
-            to the result of [=HTMLCameraElement/constraint filter=] with
-            |constraints|.
+            Set [=this=].{{HTMLCameraElement/[[constraints]]}} to |constraints|.
           </li>
         </ol>
 
@@ -2275,9 +2273,12 @@ onmessage = async ({data: {track}}) => {
         steps for a given |element| are:</p>
         <ol class=algorithm>
           <li>[=Assert=]: [=this=].{{HTMLCameraElement/[[track]]}} is null.</li>
+          <li>Set |constraints| to the result of
+            [=HTMLCameraElement/constraint filter=] with
+            {{HTMLCameraElement/[[constraints]]}}.
           <li>
             Let |mediaPromise| be the result of calling
-            [=this=].{{MediaDevices/getUserMedia()}} with {{HTMLCameraElement/[[constraints]]}}
+            [=this=].{{MediaDevices/getUserMedia()}} with |constraints|
             as its first argument.
 
             <div class=note>
@@ -2489,8 +2490,7 @@ onmessage = async ({data: {track}}) => {
         </p>
         <ol class=algorithm>
           <li>
-            Set [=this=].{{HTMLMicrophoneElement/[[constraints]]}} to the result
-            of [=HTMLMicrophoneElement/constraint filter=] with |constraints|.
+            Set [=this=].{{HTMLMicrophoneElement/[[constraints]]}} to |constraints|.
           </li>
         </ol>
 
@@ -2528,10 +2528,13 @@ onmessage = async ({data: {track}}) => {
 
         <ol class=algorithm>
           <li>[=Assert=]: [=this=].{{HTMLMicrophoneElement/[[track]]}} is null.</li>
+          <li>Set |constraints| to the result of
+            [=HTMLMicrophoneElement/constraint filter=] with
+            {{HTMLMicrophoneElement/[[constraints]]}}.</li>
           <li>
             Let |mediaPromise| be the result of calling
-            [=this=].{{MediaDevices/getUserMedia()}} with
-            {{HTMLMicrophoneElement/[[constraints]]}} as its first argument.
+            [=this=].{{MediaDevices/getUserMedia()}} with |constraints|
+            as its first argument.
             <div class=note>
               The call to the {{MediaDevices/getUserMedia()}} method should
               be replaced with a non-IDL entry point or algorithm.
@@ -2747,8 +2750,7 @@ onmessage = async ({data: {track}}) => {
         </p>
         <ol class=algorithm>
           <li>
-            Set [=this=].{{HTMLUserMediaElement/[[constraints]]}} to the result of
-            [=HTMLUserMediaElement/constraint filter=] with |constraints|.
+            Set [=this=].{{HTMLUserMediaElement/[[constraints]]}} to |constraints|.
           </li>
         </ol>
 
@@ -2786,9 +2788,12 @@ onmessage = async ({data: {track}}) => {
         <ol class=algorithm>
           <li>[=Assert=]: [=this=].{{HTMLUserMediaElement/[[stream]]}} is
             null.</li>
+          <li>Let |constraints| be the result of calling
+            [=HTMLUserMediaElement/constraint filter=] with
+            {{HTMLUserMediaElement/[[constraints]]}}.</li>
           <li>Let |mediaPromise| be the result of calling
             [=this=].{{MediaDevices/getUserMedia()}} with
-            {{HTMLUserMediaElement/[[constraints]]}} as its first argument.
+            |constraints| as its first argument.
             <div class=note>
               The call to the {{MediaDevices/getUserMedia()}} method should
               be replaced with a non-IDL entry point or algorithm.
