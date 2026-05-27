@@ -16,7 +16,7 @@ This document proposes a suite of targeted Media Capture Elements (`<camera>`, `
 
 ## Goals
 
-*   Data Mediator and Action Broker: The elements handle the entire acquisition flow: obtaining user consent, executing the underlying `getUserMedia` request, and exposing the resulting `MediaStream` directly, often eliminating the need for separate JavaScript API boilerplate.
+*   Data Mediator and Action Broker: The elements handle the entire acquisition flow: obtaining user consent, executing the underlying `getUserMedia` request, and exposing the resulting video and/or audio `MediaStreamTrack`s directly, often eliminating the need for separate JavaScript API boilerplate.
 *   Stateful Media Capture Control: Elements act as integrated UI components. Following a permission grant, the element transitions from a _request_ state to a _control_ state. For `<camera>` and `<microphone>`, this provides a browser-enforced, UI toggle for disabling and enabling the underlying track. All elements reflect their track's enabled state, and revert to the _request_ state once the track has ended.
 *   Reduced Friction & Trusted Intent: Establish a "trusted signal of intent" driven by explicit User Gestures on a browser-controlled element, allowing developers to offer users the option to use the capability in context without having to deal with permission.
 *   Seamless In-Page Recovery: Similar to and inheriting concepts from the `<permission>` element, this resolves the "permission hole" by providing an in-page flow to re-enable access if the user previously blocked it in the user agent, avoiding the need for users to navigate complex, UA-specific browser settings.
