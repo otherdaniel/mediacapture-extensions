@@ -1469,7 +1469,7 @@ partial dictionary MediaTrackCapabilities {
 };
         </pre>
         </p>
-      <h4>Processing considerations</h4>
+      <h3>Processing considerations</h3>
       <p>
         When the "voiceIsolation" setting is set to <code>true</code> by the
         <a>ApplyConstraints algorithm</a>, the UA
@@ -2084,5 +2084,843 @@ onmessage = async ({data: {track}}) => {
       </pre>
     </section>
   </section>
-</body>
+
+  <section id="media-capture-html-elements">
+    <h2>Media capture HTML elements</h2>
+    <p>
+      The following are [[HTML]] elements that let the user initiate media
+      capture, i.e. turn on camera and/or microphone.
+      They cover different use cases and allow for use case specific user interfaces in the [=user agent=].
+    </p>
+
+    <section>
+      <h3>The [^camera^] HTML element</h3>
+      <p>
+        The &lt;<dfn data-dfn-type="element">camera</dfn>&gt; HTML element is an
+        [[HTML]] element that can mediate access to a camera's video
+        {{MediaStreamTrack}}.
+        The [^camera^] element uses the following [=element interface=]:
+      </p>
+      <pre class=idl>
+      [Exposed=Window]
+      interface HTMLCameraElement : HTMLElement {
+        [HTMLConstructor] constructor();
+
+        readonly attribute MediaStreamTrack? track;
+        readonly attribute DOMException? error;
+        undefined setConstraints(optional MediaTrackConstraintSet constraints = {});
+
+        attribute EventHandler ontrack;
+        attribute EventHandler onerror;
+        attribute EventHandler oncancel;
+      };
+      </pre>
+
+      <p>The [^camera^] element uses the following internal slots:</p>
+      <ul>
+        <li>
+          <dfn data-dfn-for="HTMLCameraElement">[[\track]]</dfn> &mdash;
+          Holds null or a {{MediaStreamTrack}}.
+        </li>
+        <li>
+          <dfn data-dfn-for="HTMLCameraElement">[[\constraints]]</dfn> &mdash;
+          Holds a {{MediaTrackConstraintSet}}.
+        </li>
+        <li>
+          <dfn data-dfn-for="HTMLCameraElement">[[\error]]</dfn> &mdash;
+          Holds null or a {{DOMException}}.
+        </li>
+      </ul>
+
+      <p>The [^camera^] element's activation is filtered to allow
+        only activitations that result from genuine user action. Each activation
+        is expected to fire an event on one of three event handlers, depending
+        on whether the activation was successful:</p>
+
+      <ul>
+        <li><dfn data-dfn-for=HTMLCameraElement>ontrack</dfn>
+          &mdash; [=Event handler IDL attribute=] for the `track`
+          [=event handler=] of [=event handler event type|type=] {{Event}}.
+          It is fired when activation was successful and a media stream is
+          available.</li>
+        <li><dfn data-dfn-for=HTMLCameraElement>oncancel</dfn>
+          &mdash; [=Event handler IDL attribute=] for the `cancel`
+          [=event handler=] of [=event handler event type|type=] {{Event}}.
+          It is fired when activation was not successful because the user
+          decided not to proceed.
+          For example, by not accepting a permission prompt.</li>
+        <li><dfn data-dfn-for=HTMLCameraElement>onerror</dfn>
+          &mdash; [=Event handler IDL attribute=] for the `error`
+          [=event handler=] of [=event handler event type|type=] {{Event}}.
+          It is fired when activation has failed for reasons other than user
+          choice. No media stream is available. The
+          {{HTMLCameraElement/error}} attribute holds additional information.</li>
+      </ul>
+
+      <p>
+        The [^camera^] element belongs to the [=flow content=],
+        [=phrasing content=], [=interactive content=], and [=palpable content=]
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-categories">categories</a>.
+        It can be used in contexts where [=phrasing content=] is expected. Its
+        content, if any, is its
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#fallback-content">fallback content</a>.
+      </p>
+
+      <p>
+        The [^camera^] element supports the following
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-attributes">content attributes</a>:
+      </p>
+      <dl>
+        <dt>
+          <a href="https://html.spec.whatwg.org/multipage/dom.html#global-attributes">global attributes</a>
+        </dt>
+        <dd>&mdash; all global content attributes.</dd>
+        <dt>{{HTMLCameraElement/ontrack}}</dt>
+        <dt>{{HTMLCameraElement/oncancel}}</dt>
+        <dt>{{HTMLCameraElement/onerror}}</dt>
+        <dd>&mdash; [=event handler IDL attributes=]</dd>
+      </dl>
+
+      <p>The [^camera^] element, like the underlying
+        {{MediaDevices}} interface and {{MediaDevices/getUserMedia()}} method,
+        only work in a [=/secure context=]. In a [=/non-secure context=],
+        [^camera^] displays its
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#fallback-content">fallback content</a>.
+      </p>
+
+      <p>The [^camera^] element's presentation is left to the [=user
+        agent=]. It's expected that the presentation is chiefly that of a button,
+        with text and/or an icon to indicate this is managing camera access.
+        The presentation is expected to reflect the state of the underlying
+        track (if any), e.g. by hinting to the user that a track is live
+        (or not), or that the camera might be open or muted.
+      </p>
+
+      <p>The [=user agent=] is expected to monitor the state of the underlying
+        track and to continuously reflect this state in the user interface of
+        the [^camera^] element. For example,
+        whether a track has been requested but is waiting for user action;
+        whether it is active or has been stopped (by any means, including
+        direct calls to {{MediaStreamTrack/stop()}}), or whether a track is
+        muted. This specification does not explicitly call out when such state
+        changes might occur, or demand a specific set of states to display to
+        the user.
+      </p>
+
+      <section>
+        <h4>Algorithms</h4>
+
+        <p>
+        The <dfn data-dfn-for=HTMLCameraElement>constructor()</dfn> steps are:
+        </p>
+        <ol class=algorithm>
+          <li>Initialize [=this=].{{HTMLCameraElement/[[track]]}} to null.</li>
+          <li>Initialize [=this=].{{HTMLCameraElement/[[constraints]]}} to «».</li>
+          <li>Initialize [=this=].{{HTMLCameraElement/[[error]]}} to null.</li>
+        </ol>
+
+        <p>The <dfn data-dfn-for=HTMLCameraElement>track</dfn> <a>getter</a> steps are:</p>
+        <ol class=algorithm>
+          <li>Return [=this=].{{HTMLCameraElement/[[track]]}}.</li>
+        </ol>
+
+        <p>The <dfn data-dfn-for=HTMLCameraElement>error</dfn> <a>getter</a> steps are:</p>
+        <ol class=algorithm>
+          <li>Return [=this=].{{HTMLCameraElement/[[error]]}}.</li>
+        </ol>
+
+        <p>
+        The <dfn data-dfn-for=HTMLCameraElement>setConstraints()</dfn> steps with
+        a parameter |constraints| are:
+        </p>
+        <ol class=algorithm>
+          <li>
+            Set [=this=].{{HTMLCameraElement/[[constraints]]}} to |constraints|.
+          </li>
+        </ol>
+
+        <p>
+          The [^camera^] element's [=EventTarget/activation behavior=]
+          given |event| is:
+        </p>
+        <ol class=algorithm>
+          <li>If [=this=]'s [=node navigable=] is a [=/non-secure context=],
+            then return.</li>
+          <li>If [=this=]'s [=node navigable=]'s [=navigable/active window=]
+            does not have [=/transient activation|transient user activation=],
+            then return.</li>
+          <li>If |event| is not [=AllUserMediaElements/trusted=], then
+            [=AllUserMediaElements/queue an event=] named `error` on [=this=],
+            using an "{{InvalidStateError}}" {{DOMException}} and abort these
+            steps.
+          </li>
+          <li>If {{HTMLCameraElement/[[track]]}} is not null, then abort these
+            steps.
+            <div class=note>
+              [^camera^]'s [=EventTarget/activation behavior=]
+              currently ignores activation when it already has a
+              {{HTMLCameraElement/[[track]]}} set. The behaviour for
+              an element with a track still needs to be determined.
+           </div>
+          </li>
+          <li>Run [=HTMLCameraElement/activation start stream=] steps given
+            [=this=].
+          </li>
+        </ol>
+
+
+        <p>The <dfn data-dfn-for="HTMLCameraElement">activation start stream</dfn>
+        steps for a given |element| are:</p>
+        <ol class=algorithm>
+          <li>[=Assert=]: [=this=].{{HTMLCameraElement/[[track]]}} is null.</li>
+          <li>Set |constraints| to the result of
+            [=HTMLCameraElement/constraint filter=] with
+            {{HTMLCameraElement/[[constraints]]}}.
+          <li>
+            Let |mediaPromise| be the result of calling
+            [=this=].{{MediaDevices/getUserMedia()}} with |constraints|
+            as its first argument.
+
+            <div class=note>
+              The call to the {{MediaDevices/getUserMedia()}} method should
+              be replaced with a non-IDL entry point or algorithm.
+              Any such a replacement must have precisely the same side effects
+              on the [[[?RFC8828#section-5.2|mode]]] defined in [[?RFC8828]] as
+              calling the IDL entry point.
+            </div>
+            <div class=note>
+              {{MediaDevices/getUserMedia()}} encourages User Agents
+              <q>to bundle concurrent requests for different kinds of media
+                into a single user-facing permission prompt</q>.
+              This applies to here as well. The expected user experience
+              is a single permission prompt that covers the usage of the given
+              element with the given constraints, or even no prompt if the user
+              has already permitted this request before.
+            </div>
+          </li>
+          <li>
+            [=promise/React=] to |mediaPromise|:
+            <ol>
+              <li>If |mediaPromise| was fulfilled with value |v|:
+                <ol>
+                  <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
+                  <li>Let |tracks| be the set of {{MediaStreamTrack}}s in
+                    |v|'s [=/track set=] whose {{MediaStreamTrack/kind}}
+                    is equal to "video".</li>
+                  <li>[=Assert=]: |tracks|'s [=list/size=] is 1.</li>
+                  <li>Set
+                    {{HTMLCameraElement/[[track]]}} to |tracks|[0].</li>
+                  <li>[=AllUserMediaElements/Queue an event=] named `track` on [=this=].</li>
+                </ol>
+              </li>
+              <li>Otherwise:
+                <ol>
+                  <li>[=Assert=]: |mediaPromise| was rejected with reason |r|.</li>
+                  <li>If |r| indicated that the {{MediaDevices/getUserMedia()}}
+                    call has failed due to user action or inaction, such as a
+                    user rejecting or not answering a permission prompt raised
+                    by {{MediaDevices/getUserMedia()}}, then
+                    [=AllUserMediaElements/queue an event=] named `cancel` on
+                    [=this=], using {{DOMException}}, and return.</li>
+                  <li>[=Assert=]: |r| is a |DOMException|.</li>
+                  <li>Set [=this=].{{HTMLCameraElement/[[error]]}} to |r|.
+                  <li>[=AllUserMediaElements/Queue an event=] named `error`
+                    on [=this=], using |r|.
+                    (Description still TBD.)</li>
+                </ol>
+              </li>
+            </ol>
+          </li>
+        </ol>
+
+        <p>
+          The <dfn data-dfn-for="HTMLCameraElement">constraint filter</dfn> steps
+          for a {{MediaTrackConstraintSet}} |constraints| are:
+        </p>
+        <ol class=algorithm>
+          <li>Let |result| be a new {{MediaStreamConstraints}} [=dictionary=].</li>
+          <li>Remove any <a data-cite="mediacapture-streams#dfn-required-constraints">required constraints</a
+            > from |constraints|.</li>
+          <li>Set |result|["{{MediaStreamConstraints/video}}"] to
+            |constraints|.</li>
+          <li>Return |result|.</li>
+        </ol>
+      </section>
+    </section>
+
+    <section>
+      <h3>The [^microphone^] HTML element</h3>
+      <p>
+        The &lt;<dfn data-dfn-type="element">microphone</dfn>&gt; HTML element
+        is an [[HTML]] element that can mediate access to a microphone's audio
+        {{MediaStreamTrack}}.
+        The [^microphone^] element uses the following [=element interface=]:
+      </p>
+      <pre class=idl>
+      [Exposed=Window]
+      interface HTMLMicrophoneElement : HTMLElement {
+        [HTMLConstructor] constructor();
+
+        readonly attribute MediaStreamTrack? track;
+        readonly attribute DOMException? error;
+        undefined setConstraints(optional MediaTrackConstraintSet constraints = {});
+
+        attribute EventHandler ontrack;
+        attribute EventHandler onerror;
+        attribute EventHandler oncancel;
+      };
+      </pre>
+
+      <p>The [^microphone^] element uses the following internal slots:</p>
+      <ul>
+        <li>
+          <dfn data-dfn-for="HTMLMicrophoneElement">[[\track]]</dfn> &mdash;
+          Holds null or a {{MediaStreamTrack}}.
+        </li>
+        <li>
+          <dfn data-dfn-for="HTMLMicrophoneElement">[[\constraints]]</dfn> &mdash;
+          Holds a {{MediaTrackConstraintSet}}.
+        </li>
+        <li>
+          <dfn data-dfn-for="HTMLMicrophoneElement">[[\error]]</dfn> &mdash;
+          Holds null or a {{DOMException}}.
+        </li>
+     </ul>
+
+     <p>The [^microphone^] element's activation is filtered to allow
+        only activitations that result from genuine user action. Each activation
+        is expected to fire an event on one of three event handlers, depending
+        on whether the activation was successful:</p>
+
+     <ul>
+       <li><dfn data-dfn-for=HTMLMicrophoneElement>ontrack</dfn>
+         &mdash; [=Event handler IDL attribute=] for the `track`
+         [=event handler=] of [=event handler event type|type=] {{Event}}.
+         It is fired when activation was successful and a media stream is
+         available.</li>
+       <li><dfn data-dfn-for=HTMLMicrophoneElement>oncancel</dfn>
+         &mdash; [=Event handler IDL attribute=] for the `cancel`
+         [=event handler=] of [=event handler event type|type=] {{Event}}.
+         It is fired when activation was not successful because the user
+         decided not to proceed.
+         For example, by not accepting a permission prompt.</li>
+       <li><dfn data-dfn-for=HTMLMicrophoneElement>onerror</dfn>
+         &mdash; [=Event handler IDL attribute=] for the `error`
+         [=event handler=] of [=event handler event type|type=] {{Event}}.
+         It is fired when activation has failed for reasons other than user
+         choice. No media stream is available. The
+         {{HTMLMicrophoneElement/error}} attribute holds additional information.</li>
+      </ul>
+
+      <p>
+        The [^microphone^] element belongs to the [=flow content=],
+        [=phrasing content=], [=interactive content=], and [=palpable content=]
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-categories">categories</a>.
+        It can be used in contexts where [=phrasing content=] is expected. Its
+        content, if any, is its
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#fallback-content">fallback content</a>.
+      </p>
+
+      <p>
+        The [^microphone^] element supports the following
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-attributes">content attributes</a>:
+      </p>
+      <dl>
+        <dt>
+          <a href="https://html.spec.whatwg.org/multipage/dom.html#global-attributes">global attributes</a>
+        </dt>
+        <dd>&mdash; all global content attributes.</dd>
+        <dt>{{HTMLMicrophoneElement/ontrack}}</dt>
+        <dt>{{HTMLMicrophoneElement/oncancel}}</dt>
+        <dt>{{HTMLMicrophoneElement/onerror}}</dt>
+        <dd>&mdash; [=event handler IDL attributes=]</dd>
+      </dl>
+
+      <p>The [^microphone^] element's presentation is left to the
+        [=user agent=]. It's expected that the presentation is chiefly that of a
+        button, with text and/or an icon to indicate this is managing microphone
+        access. The presentation is expected to reflect the state of the
+        underlying track (if any), e.g. by hinting to the user that a track
+        is live (or not), or that the microphone might be open or muted.
+      </p>
+
+      <p>The [^microphone^] element, like the underlying
+        {{MediaDevices}} interface and {{MediaDevices/getUserMedia()}} method,
+        only work in a [=/secure context=]. In a [=/non-secure context=],
+        [^microphone^] displays its
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#fallback-content">fallback content</a>.
+      </p>
+
+      <p>The [=user agent=] is expected to monitor the state of the underlying
+        track and to continuously reflect this state in the user interface of
+        the [^microphone^] element. For example,
+        whether a track has been requested but is waiting for user action;
+        whether it is active or has been stopped (by any means, including
+        direct calls to {{MediaStreamTrack/stop()}}), or whether a track is
+        muted. This specification does not explicitly call out when such state
+        changes might occur, or demand a specific set of states to display to
+        the user.
+      </p>
+
+      <section>
+        <h4>Algorithms</h4>
+
+        <p>The <dfn data-dfn-for=HTMLMicrophoneElement>constructor()</dfn>
+          steps are:
+        </p>
+        <ol class=algorithm>
+          <li>Initialize [=this=].{{HTMLMicrophoneElement/[[track]]}} to null.</li>
+          <li>Initialize [=this=].{{HTMLMicrophoneElement/[[constraints]]}} to «».</li>
+          <li>Initialize [=this=].{{HTMLMicrophoneElement/[[error]]}} to null.</li>
+        </ol>
+
+        <p>The <dfn data-dfn-for=HTMLMicrophoneElement>track</dfn> <a>getter</a>
+          steps are:</p>
+        <ol class=algorithm>
+          <li>Return [=this=].{{HTMLMicrophoneElement/[[track]]}}.</li>
+        </ol>
+
+        <p>The <dfn data-dfn-for=HTMLMicrophoneElement>error</dfn> <a>getter</a> steps are:</p>
+        <ol class=algorithm>
+          <li>Return [=this=].{{HTMLMicrophoneElement/[[error]]}}.</li>
+        </ol>
+
+        <p>The <dfn data-dfn-for=HTMLMicrophoneElement>setConstraints()</dfn> steps with
+          a parameter |constraints| are:
+        </p>
+        <ol class=algorithm>
+          <li>
+            Set [=this=].{{HTMLMicrophoneElement/[[constraints]]}} to |constraints|.
+          </li>
+        </ol>
+
+        <p>
+          The [^microphone^] element's
+          [=EventTarget/activation behavior=] given |event| is:
+        </p>
+        <ol class=algorithm>
+          <li>If [=this=]'s [=node navigable=] is a [=/non-secure context=],
+            then return.</li>
+          <li>If [=this=]'s [=node navigable=]'s [=navigable/active window=]
+            does not have [=/transient activation|transient user activation=],
+            then return.</li>
+          <li>If |event| is not [=AllUserMediaElements/trusted=], then
+            [=AllUserMediaElements/queue an event=] named `error`, using an
+            "{{InvalidStateError}}" {{DOMException}}.
+          </li>
+          <li>
+            Otherwise, if {{HTMLMicrophoneElement/[[track]]}} is null, then
+            run [=HTMLMicrophoneElement/activation start stream=] steps given
+            [=this=].
+          </li>
+        </ol>
+
+        <div class=note>
+          [^microphone^]'s [=EventTarget/activation behavior=]
+          currently ignores activation when it already has a
+          {{HTMLMicrophoneElement/[[track]]}} set. The behaviour for
+          an element with a track still needs to be determined.
+        </div>
+
+        <p>The
+          <dfn data-dfn-for="HTMLMicrophoneElement">activation start stream</dfn>
+          steps for a given |element| are:</p>
+
+        <ol class=algorithm>
+          <li>[=Assert=]: [=this=].{{HTMLMicrophoneElement/[[track]]}} is null.</li>
+          <li>Set |constraints| to the result of
+            [=HTMLMicrophoneElement/constraint filter=] with
+            {{HTMLMicrophoneElement/[[constraints]]}}.</li>
+          <li>
+            Let |mediaPromise| be the result of calling
+            [=this=].{{MediaDevices/getUserMedia()}} with |constraints|
+            as its first argument.
+            <div class=note>
+              The call to the {{MediaDevices/getUserMedia()}} method should
+              be replaced with a non-IDL entry point or algorithm.
+              Any such a replacement must have precisely the same side effects
+              on the [[[?RFC8828#section-5.2|mode]]] defined in [[?RFC8828]] as
+              calling the IDL entry point.
+            </div>
+            <div class=note>
+              {{MediaDevices/getUserMedia()}} encourages User Agents
+              <q>to bundle concurrent requests for different kinds of media
+                into a single user-facing permission prompt</q>.
+              This applies to here as well. The expected user experience
+              is a single permission prompt that covers the usage of the given
+              element with the given constraints, or even no prompt if the user
+              has already permitted this request before.
+            </div>
+          </li>
+          <li>
+            [=promise/React=] to |mediaPromise|:
+            <ol>
+              <li>If |mediaPromise| was fulfilled with value |v|:
+                <ol>
+                  <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
+                  <li>Let |tracks| be the set of {{MediaStreamTrack}}s in
+                    |v|'s [=/track set=] whose {{MediaStreamTrack/kind}}
+                    is equal to `"audio"`.</li>
+                  <li>[=Assert=]: |tracks|'s [=list/size=] is 1.</li>
+                  <li>Set
+                    {{HTMLMicrophoneElement/[[track]]}} to |tracks|[0].</li>
+                  <li>[=AllUserMediaElements/Queue an event=] named `track` on [=this=].</li>
+                </ol>
+              </li>
+              <li>Otherwise:
+                <ol>
+                  <li>[=Assert=]: |mediaPromise| was rejected with reason |r|.</li>
+                  <li>If |r| indicated that the {{MediaDevices/getUserMedia()}}
+                    call has failed due to user action or inaction, such as a
+                    user rejecting or not answering a permission prompt raised
+                    by {{MediaDevices/getUserMedia()}}, then
+                    [=AllUserMediaElements/queue an event=] named `cancel` on
+                    [=this=], using {{DOMException}}, and return.</li>
+                  <li>[=Assert=]: |r| is a |DOMException|.</li>
+                  <li>Set {{HTMLMicrophoneElement/[[error]]}} to |r|.
+                  <li>[=AllUserMediaElements/Queue an event=] named `error` on [=this=],
+                    using |r|.
+                    (Description still TBD.)</li>
+                </ol>
+              </li>
+            </ol>
+          </li>
+        </ol>
+
+        <p>
+          The <dfn data-dfn-for="HTMLMicrophoneElement">constraint filter</dfn> steps
+          for a {{MediaTrackConstraintSet}} |constraints| are:
+        </p>
+        <ol class=algorithm>
+          <li>Let |result| be a new {{MediaStreamConstraints}} [=dictionary=].</li>
+          <li>Remove any <a data-cite="mediacapture-streams#dfn-required-constraints">required constraints</a> from |constraints|</li>
+          <li>Set |result|["{{MediaStreamConstraints/audio}}"] to
+            |constraints|.</li>
+          <li>Return |result|.</li>
+        </ol>
+      </section>
+    </section>
+
+    <section>
+      <h3>The [^usermedia^] HTML element</h3>
+      <p>
+        The &lt;<dfn data-dfn-type="element">usermedia</dfn>&gt; HTML element
+        is an [[HTML]] element that can mediate access to a {{MediaStream}}
+        consisting of a microphone and a camera track.
+        The [^usermedia^] element uses the following [=element interface=]:
+      </p>
+      <pre class=idl>
+      dictionary HTMLMediaStreamConstraints {
+        MediaTrackConstraintSet video;
+        MediaTrackConstraintSet audio;
+      };
+
+      [Exposed=Window]
+      interface HTMLUserMediaElement : HTMLElement {
+        [HTMLConstructor] constructor();
+
+        readonly attribute MediaStream? stream;
+        readonly attribute DOMException? error;
+        undefined setConstraints(optional HTMLMediaStreamConstraints constraints = {});
+
+        attribute EventHandler onstream;
+        attribute EventHandler onerror;
+        attribute EventHandler oncancel;
+      };
+      </pre>
+
+      <p>The [^usermedia^] element uses the following internal slots:</p>
+      <ul>
+        <li>
+          <dfn data-dfn-for="HTMLUserMediaElement">[[\stream]]</dfn> &mdash;
+          Holds null or a {{MediaStream}}.
+        </li>
+        <li>
+          <dfn data-dfn-for="HTMLUserMediaElement">[[\constraints]]</dfn> &mdash;
+          Holds an {{HTMLMediaStreamConstraints}}.
+        </li>
+        <li>
+          <dfn data-dfn-for="HTMLUserMediaElement">[[\error]]</dfn> &mdash;
+          Holds null or a {{DOMException}}.
+        </li>
+      </ul>
+
+      <p>The [^usermedia^] element's activation is filtered to allow
+         only activitations that result from genuine user action. Each activation
+         is expected to fire an event on one of three event handlers, depending
+         on whether the activation was successful:</p>
+
+      <ul>
+        <li><dfn data-dfn-for=HTMLUserMediaElement>onstream</dfn>
+          &mdash; [=Event handler IDL attribute=] for the `stream`
+          [=event handler=] of [=event handler event type|type=] {{Event}}.
+          It is fired when activation was successful and a media stream is
+          available.</li>
+        <li><dfn data-dfn-for=HTMLUserMediaElement>oncancel</dfn>
+          &mdash; [=Event handler IDL attribute=] for the `cancel`
+          [=event handler=] of [=event handler event type|type=] {{Event}}.
+          It is fired when activation was not successful because the user
+          decided not to proceed.
+          For example, by not accepting a permission prompt.</li>
+        <li><dfn data-dfn-for=HTMLUserMediaElement>onerror</dfn>
+          &mdash; [=Event handler IDL attribute=] for the `error`
+          [=event handler=] of [=event handler event type|type=] {{Event}}.
+          It is fired when activation has failed for reasons other than user
+          choice. No media stream is available. The
+          {{HTMLUserMediaElement/error}} attribute holds additional information.</li>
+      </ul>
+
+      <p>
+        The [^usermedia^] element belongs to the [=flow content=],
+        [=phrasing content=], [=interactive content=], and [=palpable content=]
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-categories">categories</a>.
+        It can be used in contexts where [=phrasing content=] is expected. Its
+        content, if any, is its
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#fallback-content">fallback content</a>.
+      </p>
+
+      <p>
+        The [^usermedia^] element supports the following
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#concept-element-attributes">content attributes</a>:
+      </p>
+      <dl>
+        <dt>
+          <a href="https://html.spec.whatwg.org/multipage/dom.html#global-attributes">global attributes</a>
+        </dt>
+        <dd>&mdash; all global content attributes.</dd>
+        <dt>{{HTMLUserMediaElement/onstream}}</dt>
+        <dt>{{HTMLUserMediaElement/oncancel}}</dt>
+        <dt>{{HTMLUserMediaElement/onerror}}</dt>
+        <dd>&mdash; [=event handler IDL attributes=]</dd>
+      </dl>
+
+      <p>The [^usermedia^] element's presentation is left to the [=user
+        agent=]. It's expected that the presentation is chiefly that of a button,
+        with text and/or an icon to indicate this is managing camera and microphone
+        access. The presentation is expected to reflect the state of the underlying
+        stream (if any), e.g. by hinting to the user that a stream is live
+        (or not), or that the camera and microphone might be active or muted.
+      </p>
+
+      <p>
+        The [^usermedia^] element, like the underlying
+        {{MediaDevices}} interface and {{MediaDevices/getUserMedia()}} method,
+        only work in a [=/secure context=]. In a [=/non-secure context=],
+        [^usermedia^] displays its
+        <a href="https://html.spec.whatwg.org/multipage/dom.html#fallback-content">fallback content</a>.
+      </p>
+
+      <p>The [=user agent=] is expected to monitor the state of the underlying
+        track and to continuously reflect this state in the user interface of
+        the [^usermedia^] element. For example,
+        whether the stream has been requested but is waiting for user action;
+        whether it is active or has been stopped (by any means, including
+        direct calls to {{MediaStreamTrack/stop()}}), or whether a track is
+        muted. This specification does not explicitly call out when such state
+        changes might occur, or demand a specific set of states to display to
+        the user.
+      </p>
+
+      <section>
+        <h4>Algorithms</h4>
+
+        <p>The <dfn data-dfn-for=HTMLUserMediaElement>constructor()</dfn>
+          steps are:
+        </p>
+        <ol class=algorithm>
+          <li>Initialize [=this=].{{HTMLUserMediaElement/[[stream]]}} to null.</li>
+          <li>Initialize [=this=].{{HTMLUserMediaElement/[[constraints]]}} to «».</li>
+          <li>Initialize [=this=].{{HTMLUserMediaElement/[[error]]}} to null.</li>
+        </ol>
+
+        <p>The <dfn data-dfn-for=HTMLUserMediaElement>stream</dfn>
+          <a>getter</a> steps are:</p>
+        <ol class=algorithm>
+          <li>Return {{HTMLUserMediaElement/[[stream]]}}.</li>
+        </ol>
+
+        <p>The <dfn data-dfn-for=HTMLUserMediaElement>error</dfn>
+          <a>getter</a> steps are:</p>
+        <ol class=algorithm>
+          <li>Return {{HTMLUserMediaElement/[[error]]}}.</li>
+        </ol>
+
+        <p>The <dfn data-dfn-for=HTMLUserMediaElement>setConstraints()</dfn>
+          steps with a parameter |constraints| are:
+        </p>
+        <ol class=algorithm>
+          <li>
+            Set [=this=].{{HTMLUserMediaElement/[[constraints]]}} to |constraints|.
+          </li>
+        </ol>
+
+        <p>
+          The [^usermedia^] element's [=EventTarget/activation behavior=],
+          given |event|, is:
+        </p>
+        <ol class=algorithm>
+          <li>If [=this=]'s [=node navigable=] is a [=/non-secure context=],
+            then return.</li>
+          <li>If [=this=]'s [=node navigable=]'s [=navigable/active window=]
+            does not have [=/transient activation|transient user activation=],
+            then return.</li>
+          <li>If |event| is not [=AllUserMediaElements/trusted=], then
+            [=AllUserMediaElements/queue an event=] named `error`, using an
+            "{{InvalidStateError}}" {{DOMException}}.
+          </li>
+          <li>
+            Otherwise, if {{HTMLUserMediaElement/[[stream]]}} is null, then
+            run [=HTMLUserMediaElement/activation start stream=] steps given
+            [=this=].
+          </li>
+        </ol>
+
+        <div class=note>
+          [^usermedia^]'s [=EventTarget/activation behavior=]
+          currently ignores activation when it already has a
+          {{HTMLUserMediaElement/[[stream]]}} set. The behaviour for
+          an element with a stream still needs to be determined.
+       </div>
+
+
+        <p>The <dfn data-dfn-for="HTMLUserMediaElement">activation start stream</dfn>
+          steps for a given |element| are:</p>
+        <ol class=algorithm>
+          <li>[=Assert=]: [=this=].{{HTMLUserMediaElement/[[stream]]}} is
+            null.</li>
+          <li>Let |constraints| be the result of calling
+            [=HTMLUserMediaElement/constraint filter=] with
+            {{HTMLUserMediaElement/[[constraints]]}}.</li>
+          <li>Let |mediaPromise| be the result of calling
+            [=this=].{{MediaDevices/getUserMedia()}} with
+            |constraints| as its first argument.
+            <div class=note>
+              The call to the {{MediaDevices/getUserMedia()}} method should
+              be replaced with a non-IDL entry point or algorithm.
+              Any such a replacement must have precisely the same side effects
+              on the [[[?RFC8828#section-5.2|mode]]] defined in [[?RFC8828]] as
+              calling the IDL entry point.
+            </div>
+            <div class=note>
+              {{MediaDevices/getUserMedia()}} encourages User Agents
+              <q>to bundle concurrent requests for different kinds of media
+                into a single user-facing permission prompt</q>.
+              This applies here as well. The expected user experience
+              is a single permission prompt that covers the usage of the given
+              element with the given constraints, or even no prompt if the user
+              has already permitted this request before.
+            </div>
+          </li>
+          <li>[=promise/React=] to |mediaPromise|:
+            <ol>
+              <li>If |mediaPromise| was fulfilled with value |v|:
+                <ol>
+                  <li>[=Assert=]: |v| is a {{MediaStream}}.</li>
+                  <li>Set {{HTMLUserMediaElement/[[stream]]}} to |v|.</li>
+                  <li>[=AllUserMediaElements/Queue an event=] named `stream` on [=this=].</li>
+                </ol>
+              </li>
+              <li>
+                Otherwise:
+                <ol>
+                  <li>[=Assert=]: |mediaPromise| was rejected with reason |r|.</li>
+                  <li>If |r| indicated that the {{MediaDevices/getUserMedia()}}
+                    call has failed due to user action or inaction, such as a
+                    user rejecting or not answering a permission prompt raised
+                    by {{MediaDevices/getUserMedia()}}, then
+                    [=AllUserMediaElements/queue an event=] named `cancel` on
+                    [=this=], using {{DOMException}}, and return.</li>
+                  <li>[=Assert=]: |r| is a |DOMException|.</li>
+                  <li>Set {{HTMLUserMediaElement/[[error]]}} to |r|.
+                  <li>[=AllUserMediaElements/Queue an event=] named `error` on [=this=],
+                    using {{DOMException}}. (Description still TBD.).</li>
+                </ol>
+              </li>
+            </ol>
+          </li>
+        </ol>
+
+        <p>
+          The <dfn data-dfn-for="HTMLUserMediaElement">constraint filter</dfn>
+          for {{HTMLMediaStreamConstraints}} |constraints| are:
+        </p>
+        <ol class=algorithm>
+          <li>Let |result| be a new {{MediaStreamConstraints}} [=dictionary=].</li>
+          <li>If |constraints|["{{HTMLMediaStreamConstraints/audio}}"]
+            [=map/exists=]:
+            <ol>
+              <li>Remove any
+                <a data-cite="mediacapture-streams#dfn-required-constraints">required constraints</a>
+                from |constraints|["{{MediaStreamConstraints/audio}}"].</li>
+              <li>Set |result|["{{MediaStreamConstraints/audio}}"] to
+                |constraints|["{{HTMLMediaStreamConstraints/audio}}"].</li>
+            </ol>
+          </li>
+          <li>Otherwise, set |result|["{{MediaStreamConstraints/audio}}"] to
+            an empty [=dictionary=].</li>
+          <li>If |constraints|["{{HTMLMediaStreamConstraints/video}}"]
+            [=map/exists=]:
+            <ol>
+              <li>Remove any
+                <a data-cite="mediacapture-streams#dfn-required-constraints">required constraints</a>
+                from |constraints|["{{MediaStreamConstraints/video}}"].</li>
+              <li>Set |result|["{{MediaStreamConstraints/video}}"] to
+                |constraints|["{{HTMLMediaStreamConstraints/video}}"].</li>
+            </ol>
+          </li>
+          <li>
+            Otherwise, set |result|["{{MediaStreamConstraints/video}}"] to an
+            empty [=dictionary=].</li>
+          <li>Return |result|.</li>
+        </ol>
+      </section>
+    </section>
+    <section>
+      <h3>Shared Algorithms</h3>
+
+      <p>To determine whether an {{Event}} |event| is
+        <dfn data-dfn-for=AllUserMediaElements>trusted</dfn>:</p>
+
+      <div class=note>
+        {{HTMLUserMediaElement}} stream creation is supposed to happen by
+        genuine user action. [=User agents=] SHOULD suppress activation
+        for "click-jacking", as well as for programmatic activation. Since
+        exact critera for these are difficult to specify, we presently leave
+        this as implementation defined. [=User agents=] MUST at minimum
+        reject untrusted events.</div>
+
+      <ol class=algorithm>
+        <li>If |event|.{{Event/isTrusted}} is false: Return false.</li>
+        <li>[=User agents=] SHOULD run additional, implementation-defined steps
+          to determine trusted-ness of |event|.
+          <p class=note>Additional implementation guidelines will be
+            provided.</p>
+        </li>
+        <li>Return true.</li>
+      </ol>
+
+    <p>
+      Each user media element described in
+      [[[#media-capture-html-elements]]] has its own
+      [=task source=], the element's
+      <dfn data-dfn-for="AllUserMediaElements">media capture element task source</dfn>.
+    </p>
+
+    <p>
+      To <dfn data-dfn-for="AllUserMediaElements">queue an event</dfn> named
+      |name| on |element|, using an |eventConstructor|:
+      </p>
+      <ol class=algorithm>
+        <li>[=Queue an element task=] on |element|'s
+          [=AllUserMediaElements/media capture element task source=]
+          with |element|, using the following steps:
+          <ol>
+            <li>[=Fire an event=] named |name| at |element|,
+              using |eventConstructor|.</li>
+          </ol>
+        </li>
+      </ol>
+    </section>
+  </section>
+  </body>
 </html>
