@@ -2109,12 +2109,30 @@ onmessage = async ({data: {track}}) => {
         readonly attribute MediaStreamTrack? track;
         readonly attribute DOMException? error;
         undefined setConstraints(optional MediaTrackConstraintSet constraints = {});
+        [Reflect] attribute ActivationWhileLive activation;
 
         attribute EventHandler ontrack;
         attribute EventHandler onerror;
         attribute EventHandler oncancel;
       };
       </pre>
+
+      <p> The {{ActivationWhileLive}} enum, used throughout this section, is defined
+        here:</p>
+      <pre class=idl>
+      [Exposed=Window]
+      enum ActivationWhileLive { "none", "track", "clones" };
+
+      // Alternative:
+      enum ActivationWhileLive_Alternative { "none", "track", "source" };
+      </pre>
+
+      <div class=note>
+        We're presently unsure how to specify "muting" behaviour when it's
+        supposed to affect more than just the current track. We try out two
+        alternatives here, one based on finding clones of the current track,
+        and one muting the track's source.
+      </div>
 
       <p>The [^camera^] element uses the following internal slots:</p>
       <ul>
@@ -2129,6 +2147,10 @@ onmessage = async ({data: {track}}) => {
         <li>
           <dfn data-dfn-for="HTMLCameraElement">[[\error]]</dfn> &mdash;
           Holds null or a {{DOMException}}.
+        </li>
+        <li>
+          <dfn data-dfn-for="HTMLCameraElement">[[\activation]]</dfn> &mdash;
+          Holds a {{ActivationWhileLive}}.
         </li>
       </ul>
 
@@ -2175,6 +2197,9 @@ onmessage = async ({data: {track}}) => {
           <a href="https://html.spec.whatwg.org/multipage/dom.html#global-attributes">global attributes</a>
         </dt>
         <dd>&mdash; all global content attributes.</dd>
+        <dt>{{HTMLCameraElement/activation}}</dt>
+        <dd>&mdash; {{ActivationWhileLive}}, which determines activation behavior
+          when the stream is already active.</dd>
         <dt>{{HTMLCameraElement/ontrack}}</dt>
         <dt>{{HTMLCameraElement/oncancel}}</dt>
         <dt>{{HTMLCameraElement/onerror}}</dt>
@@ -2217,6 +2242,8 @@ onmessage = async ({data: {track}}) => {
           <li>Initialize [=this=].{{HTMLCameraElement/[[track]]}} to null.</li>
           <li>Initialize [=this=].{{HTMLCameraElement/[[constraints]]}} to «».</li>
           <li>Initialize [=this=].{{HTMLCameraElement/[[error]]}} to null.</li>
+          <li>Initialize [=this=].{{HTMLCameraElement/[[activation]]}} to
+            {{ActivationWhileLive/"none"}}.</li>
         </ol>
 
         <p>The <dfn data-dfn-for=HTMLCameraElement>track</dfn> <a>getter</a> steps are:</p>
@@ -2239,6 +2266,19 @@ onmessage = async ({data: {track}}) => {
           </li>
         </ol>
 
+        <p>The <dfn data-dfn-for=HTMLCameraElement>activation</dfn>
+          <a>getter</a> steps are:</p>
+        <ol class=algorithm>
+          <li>Return [=this=].{{HTMLCameraElement/[[activation]]}}.</li>
+        </ol>
+
+        <p>The <dfn data-dfn-for=HTMLCameraElement>activation</dfn>
+        <a>setter</a> steps given a {{ActivationWhileLive}} |value| are:</p>
+        <ol class=algorithm>
+          <li>Set [=this=].{{HTMLCameraElement/[[activation]]}} to
+            |value|.</li>
+        </ol>
+
         <p>
           The [^camera^] element's [=EventTarget/activation behavior=]
           given |event| is:
@@ -2254,22 +2294,31 @@ onmessage = async ({data: {track}}) => {
             using an "{{InvalidStateError}}" {{DOMException}} and abort these
             steps.
           </li>
-          <li>If {{HTMLCameraElement/[[track]]}} is not null, then abort these
-            steps.
-            <div class=note>
-              [^camera^]'s [=EventTarget/activation behavior=]
-              currently ignores activation when it already has a
-              {{HTMLCameraElement/[[track]]}} set. The behaviour for
-              an element with a track still needs to be determined.
-           </div>
-          </li>
-          <li>Run [=HTMLCameraElement/activation start stream=] steps given
+          <li>If {{HTMLCameraElement/[[track]]}} is null, then
+            run [=HTMLCameraElement/activation start=] steps given
             [=this=].
+          </li>
+          <li>Otherwise:
+            <ol>
+              <li>If {{HTMLCameraElement/[[activation]]}} is
+                {{ActivationWhileLive/"none"}}, do nothing.</li>
+              <li>If {{HTMLCameraElement/[[activation]]}} is
+                {{ActivationWhileLive/"track"}}, then run the
+                [=HTMLCameraElement/activation track=]
+                steps given [=this=].</li>
+              <li>If {{HTMLCameraElement/[[activation]]}} is
+                {{ActivationWhileLive/"clones"}}, then run the
+                [=HTMLCameraElement/activation clones=]
+                steps given [=this=].</li>
+              <li>If {{HTMLCameraElement/[[activation]]}} is
+                {{ActivationWhileLive/"source"}}, then run the
+                [=HTMLCameraElement/activation source=]
+                steps given [=this=].</li>
+            </ol>
           </li>
         </ol>
 
-
-        <p>The <dfn data-dfn-for="HTMLCameraElement">activation start stream</dfn>
+        <p>The <dfn data-dfn-for="HTMLCameraElement">activation start</dfn>
         steps for a given |element| are:</p>
         <ol class=algorithm>
           <li>[=Assert=]: [=this=].{{HTMLCameraElement/[[track]]}} is null.</li>
@@ -2333,9 +2382,76 @@ onmessage = async ({data: {track}}) => {
           </li>
         </ol>
 
+        <p>The <dfn data-dfn-for="HTMLCameraElement">activation track</dfn>
+          steps for a given |element| are:</p>
+        <ol class=algorithm>
+          <li>[=Assert=]: |element|.{{HTMLCameraElement/[[track]]}} is not
+            null.</li>
+          <li>[=Assert=]: |element|.{{HTMLCameraElement/[[activation]]}} is
+            {{ActivationWhileLive/"track"}}.</li>
+          <li>Set
+            {{HTMLCameraElement/[[track]]}}.{{HTMLMediaTrack/[[Enabled]]}} to
+            &not;{{HTMLCameraElement/[[track]]}}.{{HTMLMediaTrack/[[Enabled]]}}.
+
+            <div class=note>Activating the disabled [^camera^] element signals
+              an intent to use the camera. If the track source is
+              {{HTMLMediaTrack/[[muted]]}}, this will not succeed. The
+              [=user agent=] may want to expose this case with suitable UI.
+            </div>
+          </li>
+        </ol>
+
+        <p>The <dfn data-dfn-for="HTMLCameraElement">activation clones</dfn>
+          steps for a given |element| are:</p>
+        <ol class=algorithm>
+          <li>[=Assert=]: |element|.{{HTMLCameraElement/[[track]]}} is not
+            null.</li>
+          <li>[=Assert=]: |element|.{{HTMLCameraElement/[[activation]]}} is
+            {{ActivationWhileLive/"clones"}}.</li>
+          <li>Let |enabled| be
+            {{HTMLCameraElement/[[track]]}}.{{HTMLMediaTrack/[[Enabled]]}}.
+          <li>For any {{HTMLMediaTrack}} |track| that is a clone of
+            |element|.{{HTMLCameraElement/[[track]]}}:
+            <ol>
+              <li>Set |track|.{{HTMLMediaTrack/[[Enabled]]}} to
+                &not;|enabled|.</li>
+            </ol>
+          </li>
+        </ol>
+
+        <p>The <dfn data-dfn-for="HTMLCameraElement">activation source</dfn>
+          steps for a given |element| are:</p>
+        <ol class=algorithm>
+          <li>[=Assert=]: |element|.{{HTMLCameraElement/[[track]]}} is not
+            null.</li>
+          <li>[=Assert=]: |element|.{{HTMLCameraElement/[[activation]]}} is
+            {{ActivationWhileLive/"source"}}.</li>
+          <li>
+            If |element|.{{HTMLCameraElement/[[track]]}}.{{HTMLMediaTrack/[[muted]]}}:
+            <ol>
+              <li>[=MediaStreamTrack/muted|Unmute=]
+                |element|.{{HTMLCameraElement/[[track]]}}.{{HTMLMediaTrack/[[Source]]}}.</li>
+              <li>Set
+                |element|.{{HTMLCameraElement/[[track]]}}.{{HTMLMediaTrack/[[enabled]]}}
+                to true.</li>
+            </ol>
+          <li>Otherwise:
+            <ol>
+              <li> [=MediaStreamTrack/muted|Mute=]
+                |element|.{{HTMLCameraElement/[[track]]}}.{{HTMLMediaTrack/[[Source]]}}.</li>
+            </ol>
+            <div class=note>Modifying the {{HTMLMediaTrack/[[muted]]}} state
+              affects the {{HTMLCameraElement/[[track]]}}'s [=source=]. This is
+              not exposed to regular APIs and is a prerogative of the
+              [=user agent=]. This makes {{ActivationWhileLive/"source"}}
+              activation something the page cannot undo or emulate.
+            </div>
+          </li>
+        </ol>
+
         <p>
-          The <dfn data-dfn-for="HTMLCameraElement">constraint filter</dfn> steps
-          for a {{MediaTrackConstraintSet}} |constraints| are:
+          The <dfn data-dfn-for="HTMLCameraElement">constraint filter</dfn>
+          steps for a {{MediaTrackConstraintSet}} |constraints| are:
         </p>
         <ol class=algorithm>
           <li>Let |result| be a new {{MediaStreamConstraints}} [=dictionary=].</li>
@@ -2347,7 +2463,6 @@ onmessage = async ({data: {track}}) => {
         </ol>
       </section>
     </section>
-
     <section>
       <h3>The [^microphone^] HTML element</h3>
       <p>
@@ -2364,6 +2479,7 @@ onmessage = async ({data: {track}}) => {
         readonly attribute MediaStreamTrack? track;
         readonly attribute DOMException? error;
         undefined setConstraints(optional MediaTrackConstraintSet constraints = {});
+        [Reflect] attribute ActivationWhileLive activation;
 
         attribute EventHandler ontrack;
         attribute EventHandler onerror;
@@ -2384,6 +2500,10 @@ onmessage = async ({data: {track}}) => {
         <li>
           <dfn data-dfn-for="HTMLMicrophoneElement">[[\error]]</dfn> &mdash;
           Holds null or a {{DOMException}}.
+        </li>
+        <li>
+          <dfn data-dfn-for="HTMLMicrophoneElement">[[\activation]]</dfn> &mdash;
+          Holds a {{ActivationWhileLive}}.
         </li>
      </ul>
 
@@ -2430,6 +2550,9 @@ onmessage = async ({data: {track}}) => {
           <a href="https://html.spec.whatwg.org/multipage/dom.html#global-attributes">global attributes</a>
         </dt>
         <dd>&mdash; all global content attributes.</dd>
+        <dt>{{HTMLMicrophoneElement/activation}}</dt>
+        <dd>&mdash; {{ActivationWhileLive}}, which determines activation behavior
+          when the stream is already active.</dd>
         <dt>{{HTMLMicrophoneElement/ontrack}}</dt>
         <dt>{{HTMLMicrophoneElement/oncancel}}</dt>
         <dt>{{HTMLMicrophoneElement/onerror}}</dt>
@@ -2472,6 +2595,8 @@ onmessage = async ({data: {track}}) => {
           <li>Initialize [=this=].{{HTMLMicrophoneElement/[[track]]}} to null.</li>
           <li>Initialize [=this=].{{HTMLMicrophoneElement/[[constraints]]}} to «».</li>
           <li>Initialize [=this=].{{HTMLMicrophoneElement/[[error]]}} to null.</li>
+          <li>Initialize [=this=].{{HTMLMicrophoneElement/[[activation]]}} to
+            {{ActivationWhileLive/"none"}}.</li>
         </ol>
 
         <p>The <dfn data-dfn-for=HTMLMicrophoneElement>track</dfn> <a>getter</a>
@@ -2494,6 +2619,19 @@ onmessage = async ({data: {track}}) => {
           </li>
         </ol>
 
+        <p>The <dfn data-dfn-for=HTMLMicrophoneElement>activation</dfn>
+          <a>getter</a> steps are:</p>
+        <ol class=algorithm>
+          <li>Return [=this=].{{HTMLMicrophoneElement/[[activation]]}}.</li>
+        </ol>
+
+        <p>The <dfn data-dfn-for=HTMLMicrophoneElement>activation</dfn>
+        <a>setter</a> steps given a {{ActivationWhileLive}} |value| are:</p>
+        <ol class=algorithm>
+          <li>Set [=this=].{{HTMLMicrophoneElement/[[activation]]}} to
+            |value|.</li>
+        </ol>
+
         <p>
           The [^microphone^] element's
           [=EventTarget/activation behavior=] given |event| is:
@@ -2505,25 +2643,36 @@ onmessage = async ({data: {track}}) => {
             does not have [=/transient activation|transient user activation=],
             then return.</li>
           <li>If |event| is not [=AllUserMediaElements/trusted=], then
-            [=AllUserMediaElements/queue an event=] named `error`, using an
-            "{{InvalidStateError}}" {{DOMException}}.
+            [=AllUserMediaElements/queue an event=] named `error` on [=this=],
+            using an "{{InvalidStateError}}" {{DOMException}} and abort these
+            steps.
           </li>
-          <li>
-            Otherwise, if {{HTMLMicrophoneElement/[[track]]}} is null, then
-            run [=HTMLMicrophoneElement/activation start stream=] steps given
+          <li>If {{HTMLMicrophoneElement/[[track]]}} is null, then
+            run [=HTMLMicrophoneElement/activation start=] steps given
             [=this=].
+          </li>
+          <li>Otherwise:
+            <ol>
+              <li>If {{HTMLMicrophoneElement/[[activation]]}} is
+                {{ActivationWhileLive/"none"}}, do nothing.</li>
+              <li>If {{HTMLMicrophoneElement/[[activation]]}} is
+                {{ActivationWhileLive/"track"}}, then run the
+                [=HTMLMicrophoneElement/activation track=]
+                steps given [=this=].</li>
+              <li>If {{HTMLMicrophoneElement/[[activation]]}} is
+                {{ActivationWhileLive/"clones"}}, then run the
+                [=HTMLMicrophoneElement/activation clones=]
+                steps given [=this=].</li>
+              <li>If {{HTMLMicrophoneElement/[[activation]]}} is
+                {{ActivationWhileLive/"source"}}, then run the
+                [=HTMLMicrophoneElement/activation source=]
+                steps given [=this=].</li>
+            </ol>
           </li>
         </ol>
 
-        <div class=note>
-          [^microphone^]'s [=EventTarget/activation behavior=]
-          currently ignores activation when it already has a
-          {{HTMLMicrophoneElement/[[track]]}} set. The behaviour for
-          an element with a track still needs to be determined.
-        </div>
-
         <p>The
-          <dfn data-dfn-for="HTMLMicrophoneElement">activation start stream</dfn>
+          <dfn data-dfn-for="HTMLMicrophoneElement">activation start</dfn>
           steps for a given |element| are:</p>
 
         <ol class=algorithm>
@@ -2587,6 +2736,73 @@ onmessage = async ({data: {track}}) => {
           </li>
         </ol>
 
+        <p>The <dfn data-dfn-for="HTMLMicrophoneElement">activation track</dfn>
+          steps for a given |element| are:</p>
+        <ol class=algorithm>
+          <li>[=Assert=]: |element|.{{HTMLMicrophoneElement/[[track]]}} is not
+            null.</li>
+          <li>[=Assert=]: |element|.{{HTMLMicrophoneElement/[[activation]]}} is
+            {{ActivationWhileLive/"track"}}.</li>
+          <li>Set
+            {{HTMLMicrophoneElement/[[track]]}}.{{HTMLMediaTrack/[[Enabled]]}} to
+            &not;{{HTMLMicrophoneElement/[[track]]}}.{{HTMLMediaTrack/[[Enabled]]}}.
+
+            <div class=note>Activating the disabled [^microphone^] element signals
+              an intent to use the microphone. If the track source is
+              {{HTMLMediaTrack/[[muted]]}}, this will not succeed. The
+              [=user agent=] may want to expose this case with suitable UI.
+            </div>
+          </li>
+        </ol>
+
+        <p>The <dfn data-dfn-for="HTMLMicrophoneElement">activation clones</dfn>
+          steps for a given |element| are:</p>
+        <ol class=algorithm>
+          <li>[=Assert=]: |element|.{{HTMLMicrophoneElement/[[track]]}} is not
+            null.</li>
+          <li>[=Assert=]: |element|.{{HTMLMicrophoneElement/[[activation]]}} is
+            {{ActivationWhileLive/"clones"}}.</li>
+          <li>Let |enabled| be
+            {{HTMLMicrophoneElement/[[track]]}}.{{HTMLMediaTrack/[[Enabled]]}}.
+          <li>For any {{HTMLMediaTrack}} |track| that is a clone of
+            |element|.{{HTMLMicrophoneElement/[[track]]}}:
+            <ol>
+              <li>Set |track|.{{HTMLMediaTrack/[[Enabled]]}} to
+                &not;|enabled|.</li>
+            </ol>
+          </li>
+        </ol>
+
+        <p>The <dfn data-dfn-for="HTMLMicrophoneElement">activation source</dfn>
+          steps for a given |element| are:</p>
+        <ol class=algorithm>
+          <li>[=Assert=]: |element|.{{HTMLMicrophoneElement/[[track]]}} is not
+            null.</li>
+          <li>[=Assert=]: |element|.{{HTMLMicrophoneElement/[[activation]]}} is
+            {{ActivationWhileLive/"source"}}.</li>
+          <li>
+            If |element|.{{HTMLMicrophoneElement/[[track]]}}.{{HTMLMediaTrack/[[muted]]}}:
+            <ol>
+              <li>[=MediaStreamTrack/muted|Unmute=]
+                |element|.{{HTMLMicrophoneElement/[[track]]}}.{{HTMLMediaTrack/[[Source]]}}.</li>
+              <li>Set
+                |element|.{{HTMLMicrophoneElement/[[track]]}}.{{HTMLMediaTrack/[[enabled]]}}
+                to true.</li>
+            </ol>
+          <li>Otherwise:
+            <ol>
+              <li> [=MediaStreamTrack/muted|Mute=]
+                |element|.{{HTMLMicrophoneElement/[[track]]}}.{{HTMLMediaTrack/[[Source]]}}.</li>
+            </ol>
+            <div class=note>Modifying the {{HTMLMediaTrack/[[muted]]}} state
+              affects the {{HTMLMicrophoneElement/[[track]]}}'s [=source=]. This is
+              not exposed to regular APIs and is a prerogative of the
+              [=user agent=]. This makes {{ActivationWhileLive/"source"}}
+              activation something the page cannot undo or emulate.
+            </div>
+          </li>
+        </ol>
+
         <p>
           The <dfn data-dfn-for="HTMLMicrophoneElement">constraint filter</dfn> steps
           for a {{MediaTrackConstraintSet}} |constraints| are:
@@ -2622,6 +2838,7 @@ onmessage = async ({data: {track}}) => {
         readonly attribute MediaStream? stream;
         readonly attribute DOMException? error;
         undefined setConstraints(optional HTMLMediaStreamConstraints constraints = {});
+        [Reflect] attribute ActivationWhileLive activation;
 
         attribute EventHandler onstream;
         attribute EventHandler onerror;
@@ -2642,6 +2859,10 @@ onmessage = async ({data: {track}}) => {
         <li>
           <dfn data-dfn-for="HTMLUserMediaElement">[[\error]]</dfn> &mdash;
           Holds null or a {{DOMException}}.
+        </li>
+        <li>
+          <dfn data-dfn-for="HTMLUserMediaElement">[[\activation]]</dfn> &mdash;
+          Holds a {{ActivationWhileLive}}.
         </li>
       </ul>
 
@@ -2688,6 +2909,9 @@ onmessage = async ({data: {track}}) => {
           <a href="https://html.spec.whatwg.org/multipage/dom.html#global-attributes">global attributes</a>
         </dt>
         <dd>&mdash; all global content attributes.</dd>
+        <dt>{{HTMLUserMediaElement/activation}}</dt>
+        <dd>&mdash; {{ActivationWhileLive}}, which determines activation behavior
+          when the stream is already active.</dd>
         <dt>{{HTMLUserMediaElement/onstream}}</dt>
         <dt>{{HTMLUserMediaElement/oncancel}}</dt>
         <dt>{{HTMLUserMediaElement/onerror}}</dt>
@@ -2731,6 +2955,8 @@ onmessage = async ({data: {track}}) => {
           <li>Initialize [=this=].{{HTMLUserMediaElement/[[stream]]}} to null.</li>
           <li>Initialize [=this=].{{HTMLUserMediaElement/[[constraints]]}} to «».</li>
           <li>Initialize [=this=].{{HTMLUserMediaElement/[[error]]}} to null.</li>
+          <li>Initialize [=this=].{{HTMLUserMediaElement/[[activation]]}} to
+            {{ActivationWhileLive/"none"}}.</li>
         </ol>
 
         <p>The <dfn data-dfn-for=HTMLUserMediaElement>stream</dfn>
@@ -2754,6 +2980,19 @@ onmessage = async ({data: {track}}) => {
           </li>
         </ol>
 
+        <p>The <dfn data-dfn-for=HTMLUserMediaElement>activation</dfn>
+          <a>getter</a> steps are:</p>
+        <ol class=algorithm>
+          <li>Return [=this=].{{HTMLUserMediaElement/[[activation]]}}.</li>
+        </ol>
+
+        <p>The <dfn data-dfn-for=HTMLUserMediaElement>activation</dfn>
+        <a>setter</a> steps given a {{ActivationWhileLive}} |value| are:</p>
+        <ol class=algorithm>
+          <li>Set [=this=].{{HTMLUserMediaElement/[[activation]]}} to
+            |value|.</li>
+        </ol>
+
         <p>
           The [^usermedia^] element's [=EventTarget/activation behavior=],
           given |event|, is:
@@ -2765,25 +3004,36 @@ onmessage = async ({data: {track}}) => {
             does not have [=/transient activation|transient user activation=],
             then return.</li>
           <li>If |event| is not [=AllUserMediaElements/trusted=], then
-            [=AllUserMediaElements/queue an event=] named `error`, using an
-            "{{InvalidStateError}}" {{DOMException}}.
+            [=AllUserMediaElements/queue an event=] named `error` on [=this=],
+            using an "{{InvalidStateError}}" {{DOMException}} and abort these
+            steps.
           </li>
-          <li>
-            Otherwise, if {{HTMLUserMediaElement/[[stream]]}} is null, then
-            run [=HTMLUserMediaElement/activation start stream=] steps given
+          <li>If {{HTMLUserMediaElement/[[stream]]}} is null, then
+            run [=HTMLUserMediaElement/activation start=] steps given
             [=this=].
+          </li>
+          <li>Otherwise:
+            <ol>
+              <li>If {{HTMLUserMediaElement/[[activation]]}} is
+                {{ActivationWhileLive/"none"}}, do nothing.</li>
+              <li>If {{HTMLUserMediaElement/[[activation]]}} is
+                {{ActivationWhileLive/"track"}}, then run the
+                [=HTMLUserMediaElement/activation track=]
+                steps given [=this=].</li>
+              <li>If {{HTMLUserMediaElement/[[activation]]}} is
+                {{ActivationWhileLive/"clones"}}, then run the
+                [=HTMLUserMediaElement/activation clones=]
+                steps given [=this=].</li>
+              <li>If {{HTMLUserMediaElement/[[activation]]}} is
+                {{ActivationWhileLive/"source"}}, then run the
+                [=HTMLUserMediaElement/activation source=]
+                steps given [=this=].</li>
+            </ol>
           </li>
         </ol>
 
-        <div class=note>
-          [^usermedia^]'s [=EventTarget/activation behavior=]
-          currently ignores activation when it already has a
-          {{HTMLUserMediaElement/[[stream]]}} set. The behaviour for
-          an element with a stream still needs to be determined.
-       </div>
 
-
-        <p>The <dfn data-dfn-for="HTMLUserMediaElement">activation start stream</dfn>
+        <p>The <dfn data-dfn-for="HTMLUserMediaElement">activation start</dfn>
           steps for a given |element| are:</p>
         <ol class=algorithm>
           <li>[=Assert=]: [=this=].{{HTMLUserMediaElement/[[stream]]}} is
@@ -2837,6 +3087,95 @@ onmessage = async ({data: {track}}) => {
                 </ol>
               </li>
             </ol>
+          </li>
+        </ol>
+
+        <p>The <dfn data-dfn-for="HTMLUserMediaElement">activation track</dfn>
+          steps for a given |element| are:</p>
+        <ol class=algorithm>
+          <li>[=Assert=]: |element|.{{HTMLUserMediaElement/[[stream]]}} is not
+            null.</li>
+          <li>[=Assert=]: |element|.{{HTMLUserMediaElement/[[activation]]}} is
+            {{ActivationWhileLive/"track"}}.</li>
+          <li>Let |tracks| be |element|.{{HTMLUserMediaElement/[[stream]]}}'s
+            [=/track set=].</li>
+          <li>Let |target| be false if any |track| in |tracks| has
+            |track|.{{HTMLMediaTrack/[[Enabled]]}} set to true, and true
+            otherwise.</li>
+          <li>For each |track| in |tracks|:
+            <ol>
+              <li>Set |track|.{{HTMLMediaTrack/[[Enabled]]}} to |target|.</li>
+            </ol>
+            <div class=note>Activating the disabled [^usermedia^] element signals
+              an intent to use the camera and microphone. If any track's source
+              is {{HTMLMediaTrack/[[muted]]}}, this will not succeed. The
+              [=user agent=] may want to expose this case with suitable UI.
+            </div>
+          </li>
+        </ol>
+
+        <p>The <dfn data-dfn-for="HTMLUserMediaElement">activation clones</dfn>
+          steps for a given |element| are:</p>
+        <ol class=algorithm>
+          <li>[=Assert=]: |element|.{{HTMLUserMediaElement/[[stream]]}} is not
+            null.</li>
+          <li>[=Assert=]: |element|.{{HTMLUserMediaElement/[[activation]]}} is
+            {{ActivationWhileLive/"clones"}}.</li>
+          <li>Let |tracks| be |element|.{{HTMLUserMediaElement/[[stream]]}}'s
+            [=/track set=].</li>
+          <li>Let |target| be false if any |track| in |tracks| has
+            |track|.{{HTMLMediaTrack/[[Enabled]]}} set to true, and true
+            otherwise.</li>
+          <li>For each |track| in |tracks|:
+            <ol>
+              <li>For any {{HTMLMediaTrack}} |clone| that is a clone of |track|:
+                <ol>
+                  <li>Set |clone|.{{HTMLMediaTrack/[[Enabled]]}} to |target|.</li>
+                </ol>
+              </li>
+            </ol>
+          </li>
+        </ol>
+
+        <p>The <dfn data-dfn-for="HTMLUserMediaElement">activation source</dfn>
+          steps for a given |element| are:</p>
+        <ol class=algorithm>
+          <li>[=Assert=]: |element|.{{HTMLUserMediaElement/[[stream]]}} is not
+            null.</li>
+          <li>[=Assert=]: |element|.{{HTMLUserMediaElement/[[activation]]}} is
+            {{ActivationWhileLive/"source"}}.</li>
+          <li>Let |tracks| be |element|.{{HTMLUserMediaElement/[[stream]]}}'s
+            [=/track set=].</li>
+          <li>Let |muted| be true if any |track| in |tracks| has
+            |track|.{{HTMLMediaTrack/[[muted]]}} set to true,
+            and false otherwise.</li>
+          <li>If |muted|:
+            <ol>
+              <li>For each |track| in |tracks|:
+                <ol>
+                  <li>[=MediaStreamTrack/muted|Unmute=]
+                    |track|.{{HTMLMediaTrack/[[Source]]}}.</li>
+                  <li>Set
+                    |track|.{{HTMLMediaTrack/[[enabled]]}}
+                    to true.</li>
+                </ol>
+              </li>
+            </ol>
+          <li>Otherwise:
+            <ol>
+              <li>For each |track| in |tracks|:
+                <ol>
+                  <li>[=MediaStreamTrack/muted|Mute=]
+                    |track|.{{HTMLMediaTrack/[[Source]]}}.</li>
+                </ol>
+              </li>
+            </ol>
+            <div class=note>Modifying the {{HTMLMediaTrack/[[muted]]}} state
+              affects the |track|' [=source|sources=]. This is
+              not exposed to regular APIs and is a prerogative of the
+              [=user agent=]. This makes {{ActivationWhileLive/"source"}}
+              activation something the page cannot undo or emulate.
+            </div>
           </li>
         </ol>
 
@@ -2899,17 +3238,16 @@ onmessage = async ({data: {track}}) => {
         <li>Return true.</li>
       </ol>
 
-    <p>
-      Each user media element described in
-      [[[#media-capture-html-elements]]] has its own
-      [=task source=], the element's
-      <dfn data-dfn-for="AllUserMediaElements">media capture element task source</dfn>.
-    </p>
-
-    <p>
-      To <dfn data-dfn-for="AllUserMediaElements">queue an event</dfn> named
-      |name| on |element|, using an |eventConstructor|:
+      <p>
+        Each user media element described in
+        [[[#media-capture-html-elements]]] has its own
+        [=task source=], the element's
+        <dfn data-dfn-for="AllUserMediaElements">media capture element task source</dfn>.
       </p>
+
+      <p>
+        To <dfn data-dfn-for="AllUserMediaElements">queue an event</dfn> named
+        |name| on |element|, using an |eventConstructor|:</p>
       <ol class=algorithm>
         <li>[=Queue an element task=] on |element|'s
           [=AllUserMediaElements/media capture element task source=]
