@@ -2217,24 +2217,6 @@ onmessage = async ({data: {track}}) => {
         the user.
       </p>
 
-      <p>
-        The {{MediaElementDisplayHint}} enum specifies how a website would
-        prefer the element to be presented. For example:
-      </p>
-      <dl>
-        <dt>{{MediaElementDisplayHint/"icon"}}</dt>
-        <dd>[&#x1F4F7;]</dd>
-        <dt>{{MediaElementDisplayHint/"text"}}</dt>
-        <dd>[ use camera ]</dd>
-        <dt>{{MediaElementDisplayHint/"icon+text"}}</dt>
-        <dd>[&nbsp;&#x1F4F7;&nbsp;Camera&nbsp;]</dd>
-      </dl>
-      <p class=note>Maybe include style-ized images about how this might look like.</p>
-
-      <pre class=idl>
-      enum MediaElementDisplayHint { "icon", "text", "icon+text"};
-      </pre>
-
       <section>
         <h4>Algorithms</h4>
 
@@ -2965,8 +2947,35 @@ onmessage = async ({data: {track}}) => {
       </section>
     </section>
     <section>
+      <h3>Shared Definitions</h3>
+      <pre class=idl>
+        enum MediaElementDisplayHint { "icon", "text", "icon+text"};
+      </pre>
+      <p>
+        The {{MediaElementDisplayHint}} enum specifies how a website would
+        prefer the element to be presented. Its values are
+        {{MediaElementDisplayHint/"icon"}},
+        {{MediaElementDisplayHint/"text"}}, and
+        {{MediaElementDisplayHint/"icon+text"}}.
+      </p>
+      <div class=example>
+        <div class=marker>Examples:</div>
+        <div>
+          {{MediaElementDisplayHint/"icon"}}:
+          [&nbsp;&#x1F4F7;&nbsp;]
+        </div>
+        <div>
+          {{MediaElementDisplayHint/"text"}}:
+          [ use camera ]
+        </div>
+        <div>
+          {{MediaElementDisplayHint/"icon+text"}}:
+          [&nbsp;&#x1F4F7;&nbsp;Camera&nbsp;]
+        </div>
+      </div>
+    </section>
+    <section>
       <h3>Shared Algorithms</h3>
-
       <p>To determine whether an {{Event}} |event| is
         <dfn data-dfn-for=AllUserMediaElements>trusted</dfn>:</p>
 
